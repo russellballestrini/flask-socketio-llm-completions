@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatroom</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        #chat-container {
+            background-color: #ffffff;
+            border-radius: 5px;
+            padding: 15px;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+        #chat {
+            height: 300px;
+            overflow-y: scroll;
+            border: 1px solid #e1e1e1;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        #message {
+            width: 98%;
+            border: 1px solid #e1e1e1;
+            border-radius: 5px;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="chat-container">
+        <h2>Join a Chat Room</h2>
+        <form id="join-room-form">
+            <input id="username" type="text" placeholder="Enter your username">
+            <input id="room" type="text" placeholder="Enter room name">
+            <button type="submit">Join</button>
+        </form>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $('#join-room-form').submit((e) => {
+            e.preventDefault();
+            const username = $('#username').val();
+            const room = $('#room').val();
+            window.location.href = `/chat/${room}?username=${encodeURIComponent(username)}`;
+        });
+    </script>
+</body>
+</html>

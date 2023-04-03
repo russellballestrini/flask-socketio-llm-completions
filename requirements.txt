@@ -1,0 +1,9 @@
+flask
+flask-socketio
+eventlet
+openai
+markdown
+
+# code highlights
+Pygments
+mdx_codehilite
