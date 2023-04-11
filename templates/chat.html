@@ -20,7 +20,7 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            height: 75vh;
             margin: 0;
         }
         #chat-container {
@@ -75,8 +75,33 @@
         });
 
         socket.on('message', (message) => {
-            $('#chat').append('<p>' + message + '</p>');
+            var newMessage = document.createElement('p');
+            newMessage.innerHTML = message;
+            $('#chat').append(newMessage);
+
+            // Apply syntax highlighting to the new message
+            newMessage.querySelectorAll('pre code').forEach((block) => {
+                hljs.highlightElement(block);
+            });
+
+            // Scroll to the bottom of the chat container
+            $('#chat').scrollTop($('#chat')[0].scrollHeight);
         });
+
+        socket.on('previous_messages', (data) => {
+            $('#chat').append('<p>' + data.username + ': ' + data.message + '</p>');
+            $('pre code').each((i, block) => {
+                hljs.highlightBlock(block);
+            });
+        });
+
+        socket.on('delete_processing_message', (data) => {
+            const tempMessage = document.getElementById("processing");
+            if (tempMessage) {
+                tempMessage.remove();
+            }
+        });
+
     </script>
 </body>
 

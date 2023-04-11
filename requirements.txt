@@ -4,6 +4,5 @@ eventlet
 openai
 markdown
 
-# code highlights
-Pygments
-mdx_codehilite
+# sqlite
+Flask-SQLAlchemy
