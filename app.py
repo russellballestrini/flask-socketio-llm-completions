@@ -35,8 +35,8 @@ class Message(db.Model):
 
 
 # Create the database and tables
-# with app.app_context():
-#    db.create_all()
+with app.app_context():
+    db.create_all()
 
 
 @app.route("/")
@@ -86,9 +86,27 @@ def handle_message(data):
 
 
 def chat_gpt(username, room, message):
-    # Send user's message to ChatGPT API
+
+    with app.app_context():
+        last_messages = (
+            Message.query.filter_by(room=room)
+            .order_by(Message.id.desc())
+            .limit(10)
+            .all()
+        )
+
+    # Format these messages as a chat history, with each message being a dict with 'role' and 'content'.
+    chat_history = [
+        {"role": "system" if msg.username == "GPT-3.5" else "user", "content": msg.content}
+        for msg in reversed(last_messages)
+    ]
+
+    # Append the new message
+    chat_history.append({"role": "user", "content": message})
+
     response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo", messages=[{"role": "user", "content": message}]
+        model="gpt-3.5-turbo", 
+        messages=chat_history
     )
 
     # Extract response from ChatGPT API
