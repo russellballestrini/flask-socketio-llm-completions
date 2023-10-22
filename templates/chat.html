@@ -11,7 +11,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/styles/default.min.css">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js" integrity="sha512-rfX4p3RNnxdwLT3wWP1K0NR3ztTobn+sISlT9WhxDDK00zNYbQ6MCHA5OHm0hqKAzEMXYCgFrp8iY/ER5MkXqA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
     <style>
     html, body {
         height: 100%;
@@ -57,56 +58,106 @@
     <div id="chat-container">
         <div id="chat"></div>
         <form id="message-form">
-            <input id="message" type="text" placeholder="Type your message...">
+            <textarea id="message" rows="4" placeholder="Type your message..."></textarea>
         </form>
     </div>
 
     <script>
-        const socket = io.connect('http://' + document.domain + ':' + location.port);
 
-        const urlParams = new URLSearchParams(window.location.search);
-        const username = urlParams.get('username');
-        const room = '{{ room }}';
+const socket = io.connect('http://' + document.domain + ':' + location.port);
 
-        socket.on('connect', () => {
-            socket.emit('join', {username: username, room: room});
+const urlParams = new URLSearchParams(window.location.search);
+const username = urlParams.get('username');
+const room = '{{ room }}';
+
+let lastMessageElement = null;
+let lastMessageContent = "";
+
+// Function to handle sending the message
+function sendMessage() {
+    const message = document.getElementById('message').value;
+    if (message.trim() !== "") {  // Ensure we're not sending empty messages
+        socket.emit('message', {'username': username, 'message': message, 'room': room});
+        document.getElementById('message').value = '';
+    }
+}
+
+// Event listener for form submission
+document.getElementById('message-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    sendMessage();
+});
+
+// Event listener for the Enter key press in the textarea
+document.getElementById('message').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+    }
+});
+
+socket.on('connect', () => {
+    socket.emit('join', {username: username, room: room});
+});
+
+socket.on('message', (message) => {
+    const newMessage = document.createElement('p');
+    newMessage.innerHTML = marked.marked(message);
+    document.getElementById('chat').appendChild(newMessage);
+
+    newMessage.querySelectorAll('pre code').forEach((block) => {
+        hljs.highlightElement(block);
+    });
+
+    document.getElementById('chat').scrollTop = document.getElementById('chat').scrollHeight;
+});
+
+socket.on('previous_messages', (data) => {
+    const chat = document.getElementById('chat');
+    chat.innerHTML += '<p>' + data.username + ': ' + marked.marked(data.message) + '</p>';
+    chat.querySelectorAll('pre code').forEach((block) => {
+        hljs.highlightBlock(block);
+    });
+});
+
+socket.on('delete_processing_message', (data) => {
+    const tempMessage = document.getElementById("processing");
+    if (tempMessage) {
+        tempMessage.remove();
+    }
+    lastMessageElement = null;
+    lastMessageContent = "";
+});
+
+socket.on('message_chunk', (message_chunk) => {
+    if (lastMessageElement) {
+        // Accumulate the new chunk
+        lastMessageContent += message_chunk;
+
+        // Render the entire accumulated content as Markdown
+        lastMessageElement.innerHTML = marked.marked(lastMessageContent);
+
+        // Apply syntax highlighting to code blocks within the content
+        lastMessageElement.querySelectorAll('pre code').forEach((block) => {
+            hljs.highlightElement(block);
         });
+    } else {
+        lastMessageContent = message_chunk;
+        const newMessage = document.createElement('p');
+        newMessage.innerHTML = marked.marked(lastMessageContent);
+        document.getElementById('chat').appendChild(newMessage);
+        lastMessageElement = newMessage;
 
-        $('#message-form').submit((e) => {
-            e.preventDefault();
-            const message = $('#message').val();
-            socket.emit('message', {'username': username, 'message': message, room: room});
-            $('#message').val('');
+        // Apply syntax highlighting to code blocks within the content
+        newMessage.querySelectorAll('pre code').forEach((block) => {
+            hljs.highlightElement(block);
         });
+    }
 
-        socket.on('message', (message) => {
-            var newMessage = document.createElement('p');
-            newMessage.innerHTML = message;
-            $('#chat').append(newMessage);
-
-            // Apply syntax highlighting to the new message
-            newMessage.querySelectorAll('pre code').forEach((block) => {
-                hljs.highlightElement(block);
-            });
-
-            // Scroll to the bottom of the chat container
-            $('#chat').scrollTop($('#chat')[0].scrollHeight);
-        });
-
-        socket.on('previous_messages', (data) => {
-            $('#chat').append('<p>' + data.username + ': ' + data.message + '</p>');
-            $('pre code').each((i, block) => {
-                hljs.highlightBlock(block);
-            });
-        });
-
-        socket.on('delete_processing_message', (data) => {
-            const tempMessage = document.getElementById("processing");
-            if (tempMessage) {
-                tempMessage.remove();
-            }
-        });
-
+    // Scroll to the bottom of the chat container
+    document.getElementById('chat').scrollTop = document.getElementById('chat').scrollHeight;
+});
+ 
     </script>
 </body>
 

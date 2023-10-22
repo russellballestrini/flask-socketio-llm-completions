@@ -9,6 +9,8 @@ import openai
 
 import os
 
+import time
+
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "your_secret_key"
@@ -84,7 +86,6 @@ def handle_message(data):
     # Call the chat_gpt function without blocking using eventlet.spawn
     eventlet.spawn(chat_gpt, data["username"], data["room"], data["message"])
 
-
 def chat_gpt(username, room, message):
 
     with app.app_context():
@@ -95,38 +96,40 @@ def chat_gpt(username, room, message):
             .all()
         )
 
-    # Format these messages as a chat history, with each message being a dict with 'role' and 'content'.
     chat_history = [
         {"role": "system" if msg.username == "GPT-3.5" else "user", "content": msg.content}
         for msg in reversed(last_messages)
     ]
 
-    # Append the new message
     chat_history.append({"role": "user", "content": message})
 
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo", 
-        messages=chat_history
-    )
+    buffer = ""  # Content buffer for accumulating the chunks
 
-    # Extract response from ChatGPT API
-    response_text = response["choices"][0]["message"]["content"]
+    first_chunk = True
+    for chunk in openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=chat_history,
+        stream=True,
+    ):
+        content = chunk["choices"][0].get("delta", {}).get("content")
 
-    # Convert response_text to Markdown
-    response_md = markdown.markdown(response_text, extensions=["fenced_code"])
+        if content:
+            buffer += content  # Accumulate content
 
-    # Save ChatGPT's response in the database
+            if first_chunk:
+                socketio.emit("message_chunk", f"{username} (GPT-3.5): {content}", room=room)
+                first_chunk = False
+            else:
+                socketio.emit("message_chunk", content, room=room)
+            socketio.sleep(0)  # Force immediate handling
+
+    # Save the entire completion to the database
     with app.app_context():
-        chatgpt_response_message = Message(
-            username="GPT-3.5", content=response_md, room=room
-        )
-        db.session.add(chatgpt_response_message)
+        new_message = Message(username="GPT-3.5", content=buffer, room=room)
+        db.session.add(new_message)
         db.session.commit()
 
     socketio.emit("delete_processing_message", "", room=room)
-
-    # Emit the response to the room
-    socketio.emit("message", f"{username} (GPT-3.5): {response_md}", room=room)
 
 
 if __name__ == "__main__":
