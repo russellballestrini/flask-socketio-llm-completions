@@ -2,7 +2,6 @@ flask
 flask-socketio
 eventlet
 openai
-markdown
 
 # sqlite
 Flask-SQLAlchemy
