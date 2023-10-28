@@ -9,6 +9,9 @@ import os
 
 import time
 
+import boto3
+import json
+
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "your_secret_key"
@@ -82,7 +85,86 @@ def handle_message(data):
     emit("message", f"<span id='processing'>Processing...</span>", room=data["room"])
 
     # Call the chat_gpt function without blocking using eventlet.spawn
-    eventlet.spawn(chat_gpt, data["username"], data["room"], data["message"])
+    if "claude" in data["message"]:
+        eventlet.spawn(chat_claude, data["username"], data["room"], data["message"])
+    else:
+        eventlet.spawn(chat_gpt, data["username"], data["room"], data["message"])
+
+def chat_claude(username, room, message): 
+
+    with app.app_context():
+        # claude has a 100,000 token context window for prompts.
+        all_messages = (
+            Message.query.filter_by(room=room)
+            .order_by(Message.id.desc())
+            .all()
+        )
+
+    chat_history = ""
+
+    for msg in reversed(all_messages):
+        if msg.username not in ["gpt-3.5-turbo", "anthropic.claude-v2"]:
+            chat_history += f"Human: {msg.username}: {msg.content}\n\n"
+        else:
+            chat_history += f"Assistant: {msg.username}: {msg.content}\n\n"
+    
+    # append the new message.
+    chat_history += f"Human: {username}: {message}\n\nAssistant:"
+    
+
+    # Initialize the Bedrock client using boto3
+    client = boto3.client("bedrock-runtime", region_name="us-east-1")
+
+    # Define the request parameters
+    params = {
+        "modelId": "anthropic.claude-v2",
+        "contentType": "application/json",
+        "accept": "*/*",
+        "body": json.dumps(
+            {
+                "prompt": chat_history,
+                "max_tokens_to_sample": 2048,
+                "temperature": 0,
+                "top_k": 250,
+                "top_p": 0.999,
+                "stop_sequences": ["\n\nHuman:"],
+                "anthropic_version": "bedrock-2023-05-31",
+            }
+        ).encode(),
+    }
+
+    # Invoke the model with response stream
+    response = client.invoke_model_with_response_stream(**params)
+
+    # Process the event stream
+    buffer = ""
+
+    first_chunk = True
+
+    for event in response["body"]:
+        if "chunk" in event:
+            chunk_data = json.loads(event["chunk"]["bytes"].decode())
+            content = chunk_data["completion"]
+
+        if content:
+            buffer += content  # Accumulate content
+
+            if first_chunk:
+                socketio.emit("message_chunk", f"{username} (anthropic.claude-v2): {content}", room=room)
+                first_chunk = False
+            else:
+                socketio.emit("message_chunk", content, room=room)
+            socketio.sleep(0)  # Force immediate handling
+
+ 
+    # Save the entire completion to the database
+    with app.app_context():
+        new_message = Message(username="anthropic.claude-v2", content=buffer, room=room)
+        db.session.add(new_message)
+        db.session.commit()
+
+    socketio.emit("delete_processing_message", "", room=room)
+
 
 def chat_gpt(username, room, message):
 
@@ -95,7 +177,7 @@ def chat_gpt(username, room, message):
         )
 
     chat_history = [
-        {"role": "system" if msg.username == "GPT-3.5" else "user", "content": msg.content}
+        {"role": "system" if (msg.username == "gpt-3.5-turbo" or msg.username == "anthropic.claude-v2") else "user", "content": msg.content}
         for msg in reversed(last_messages)
     ]
 
@@ -123,7 +205,7 @@ def chat_gpt(username, room, message):
 
     # Save the entire completion to the database
     with app.app_context():
-        new_message = Message(username="GPT-3.5", content=buffer, room=room)
+        new_message = Message(username="gpt-3.5-turbo", content=buffer, room=room)
         db.session.add(new_message)
         db.session.commit()
 
