@@ -5,3 +5,6 @@ openai
 
 # sqlite
 Flask-SQLAlchemy
+
+# support local dev
+python-dotenv

@@ -3,8 +3,6 @@ from flask_socketio import SocketIO, emit, join_room
 
 import eventlet
 
-import markdown
-
 import openai
 
 import os
