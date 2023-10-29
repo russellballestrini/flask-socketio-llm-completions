@@ -62,6 +62,11 @@ def on_join(data):
     # Fetch previous messages from the database
     previous_messages = Message.query.filter_by(room=room).all()
 
+
+    # Send the history of messages only to the newly connected client.
+    # The reason for using `request.sid` here is to target the specific session (or client) that 
+    # just connected, so only they receive the backlog of messages, rather than broadcasting 
+    # this information to all clients in the room.
     for message in previous_messages:
         emit(
             "previous_messages",
@@ -73,6 +78,8 @@ def on_join(data):
             room=request.sid,
         )
 
+    # Broadcast to all clients in the room that a new user has joined.
+    # Here, `room=room` ensures the message is sent to everyone in that specific room.
     emit(
         "message",
         {"id": None, "content": f"{data['username']} has joined the room."},
