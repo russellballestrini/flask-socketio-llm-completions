@@ -52,6 +52,16 @@
         padding: 5px;
     }
 
+    .message-wrapper {
+        display: flex;
+        align-items: start;
+    }
+    
+    .message-wrapper button {
+        margin-right: 16px;
+        margin-top: 16px;
+    }
+
    </style>
 </head>
 <body>
@@ -79,6 +89,12 @@ function sendMessage() {
     }
 }
 
+
+function deleteMessage(messageId, room) {
+    socket.emit('delete_message', {'message_id': messageId, 'room': room});
+}
+
+
 // Event listener for form submission
 document.getElementById('message-form').addEventListener('submit', (e) => {
     e.preventDefault();
@@ -98,43 +114,52 @@ socket.on('connect', () => {
 });
 
 socket.on('message', (data) => {
-    const newMessage = document.createElement('p');
-    
-    // Set the message ID as the id attribute
-    newMessage.id = "message-" + data.id; // Prefixing with "message-" to ensure the ID starts with a letter
-    
-    // Convert the message content to markdown and set it as the innerHTML
-    newMessage.innerHTML = marked.marked(data.content);
-    
-    // Append the new message to the chat container
-    document.getElementById('chat').appendChild(newMessage);
+    const messageWrapper = document.createElement('div');
+    messageWrapper.className = 'message-wrapper';
+    messageWrapper.id = "message-" + data.id;
 
-    // Apply syntax highlighting to any code blocks within the message
+    const newMessage = document.createElement('p');
+    newMessage.innerHTML = marked.marked(data.content);
+
+    // Check if the message is NOT a join notification
+    if (!data.content.includes('has joined the room.')) {
+        // Create the delete button
+        const deleteButton = document.createElement('button');
+        deleteButton.innerHTML = 'x';
+        deleteButton.onclick = () => deleteMessage(data.id, room);
+        messageWrapper.appendChild(deleteButton);
+    }
+
+    messageWrapper.appendChild(newMessage);
+
+    document.getElementById('chat').appendChild(messageWrapper);
+
     newMessage.querySelectorAll('pre code').forEach((block) => {
         hljs.highlightElement(block);
     });
 
-    // Scroll to the bottom of the chat container
     document.getElementById('chat').scrollTop = document.getElementById('chat').scrollHeight;
 });
 
 
 socket.on('previous_messages', (data) => {
-    const chat = document.getElementById('chat');
-    
-    // Create a new message element
-    const newMessage = document.createElement('p');
-    
-    // Set the ID attribute for the message
-    newMessage.id = "message-" + data.id;
-    
-    // Set the inner content for the message
-    newMessage.innerHTML = `${data.username}: ${marked.marked(data.message)}`;
-    
-    // Append the new message to the chat container
-    chat.appendChild(newMessage);
+    const messageWrapper = document.createElement('div');
+    messageWrapper.className = 'message-wrapper';
+    messageWrapper.id = "message-" + data.id;
 
-    // Apply syntax highlighting to any code blocks within the message
+    const newMessage = document.createElement('p');
+    newMessage.innerHTML = `${data.username}: ${marked.marked(data.message)}`;
+
+    // Create the delete button
+    const deleteButton = document.createElement('button');
+    deleteButton.innerHTML = 'x';
+    deleteButton.onclick = () => deleteMessage(data.id, room);
+
+    messageWrapper.appendChild(deleteButton);
+    messageWrapper.appendChild(newMessage);
+
+    document.getElementById('chat').appendChild(messageWrapper);
+
     newMessage.querySelectorAll('pre code').forEach((block) => {
         hljs.highlightElement(block);
     });
@@ -181,6 +206,13 @@ socket.on('message_chunk', (data) => {
 
     // Scroll to the bottom of the chat container
     document.getElementById('chat').scrollTop = document.getElementById('chat').scrollHeight;
+});
+
+socket.on('message_deleted', (data) => {
+    const messageElement = document.getElementById('message-' + data.message_id);
+    if (messageElement) {
+        messageElement.remove();
+    }
 });
 
  

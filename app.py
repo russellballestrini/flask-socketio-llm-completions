@@ -116,6 +116,19 @@ def handle_message(data):
             eventlet.spawn(chat_gpt, data["username"], data["room"], data["message"])
 
 
+@socketio.on("delete_message")
+def handle_delete_message(data):
+    msg_id = data['message_id']
+    # Delete the message from the database
+    message = db.session.query(Message).filter(Message.id == msg_id).one_or_none()
+    if message:
+        db.session.delete(message)
+        db.session.commit()
+
+    # Notify all clients in the room to remove the message from their DOM
+    emit("message_deleted", {"message_id": msg_id}, room=data['room'])
+
+
 def chat_claude(username, room, message):
     with app.app_context():
         # claude has a 100,000 token context window for prompts.
