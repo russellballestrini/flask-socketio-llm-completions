@@ -65,11 +65,19 @@ def on_join(data):
     for message in previous_messages:
         emit(
             "previous_messages",
-            {"username": message.username, "message": message.content},
+            {
+                "id": message.id,
+                "username": message.username,
+                "message": message.content,
+            },
             room=request.sid,
         )
 
-    emit("message", f"{data['username']} has joined the room.", room=room)
+    emit(
+        "message",
+        {"id": None, "content": f"{data['username']} has joined the room."},
+        room=room,
+    )
 
 
 @socketio.on("message")
@@ -81,30 +89,31 @@ def handle_message(data):
     db.session.add(new_message)
     db.session.commit()
 
-    emit("message", f"{data['username']}: {data['message']}", room=data["room"])
+    emit(
+        "message",
+        {"id": new_message.id, "content": f"{data['username']}: {data['message']}"},
+        room=data["room"],
+    )
 
-    if "claude" in data["message"] or "gpt" in data["message"]: 
+    if "claude" in data["message"] or "gpt" in data["message"]:
+        # Emit a temporary message indicating that llm is processing
+        emit(
+            "message",
+            {"id": None, "content": f"<span id='processing'>Processing...</span>"},
+            room=data["room"],
+        )
 
         if "claude" in data["message"]:
-            func = chat_claude
-        elif "gpt" in data["message"]:
-            func = chat_gpt
-
-        # Emit a temporary message indicating that llm is processing
-        emit("message", f"<span id='processing'>Processing...</span>", room=data["room"])
-
-        # Call the chat_claude function without blocking using eventlet.spawn
-        eventlet.spawn(func, data["username"], data["room"], data["message"])
+            eventlet.spawn(chat_claude, data["username"], data["room"], data["message"])
+        if "gpt" in data["message"]:
+            eventlet.spawn(chat_gpt, data["username"], data["room"], data["message"])
 
 
-def chat_claude(username, room, message): 
-
+def chat_claude(username, room, message):
     with app.app_context():
         # claude has a 100,000 token context window for prompts.
         all_messages = (
-            Message.query.filter_by(room=room)
-            .order_by(Message.id.desc())
-            .all()
+            Message.query.filter_by(room=room).order_by(Message.id.desc()).all()
         )
 
     chat_history = ""
@@ -114,10 +123,9 @@ def chat_claude(username, room, message):
             chat_history += f"Assistant: {msg.username}: {msg.content}\n\n"
         else:
             chat_history += f"Human: {msg.username}: {msg.content}\n\n"
-    
+
     # append the new message.
     chat_history += f"Human: {username}: {message}\n\nAssistant:"
-    
 
     # Initialize the Bedrock client using boto3
     client = boto3.client("bedrock-runtime", region_name="us-east-1")
@@ -146,9 +154,15 @@ def chat_claude(username, room, message):
     # Process the event stream
     buffer = ""
 
+    # save empty message, we need the ID when we chunk the response.
+    with app.app_context():
+        new_message = Message(username="anthropic.claude-v2", content=buffer, room=room)
+        db.session.add(new_message)
+        db.session.commit()
+        msg_id = new_message.id
+
     first_chunk = True
     for event in response["body"]:
-
         content = ""
 
         if "chunk" in event:
@@ -159,15 +173,27 @@ def chat_claude(username, room, message):
             buffer += content  # Accumulate content
 
             if first_chunk:
-                socketio.emit("message_chunk", f"{username} (anthropic.claude-v2): {content}", room=room)
+                socketio.emit(
+                    "message_chunk",
+                    {
+                        "id": msg_id,
+                        "content": f"{username} (anthropic.claude-v2): {content}",
+                    },
+                    room=room,
+                )
                 first_chunk = False
             else:
-                socketio.emit("message_chunk", content, room=room)
+                socketio.emit(
+                    "message_chunk",
+                    {"id": msg_id, "content": content},
+                    room=room,
+                )
             socketio.sleep(0)  # Force immediate handling
- 
+
     # Save the entire completion to the database
     with app.app_context():
-        new_message = Message(username="anthropic.claude-v2", content=buffer, room=room)
+        new_message = db.session.query(Message).filter(Message.id == msg_id).one_or_none()
+        new_message.content = buffer
         db.session.add(new_message)
         db.session.commit()
 
@@ -175,7 +201,6 @@ def chat_claude(username, room, message):
 
 
 def chat_gpt(username, room, message):
-
     with app.app_context():
         last_messages = (
             Message.query.filter_by(room=room)
@@ -185,13 +210,27 @@ def chat_gpt(username, room, message):
         )
 
     chat_history = [
-        {"role": "system" if (msg.username == "gpt-3.5-turbo" or msg.username == "anthropic.claude-v2") else "user", "content": f"{msg.username}: {msg.content}"}
+        {
+            "role": "system"
+            if (
+                msg.username == "gpt-3.5-turbo" or msg.username == "anthropic.claude-v2"
+            )
+            else "user",
+            "content": f"{msg.username}: {msg.content}",
+        }
         for msg in reversed(last_messages)
     ]
 
     chat_history.append({"role": "user", "content": message})
 
     buffer = ""  # Content buffer for accumulating the chunks
+
+    # save empty message, we need the ID when we chunk the response.
+    with app.app_context():
+        new_message = Message(username="gpt-3.5-turbo", content=buffer, room=room)
+        db.session.add(new_message)
+        db.session.commit()
+        msg_id = new_message.id
 
     first_chunk = True
     for chunk in openai.ChatCompletion.create(
@@ -206,15 +245,27 @@ def chat_gpt(username, room, message):
             buffer += content  # Accumulate content
 
             if first_chunk:
-                socketio.emit("message_chunk", f"{username} (gpt-3.5-turbo): {content}", room=room)
+                socketio.emit(
+                    "message_chunk",
+                    {
+                        "id": msg_id,
+                        "content": f"{username} (gpt-3.5-turbo): {content}",
+                    },
+                    room=room,
+                )
                 first_chunk = False
             else:
-                socketio.emit("message_chunk", content, room=room)
+                socketio.emit(
+                    "message_chunk",
+                    {"id": msg_id, "content": content},
+                    room=room,
+                )
             socketio.sleep(0)  # Force immediate handling
 
     # Save the entire completion to the database
     with app.app_context():
-        new_message = Message(username="gpt-3.5-turbo", content=buffer, room=room)
+        new_message = db.session.query(Message).filter(Message.id == msg_id).one_or_none()
+        new_message.content = buffer
         db.session.add(new_message)
         db.session.commit()
 

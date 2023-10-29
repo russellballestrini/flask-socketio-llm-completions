@@ -70,9 +70,6 @@ const urlParams = new URLSearchParams(window.location.search);
 const username = urlParams.get('username');
 const room = '{{ room }}';
 
-let lastMessageElement = null;
-let lastMessageContent = "";
-
 // Function to handle sending the message
 function sendMessage() {
     const message = document.getElementById('message').value;
@@ -100,63 +97,92 @@ socket.on('connect', () => {
     socket.emit('join', {username: username, room: room});
 });
 
-socket.on('message', (message) => {
+socket.on('message', (data) => {
     const newMessage = document.createElement('p');
-    newMessage.innerHTML = marked.marked(message);
+    
+    // Set the message ID as the id attribute
+    newMessage.id = "message-" + data.id; // Prefixing with "message-" to ensure the ID starts with a letter
+    
+    // Convert the message content to markdown and set it as the innerHTML
+    newMessage.innerHTML = marked.marked(data.content);
+    
+    // Append the new message to the chat container
     document.getElementById('chat').appendChild(newMessage);
 
+    // Apply syntax highlighting to any code blocks within the message
     newMessage.querySelectorAll('pre code').forEach((block) => {
         hljs.highlightElement(block);
     });
 
+    // Scroll to the bottom of the chat container
     document.getElementById('chat').scrollTop = document.getElementById('chat').scrollHeight;
 });
 
+
 socket.on('previous_messages', (data) => {
     const chat = document.getElementById('chat');
-    chat.innerHTML += '<p>' + data.username + ': ' + marked.marked(data.message) + '</p>';
-    chat.querySelectorAll('pre code').forEach((block) => {
-        hljs.highlightBlock(block);
+    
+    // Create a new message element
+    const newMessage = document.createElement('p');
+    
+    // Set the ID attribute for the message
+    newMessage.id = "message-" + data.id;
+    
+    // Set the inner content for the message
+    newMessage.innerHTML = `${data.username}: ${marked.marked(data.message)}`;
+    
+    // Append the new message to the chat container
+    chat.appendChild(newMessage);
+
+    // Apply syntax highlighting to any code blocks within the message
+    newMessage.querySelectorAll('pre code').forEach((block) => {
+        hljs.highlightElement(block);
     });
 });
+
 
 socket.on('delete_processing_message', (data) => {
     const tempMessage = document.getElementById("processing");
     if (tempMessage) {
         tempMessage.remove();
     }
-    lastMessageElement = null;
-    lastMessageContent = "";
 });
 
-socket.on('message_chunk', (message_chunk) => {
-    if (lastMessageElement) {
-        // Accumulate the new chunk
-        lastMessageContent += message_chunk;
 
-        // Render the entire accumulated content as Markdown
-        lastMessageElement.innerHTML = marked.marked(lastMessageContent);
+// A dictionary to hold buffers for each message ID
+const messageBuffers = {};
 
-        // Apply syntax highlighting to code blocks within the content
-        lastMessageElement.querySelectorAll('pre code').forEach((block) => {
-            hljs.highlightElement(block);
-        });
-    } else {
-        lastMessageContent = message_chunk;
-        const newMessage = document.createElement('p');
-        newMessage.innerHTML = marked.marked(lastMessageContent);
-        document.getElementById('chat').appendChild(newMessage);
-        lastMessageElement = newMessage;
+socket.on('message_chunk', (data) => {
+    const messageId = "message-" + data.id;
+    let targetMessageElement = document.getElementById(messageId);
 
-        // Apply syntax highlighting to code blocks within the content
-        newMessage.querySelectorAll('pre code').forEach((block) => {
-            hljs.highlightElement(block);
-        });
+    // If the target message element doesn't exist, it's an initial chunk
+    if (!targetMessageElement) {
+        targetMessageElement = document.createElement('p');
+        targetMessageElement.id = messageId;
+        document.getElementById('chat').appendChild(targetMessageElement);
     }
+
+    // If the message buffer for this ID doesn't exist, create it
+    if (!messageBuffers[data.id]) {
+        messageBuffers[data.id] = "";
+    }
+
+    // Append the chunk to the buffer
+    messageBuffers[data.id] += data.content;
+
+    // Process the entire buffer with marked and set it as the content of the target element
+    targetMessageElement.innerHTML = marked.marked(messageBuffers[data.id]);
+
+    // Apply syntax highlighting to code blocks within the content
+    targetMessageElement.querySelectorAll('pre code').forEach((block) => {
+        hljs.highlightElement(block);
+    });
 
     // Scroll to the bottom of the chat container
     document.getElementById('chat').scrollTop = document.getElementById('chat').scrollHeight;
 });
+
  
     </script>
 </body>
