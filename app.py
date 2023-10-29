@@ -140,8 +140,10 @@ def chat_claude(username, room, message):
     buffer = ""
 
     first_chunk = True
-
     for event in response["body"]:
+
+        content = ""
+
         if "chunk" in event:
             chunk_data = json.loads(event["chunk"]["bytes"].decode())
             content = chunk_data["completion"]
@@ -155,7 +157,6 @@ def chat_claude(username, room, message):
             else:
                 socketio.emit("message_chunk", content, room=room)
             socketio.sleep(0)  # Force immediate handling
-
  
     # Save the entire completion to the database
     with app.app_context():
@@ -172,7 +173,7 @@ def chat_gpt(username, room, message):
         last_messages = (
             Message.query.filter_by(room=room)
             .order_by(Message.id.desc())
-            .limit(10)
+            .limit(20)
             .all()
         )
 
@@ -189,6 +190,7 @@ def chat_gpt(username, room, message):
     for chunk in openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=chat_history,
+        temperature=0,
         stream=True,
     ):
         content = chunk["choices"][0].get("delta", {}).get("content")
@@ -197,7 +199,7 @@ def chat_gpt(username, room, message):
             buffer += content  # Accumulate content
 
             if first_chunk:
-                socketio.emit("message_chunk", f"{username} (GPT-3.5): {content}", room=room)
+                socketio.emit("message_chunk", f"{username} (gpt-3.5-turbo): {content}", room=room)
                 first_chunk = False
             else:
                 socketio.emit("message_chunk", content, room=room)
