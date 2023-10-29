@@ -84,16 +84,17 @@ def handle_message(data):
     emit("message", f"{data['username']}: {data['message']}", room=data["room"])
 
     if "claude" in data["message"] or "gpt" in data["message"]: 
+
+        if "claude" in data["message"]:
+            func = chat_claude
+        elif "gpt" in data["message"]:
+            func = chat_gpt
+
         # Emit a temporary message indicating that llm is processing
         emit("message", f"<span id='processing'>Processing...</span>", room=data["room"])
 
-    if "claude" in data["message"]:
         # Call the chat_claude function without blocking using eventlet.spawn
-        eventlet.spawn(chat_claude, data["username"], data["room"], data["message"])
-
-    elif "gpt" in data["message"]:
-        # Call the chat_gpt function without blocking using eventlet.spawn
-        eventlet.spawn(chat_gpt, data["username"], data["room"], data["message"])
+        eventlet.spawn(func, data["username"], data["room"], data["message"])
 
 
 def chat_claude(username, room, message): 
@@ -109,10 +110,10 @@ def chat_claude(username, room, message):
     chat_history = ""
 
     for msg in reversed(all_messages):
-        if msg.username not in ["gpt-3.5-turbo", "anthropic.claude-v2"]:
-            chat_history += f"Human: {msg.username}: {msg.content}\n\n"
+        if msg.username in ["gpt-3.5-turbo", "anthropic.claude-v2"]:
+            chat_history += f"Assistant: {msg.username}: {msg.content}\n\n"
         else:
-            chat_history += f"Assistant: {msg.content}\n\n"
+            chat_history += f"Human: {msg.username}: {msg.content}\n\n"
     
     # append the new message.
     chat_history += f"Human: {username}: {message}\n\nAssistant:"
