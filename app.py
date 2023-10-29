@@ -5,6 +5,8 @@ import eventlet
 
 import openai
 
+from openai.error import InvalidRequestError
+
 import os
 
 import time
@@ -81,14 +83,18 @@ def handle_message(data):
 
     emit("message", f"{data['username']}: {data['message']}", room=data["room"])
 
-    # Emit a temporary message indicating that GPT is processing
-    emit("message", f"<span id='processing'>Processing...</span>", room=data["room"])
+    if "claude" in data["message"] or "gpt" in data["message"]: 
+        # Emit a temporary message indicating that llm is processing
+        emit("message", f"<span id='processing'>Processing...</span>", room=data["room"])
 
-    # Call the chat_gpt function without blocking using eventlet.spawn
     if "claude" in data["message"]:
+        # Call the chat_claude function without blocking using eventlet.spawn
         eventlet.spawn(chat_claude, data["username"], data["room"], data["message"])
-    else:
+
+    elif "gpt" in data["message"]:
+        # Call the chat_gpt function without blocking using eventlet.spawn
         eventlet.spawn(chat_gpt, data["username"], data["room"], data["message"])
+
 
 def chat_claude(username, room, message): 
 
@@ -106,7 +112,7 @@ def chat_claude(username, room, message):
         if msg.username not in ["gpt-3.5-turbo", "anthropic.claude-v2"]:
             chat_history += f"Human: {msg.username}: {msg.content}\n\n"
         else:
-            chat_history += f"Assistant: {msg.username}: {msg.content}\n\n"
+            chat_history += f"Assistant: {msg.content}\n\n"
     
     # append the new message.
     chat_history += f"Human: {username}: {message}\n\nAssistant:"
@@ -173,12 +179,12 @@ def chat_gpt(username, room, message):
         last_messages = (
             Message.query.filter_by(room=room)
             .order_by(Message.id.desc())
-            .limit(20)
+            .limit(10)
             .all()
         )
 
     chat_history = [
-        {"role": "system" if (msg.username == "gpt-3.5-turbo" or msg.username == "anthropic.claude-v2") else "user", "content": msg.content}
+        {"role": "system" if (msg.username == "gpt-3.5-turbo" or msg.username == "anthropic.claude-v2") else "user", "content": f"{msg.username}: {msg.content}"}
         for msg in reversed(last_messages)
     ]
 
