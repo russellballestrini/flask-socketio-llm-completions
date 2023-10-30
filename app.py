@@ -29,10 +29,12 @@ db = SQLAlchemy(app)
 
 # Create an argument parser for aws profile.
 import argparse
-parser = argparse.ArgumentParser(description='Script to perform some AWS operations')
-parser.add_argument('--profile', help='AWS profile name')
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--profile", help="AWS profile name")
 args = parser.parse_args()
 profile_name = args.profile
+
 
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -69,10 +71,9 @@ def on_join(data):
     # Fetch previous messages from the database
     previous_messages = Message.query.filter_by(room=room).all()
 
-
     # Send the history of messages only to the newly connected client.
-    # The reason for using `request.sid` here is to target the specific session (or client) that 
-    # just connected, so only they receive the backlog of messages, rather than broadcasting 
+    # The reason for using `request.sid` here is to target the specific session (or client) that
+    # just connected, so only they receive the backlog of messages, rather than broadcasting
     # this information to all clients in the room.
     for message in previous_messages:
         emit(
@@ -125,7 +126,7 @@ def handle_message(data):
 
 @socketio.on("delete_message")
 def handle_delete_message(data):
-    msg_id = data['message_id']
+    msg_id = data["message_id"]
     # Delete the message from the database
     message = db.session.query(Message).filter(Message.id == msg_id).one_or_none()
     if message:
@@ -133,7 +134,7 @@ def handle_delete_message(data):
         db.session.commit()
 
     # Notify all clients in the room to remove the message from their DOM
-    emit("message_deleted", {"message_id": msg_id}, room=data['room'])
+    emit("message_deleted", {"message_id": msg_id}, room=data["room"])
 
 
 def chat_claude(username, room, message):
@@ -223,7 +224,9 @@ def chat_claude(username, room, message):
 
     # Save the entire completion to the database
     with app.app_context():
-        new_message = db.session.query(Message).filter(Message.id == msg_id).one_or_none()
+        new_message = (
+            db.session.query(Message).filter(Message.id == msg_id).one_or_none()
+        )
         if new_message:
             new_message.content = buffer
             db.session.add(new_message)
@@ -296,7 +299,9 @@ def chat_gpt(username, room, message):
 
     # Save the entire completion to the database
     with app.app_context():
-        new_message = db.session.query(Message).filter(Message.id == msg_id).one_or_none()
+        new_message = (
+            db.session.query(Message).filter(Message.id == msg_id).one_or_none()
+        )
         if new_message:
             new_message.content = buffer
             db.session.add(new_message)
