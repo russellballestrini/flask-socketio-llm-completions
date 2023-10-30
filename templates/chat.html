@@ -59,7 +59,7 @@
     
     .message-wrapper button {
         margin-right: 16px;
-        margin-top: 16px;
+        margin-top: 32px;
     }
 
    </style>
@@ -122,7 +122,7 @@ socket.on('message', (data) => {
     newMessage.innerHTML = marked.marked(data.content);
 
     // Check if the message is NOT a join notification
-    if (!data.content.includes('has joined the room.')) {
+    if (!data.content.includes('has joined the room.') && !data.content.includes('Processing...')) {
         // Create the delete button
         const deleteButton = document.createElement('button');
         deleteButton.innerHTML = 'x';
@@ -167,10 +167,10 @@ socket.on('previous_messages', (data) => {
 
 
 socket.on('delete_processing_message', (data) => {
-    const tempMessage = document.getElementById("processing");
-    if (tempMessage) {
+    const tempMessages = document.querySelectorAll("#message-null");
+    tempMessages.forEach((tempMessage) => {
         tempMessage.remove();
-    }
+    });
 });
 
 
@@ -178,14 +178,29 @@ socket.on('delete_processing_message', (data) => {
 const messageBuffers = {};
 
 socket.on('message_chunk', (data) => {
-    const messageId = "message-" + data.id;
-    let targetMessageElement = document.getElementById(messageId);
+    const wrapperId = "message-" + data.id;
+    let messageWrapper = document.getElementById(wrapperId);
+    let targetMessageElement;
 
-    // If the target message element doesn't exist, it's an initial chunk
-    if (!targetMessageElement) {
+    // If the message wrapper doesn't exist, it's an initial chunk
+    if (!messageWrapper) {
+        messageWrapper = document.createElement('div');
+        messageWrapper.className = 'message-wrapper';
+        messageWrapper.id = wrapperId;
+        document.getElementById('chat').appendChild(messageWrapper);
+
+        // Create the "x" button for deletion
+        const deleteButton = document.createElement('button');
+        deleteButton.innerHTML = 'x';
+        deleteButton.onclick = () => deleteMessage(data.id, room);
+        messageWrapper.appendChild(deleteButton);
+
+        // Create the p element to hold the message content
         targetMessageElement = document.createElement('p');
-        targetMessageElement.id = messageId;
-        document.getElementById('chat').appendChild(targetMessageElement);
+        messageWrapper.appendChild(targetMessageElement);
+    } else {
+        // If the wrapper already exists, get the p element inside it
+        targetMessageElement = messageWrapper.querySelector('p');
     }
 
     // If the message buffer for this ID doesn't exist, create it
@@ -207,6 +222,7 @@ socket.on('message_chunk', (data) => {
     // Scroll to the bottom of the chat container
     document.getElementById('chat').scrollTop = document.getElementById('chat').scrollHeight;
 });
+
 
 socket.on('message_deleted', (data) => {
     const messageElement = document.getElementById('message-' + data.message_id);
