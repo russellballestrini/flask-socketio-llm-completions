@@ -213,9 +213,10 @@ def chat_claude(username, room, message):
     # Save the entire completion to the database
     with app.app_context():
         new_message = db.session.query(Message).filter(Message.id == msg_id).one_or_none()
-        new_message.content = buffer
-        db.session.add(new_message)
-        db.session.commit()
+        if new_message:
+            new_message.content = buffer
+            db.session.add(new_message)
+            db.session.commit()
 
     socketio.emit("delete_processing_message", "", room=room)
 
@@ -285,9 +286,10 @@ def chat_gpt(username, room, message):
     # Save the entire completion to the database
     with app.app_context():
         new_message = db.session.query(Message).filter(Message.id == msg_id).one_or_none()
-        new_message.content = buffer
-        db.session.add(new_message)
-        db.session.commit()
+        if new_message:
+            new_message.content = buffer
+            db.session.add(new_message)
+            db.session.commit()
 
     socketio.emit("delete_processing_message", "", room=room)
 
