@@ -27,6 +27,13 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 
 
+# Create an argument parser for aws profile.
+import argparse
+parser = argparse.ArgumentParser(description='Script to perform some AWS operations')
+parser.add_argument('--profile', help='AWS profile name')
+args = parser.parse_args()
+profile_name = args.profile
+
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(128), nullable=False)
@@ -147,8 +154,12 @@ def chat_claude(username, room, message):
     # append the new message.
     chat_history += f"Human: {username}: {message}\n\nAssistant:"
 
-    # Initialize the Bedrock client using boto3
-    client = boto3.client("bedrock-runtime", region_name="us-east-1")
+    # Initialize the Bedrock client using boto3 and profile name.
+    if profile_name:
+        session = boto3.Session(profile_name=profile_name)
+        client = session.client("bedrock-runtime", region_name="us-east-1")
+    else:
+        client = boto3.client("bedrock-runtime", region_name="us-east-1")
 
     # Define the request parameters
     params = {
