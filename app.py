@@ -218,7 +218,7 @@ def chat_claude(username, room, message):
             db.session.add(new_message)
             db.session.commit()
 
-    socketio.emit("delete_processing_message", "", room=room)
+    socketio.emit("delete_processing_message", msg_id, room=room)
 
 
 def chat_gpt(username, room, message):
@@ -291,7 +291,7 @@ def chat_gpt(username, room, message):
             db.session.add(new_message)
             db.session.commit()
 
-    socketio.emit("delete_processing_message", "", room=room)
+    socketio.emit("delete_processing_message", msg_id, room=room)
 
 
 if __name__ == "__main__":

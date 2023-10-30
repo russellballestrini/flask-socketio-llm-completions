@@ -166,12 +166,15 @@ socket.on('previous_messages', (data) => {
 });
 
 
-socket.on('delete_processing_message', (data) => {
+socket.on('delete_processing_message', (msg_id) => {
     const tempMessages = document.querySelectorAll("#message-null");
     tempMessages.forEach((tempMessage) => {
         tempMessage.remove();
     });
+    // Clear the message buffer for the corresponding message ID
+    delete messageBuffers[msg_id];
 });
+
 
 
 // A dictionary to hold buffers for each message ID
