@@ -120,8 +120,16 @@ def handle_message(data):
 
         if "claude" in data["message"]:
             eventlet.spawn(chat_claude, data["username"], data["room"], data["message"])
-        if "gpt" in data["message"]:
+        if "gpt-3" in data["message"]:
             eventlet.spawn(chat_gpt, data["username"], data["room"], data["message"])
+        if "gpt-4" in data["message"]:
+            eventlet.spawn(
+                chat_gpt,
+                data["username"],
+                data["room"],
+                data["message"],
+                model_name="gpt-4",
+            )
 
 
 @socketio.on("delete_message")
@@ -137,7 +145,7 @@ def handle_delete_message(data):
     emit("message_deleted", {"message_id": msg_id}, room=data["room"])
 
 
-def chat_claude(username, room, message):
+def chat_claude(username, room, message, model_name="anthropic.claude-v2"):
     with app.app_context():
         # claude has a 100,000 token context window for prompts.
         all_messages = (
@@ -147,7 +155,7 @@ def chat_claude(username, room, message):
     chat_history = ""
 
     for msg in reversed(all_messages):
-        if msg.username in ["gpt-3.5-turbo", "anthropic.claude-v2"]:
+        if msg.username in ["gpt-3.5-turbo", "anthropic.claude-v2", "gpt-4"]:
             chat_history += f"Assistant: {msg.username}: {msg.content}\n\n"
         else:
             chat_history += f"Human: {msg.username}: {msg.content}\n\n"
@@ -164,7 +172,7 @@ def chat_claude(username, room, message):
 
     # Define the request parameters
     params = {
-        "modelId": "anthropic.claude-v2",
+        "modelId": model_name,
         "contentType": "application/json",
         "accept": "*/*",
         "body": json.dumps(
@@ -188,7 +196,7 @@ def chat_claude(username, room, message):
 
     # save empty message, we need the ID when we chunk the response.
     with app.app_context():
-        new_message = Message(username="anthropic.claude-v2", content=buffer, room=room)
+        new_message = Message(username=model_name, content=buffer, room=room)
         db.session.add(new_message)
         db.session.commit()
         msg_id = new_message.id
@@ -209,7 +217,7 @@ def chat_claude(username, room, message):
                     "message_chunk",
                     {
                         "id": msg_id,
-                        "content": f"{username} (anthropic.claude-v2): {content}",
+                        "content": f"{username} ({model_name}): {content}",
                     },
                     room=room,
                 )
@@ -235,7 +243,7 @@ def chat_claude(username, room, message):
     socketio.emit("delete_processing_message", msg_id, room=room)
 
 
-def chat_gpt(username, room, message):
+def chat_gpt(username, room, message, model_name="gpt-3.5-turbo"):
     with app.app_context():
         last_messages = (
             Message.query.filter_by(room=room)
@@ -248,7 +256,9 @@ def chat_gpt(username, room, message):
         {
             "role": "system"
             if (
-                msg.username == "gpt-3.5-turbo" or msg.username == "anthropic.claude-v2"
+                msg.username == "gpt-3.5-turbo"
+                or msg.username == "anthropic.claude-v2"
+                or msg.username == "gpt-4"
             )
             else "user",
             "content": f"{msg.username}: {msg.content}",
@@ -262,14 +272,14 @@ def chat_gpt(username, room, message):
 
     # save empty message, we need the ID when we chunk the response.
     with app.app_context():
-        new_message = Message(username="gpt-3.5-turbo", content=buffer, room=room)
+        new_message = Message(username=model_name, content=buffer, room=room)
         db.session.add(new_message)
         db.session.commit()
         msg_id = new_message.id
 
     first_chunk = True
     for chunk in openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
+        model=model_name,
         messages=chat_history,
         temperature=0,
         stream=True,
@@ -284,7 +294,7 @@ def chat_gpt(username, room, message):
                     "message_chunk",
                     {
                         "id": msg_id,
-                        "content": f"{username} (gpt-3.5-turbo): {content}",
+                        "content": f"{username} ({model_name}): {content}",
                     },
                     room=room,
                 )
