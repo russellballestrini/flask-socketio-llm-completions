@@ -110,7 +110,7 @@ def handle_message(data):
         room=data["room"],
     )
 
-    if "claude" in data["message"] or "gpt" in data["message"]:
+    if "claude" in data["message"] or "gpt-3" in data["message"] or "gpt-4" in data["message"]:
         # Emit a temporary message indicating that llm is processing
         emit(
             "message",
