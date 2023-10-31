@@ -58,8 +58,13 @@
     }
     
     .message-wrapper button {
-        margin-right: 16px;
-        margin-top: 32px;
+        margin-top: 16px;
+        margin-right: 8px;
+    }
+
+    p {
+        margin-top: 8px;
+        margin-bottom: 8px;
     }
 
    </style>
@@ -148,7 +153,7 @@ socket.on('previous_messages', (data) => {
     messageWrapper.id = "message-" + data.id;
 
     const newMessage = document.createElement('p');
-    newMessage.innerHTML = `${data.username}: ${marked.marked(data.message)}`;
+    newMessage.innerHTML = marked.marked(`${data.username}: ${data.message}`);
 
     // Create the delete button
     const deleteButton = document.createElement('button');
