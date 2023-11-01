@@ -155,7 +155,7 @@ socket.on('previous_messages', (data) => {
     messageWrapper.id = "message-" + data.id;
 
     const newMessage = document.createElement('p');
-    newMessage.innerHTML = marked.marked(`${data.username}: ${data.message}`);
+    newMessage.innerHTML = marked.marked(`${data.username}:\n\n${data.message}`);
 
     // Create the delete button
     const deleteButton = document.createElement('button');

@@ -111,7 +111,7 @@ def handle_message(data):
 
     emit(
         "message",
-        {"id": new_message.id, "content": f"{data['username']}: {data['message']}"},
+        {"id": new_message.id, "content": f"{data['username']}:\n\n{data['message']}"},
         room=data["room"],
     )
 
