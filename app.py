@@ -111,7 +111,7 @@ def handle_message(data):
 
     emit(
         "message",
-        {"id": new_message.id, "content": f"{data['username']}:\n\n{data['message']}"},
+        {"id": new_message.id, "content": f"**{data['username']}:**\n\n{data['message']}"},
         room=data["room"],
     )
 
@@ -226,7 +226,7 @@ def chat_claude(username, room, message, model_name="anthropic.claude-v2"):
                     "message_chunk",
                     {
                         "id": msg_id,
-                        "content": f"{username} ({model_name}): {content}",
+                        "content": f"**{username} ({model_name}):**\n\n{content}",
                     },
                     room=room,
                 )
@@ -303,7 +303,7 @@ def chat_gpt(username, room, message, model_name="gpt-3.5-turbo"):
                     "message_chunk",
                     {
                         "id": msg_id,
-                        "content": f"{username} ({model_name}): {content}",
+                        "content": f"**{username} ({model_name}):**\n\n{content}",
                     },
                     room=room,
                 )
