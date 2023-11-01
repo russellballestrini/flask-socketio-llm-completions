@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, send_from_directory
 from flask_socketio import SocketIO, emit, join_room
 
 import eventlet
@@ -51,6 +51,11 @@ class Message(db.Model):
 # Create the database and tables
 with app.app_context():
     db.create_all()
+
+
+@app.route("/favicon.ico")
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, "static"), "favicon.ico")
 
 
 @app.route("/")
@@ -110,7 +115,11 @@ def handle_message(data):
         room=data["room"],
     )
 
-    if "claude" in data["message"] or "gpt-3" in data["message"] or "gpt-4" in data["message"]:
+    if (
+        "claude" in data["message"]
+        or "gpt-3" in data["message"]
+        or "gpt-4" in data["message"]
+    ):
         # Emit a temporary message indicating that llm is processing
         emit(
             "message",
