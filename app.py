@@ -170,7 +170,7 @@ def chat_claude(username, room, message, model_name="anthropic.claude-v2"):
             chat_history += f"Human: {msg.username}: {msg.content}\n\n"
 
     # append the new message.
-    chat_history += f"Human: {username}: {message}\n\nAssistant:"
+    chat_history += f"Human: {username}: {message}\n\nAssistant: {model_name}: "
 
     # Initialize the Bedrock client using boto3 and profile name.
     if profile_name:
