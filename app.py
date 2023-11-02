@@ -275,7 +275,7 @@ def chat_gpt(username, room, message, model_name="gpt-3.5-turbo"):
         for msg in reversed(last_messages)
     ]
 
-    chat_history.append({"role": "user", "content": message})
+    chat_history.append({"role": "user", "content": f"{message}\n\n{model_name}: "})
 
     buffer = ""  # Content buffer for accumulating the chunks
 
