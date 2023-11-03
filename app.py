@@ -111,12 +111,16 @@ def handle_message(data):
 
     emit(
         "message",
-        {"id": new_message.id, "content": f"**{data['username']}:**\n\n{data['message']}"},
+        {
+            "id": new_message.id,
+            "content": f"**{data['username']}:**\n\n{data['message']}",
+        },
         room=data["room"],
     )
 
     if (
-        "claude" in data["message"]
+        "claude-v1" in data["message"]
+        or "claude-v2" in data["message"]
         or "gpt-3" in data["message"]
         or "gpt-4" in data["message"]
     ):
@@ -127,8 +131,16 @@ def handle_message(data):
             room=data["room"],
         )
 
-        if "claude" in data["message"]:
+        if "claude-v1" in data["message"]:
             eventlet.spawn(chat_claude, data["username"], data["room"], data["message"])
+        if "claude-v2" in data["message"]:
+            eventlet.spawn(
+                chat_claude,
+                data["username"],
+                data["room"],
+                data["message"],
+                model_name="anthropic.claude-v2",
+            )
         if "gpt-3" in data["message"]:
             eventlet.spawn(chat_gpt, data["username"], data["room"], data["message"])
         if "gpt-4" in data["message"]:
@@ -154,7 +166,7 @@ def handle_delete_message(data):
     emit("message_deleted", {"message_id": msg_id}, room=data["room"])
 
 
-def chat_claude(username, room, message, model_name="anthropic.claude-v2"):
+def chat_claude(username, room, message, model_name="anthropic.claude-v1"):
     with app.app_context():
         # claude has a 100,000 token context window for prompts.
         all_messages = (
@@ -164,7 +176,12 @@ def chat_claude(username, room, message, model_name="anthropic.claude-v2"):
     chat_history = ""
 
     for msg in reversed(all_messages):
-        if msg.username in ["gpt-3.5-turbo", "anthropic.claude-v2", "gpt-4"]:
+        if msg.username in [
+            "gpt-3.5-turbo",
+            "anthropic.claude-v1",
+            "anthropic.claude-v2",
+            "gpt-4",
+        ]:
             chat_history += f"Assistant: {msg.username}: {msg.content}\n\n"
         else:
             chat_history += f"Human: {msg.username}: {msg.content}\n\n"
@@ -266,6 +283,7 @@ def chat_gpt(username, room, message, model_name="gpt-3.5-turbo"):
             "role": "system"
             if (
                 msg.username == "gpt-3.5-turbo"
+                or msg.username == "anthropic.claude-v1"
                 or msg.username == "anthropic.claude-v2"
                 or msg.username == "gpt-4"
             )
