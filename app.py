@@ -14,6 +14,9 @@ import time
 import boto3
 import json
 
+from bs4 import BeautifulSoup
+import bleach
+
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "your_secret_key"
@@ -34,6 +37,38 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--profile", help="AWS profile name")
 args = parser.parse_args()
 profile_name = args.profile
+
+
+def escape_except_code_and_pre(html_content):
+    soup = BeautifulSoup(html_content, "html.parser")
+
+    # Find all <code> and <pre> blocks and replace them with placeholders
+    placeholders = {}
+    for tag in soup.find_all(["code", "pre"]):
+        placeholder = f"PLACEHOLDER_{len(placeholders)}"
+        placeholders[placeholder] = str(tag)
+        tag.replace_with(placeholder)
+
+    # Convert the soup object back to a string
+    html_str = str(soup)
+
+    # Define bleach settings to allow iframes
+    tags = list(bleach.sanitizer.ALLOWED_TAGS) + ["iframe"]
+    attributes = {
+        **bleach.sanitizer.ALLOWED_ATTRIBUTES,
+        "iframe": ["src", "width", "height", "frameborder", "allow", "allowfullscreen"],
+    }
+
+    # Sanitize the content using bleach
+    sanitized_content = bleach.clean(
+        html_str, tags=tags, attributes=attributes, strip=True
+    )
+
+    # Put back the <code> and <pre> blocks
+    for placeholder, original in placeholders.items():
+        sanitized_content = sanitized_content.replace(placeholder, original)
+
+    return sanitized_content
 
 
 class Message(db.Model):
@@ -86,7 +121,7 @@ def on_join(data):
             {
                 "id": message.id,
                 "username": message.username,
-                "message": message.content,
+                "message": escape_except_code_and_pre(message.content),
             },
             room=request.sid,
         )
@@ -104,7 +139,9 @@ def on_join(data):
 def handle_message(data):
     # Save the message to the database
     new_message = Message(
-        username=data["username"], content=data["message"], room=data["room"]
+        username=data["username"],
+        content=escape_except_code_and_pre(data["message"]),
+        room=data["room"],
     )
     db.session.add(new_message)
     db.session.commit()

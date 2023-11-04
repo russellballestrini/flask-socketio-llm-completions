@@ -7,3 +7,6 @@ openai
 Flask-SQLAlchemy
 
 boto3
+
+bleach
+beautifulsoup4
