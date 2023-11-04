@@ -53,10 +53,11 @@ def escape_except_code_and_pre(html_content):
     html_str = str(soup)
 
     # Define bleach settings to allow iframes
-    tags = list(bleach.sanitizer.ALLOWED_TAGS) + ["iframe"]
+    tags = list(bleach.sanitizer.ALLOWED_TAGS) + ["iframe", "img"]
     attributes = {
         **bleach.sanitizer.ALLOWED_ATTRIBUTES,
         "iframe": ["src", "width", "height", "frameborder", "allow", "allowfullscreen"],
+        "img": ["src", "alt", "width", "height", "title"],
     }
 
     # Sanitize the content using bleach
