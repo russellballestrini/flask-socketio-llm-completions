@@ -5,17 +5,12 @@ import eventlet
 
 import openai
 
-from openai.error import InvalidRequestError
-
 import os
 
 import time
 
 import boto3
 import json
-
-from bs4 import BeautifulSoup
-import bleach
 
 
 app = Flask(__name__)
