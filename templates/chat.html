@@ -12,6 +12,8 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js" integrity="sha512-rfX4p3RNnxdwLT3wWP1K0NR3ztTobn+sISlT9WhxDDK00zNYbQ6MCHA5OHm0hqKAzEMXYCgFrp8iY/ER5MkXqA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@2/dist/purify.min.js"></script>
+
 
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
 
@@ -87,6 +89,15 @@ const urlParams = new URLSearchParams(window.location.search);
 const username = urlParams.get('username');
 const room = '{{ room }}';
 
+const dompurify_config = {
+  ADD_TAGS: ['iframe', 'img'],
+  FORBID_TAGS: ['form'], 
+  ALLOWED_ATTR: [
+    'src', 'width', 'height', 'frameborder', 'allowfullscreen', 
+    'alt', 'class', 'title', 'style'
+  ]
+};
+
 // Function to handle sending the message
 function sendMessage() {
     const message = document.getElementById('message').value;
@@ -126,7 +137,7 @@ socket.on('message', (data) => {
     messageWrapper.id = "message-" + data.id;
 
     const newMessage = document.createElement('p');
-    newMessage.innerHTML = marked.marked(data.content);
+    newMessage.innerHTML = DOMPurify.sanitize(marked.marked(data.content), dompurify_config);
 
     // Check if the message is NOT a join notification
     if (!data.content.includes('has joined the room.') && !data.content.includes('Processing...')) {
@@ -155,7 +166,7 @@ socket.on('previous_messages', (data) => {
     messageWrapper.id = "message-" + data.id;
 
     const newMessage = document.createElement('p');
-    newMessage.innerHTML = marked.marked(`**${data.username}:**\n\n${data.message}`);
+    newMessage.innerHTML = DOMPurify.sanitize(marked.marked(`**${data.username}:**\n\n${data.message}`), dompurify_config);
 
     // Create the delete button
     const deleteButton = document.createElement('button');
@@ -222,7 +233,7 @@ socket.on('message_chunk', (data) => {
     messageBuffers[data.id] += data.content;
 
     // Process the entire buffer with marked and set it as the content of the target element
-    targetMessageElement.innerHTML = marked.marked(messageBuffers[data.id]);
+    targetMessageElement.innerHTML = DOMPurify.sanitize(marked.marked(messageBuffers[data.id]), dompurify_config);
 
     // Apply syntax highlighting to code blocks within the content
     targetMessageElement.querySelectorAll('pre code').forEach((block) => {

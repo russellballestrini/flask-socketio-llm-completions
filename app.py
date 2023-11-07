@@ -39,39 +39,6 @@ args = parser.parse_args()
 profile_name = args.profile
 
 
-def escape_except_code_and_pre(html_content):
-    soup = BeautifulSoup(html_content, "html.parser")
-
-    # Find all <code> and <pre> blocks and replace them with placeholders
-    placeholders = {}
-    for tag in soup.find_all(["code", "pre"]):
-        placeholder = f"PLACEHOLDER_{len(placeholders)}"
-        placeholders[placeholder] = str(tag)
-        tag.replace_with(placeholder)
-
-    # Convert the soup object back to a string
-    html_str = str(soup)
-
-    # Define bleach settings to allow iframes
-    tags = list(bleach.sanitizer.ALLOWED_TAGS) + ["iframe", "img"]
-    attributes = {
-        **bleach.sanitizer.ALLOWED_ATTRIBUTES,
-        "iframe": ["src", "width", "height", "frameborder", "allow", "allowfullscreen"],
-        "img": ["src", "alt", "width", "height", "title"],
-    }
-
-    # Sanitize the content using bleach
-    sanitized_content = bleach.clean(
-        html_str, tags=tags, attributes=attributes, strip=True
-    )
-
-    # Put back the <code> and <pre> blocks
-    for placeholder, original in placeholders.items():
-        sanitized_content = sanitized_content.replace(placeholder, original)
-
-    return sanitized_content
-
-
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(128), nullable=False)
@@ -122,7 +89,7 @@ def on_join(data):
             {
                 "id": message.id,
                 "username": message.username,
-                "message": escape_except_code_and_pre(message.content),
+                "message": message.content,
             },
             room=request.sid,
         )
@@ -141,7 +108,7 @@ def handle_message(data):
     # Save the message to the database
     new_message = Message(
         username=data["username"],
-        content=escape_except_code_and_pre(data["message"]),
+        content=data["message"],
         room=data["room"],
     )
     db.session.add(new_message)
@@ -187,7 +154,7 @@ def handle_message(data):
                 data["username"],
                 data["room"],
                 data["message"],
-                model_name="gpt-4",
+                model_name="gpt-4-1106-preview",
             )
 
 
@@ -219,6 +186,7 @@ def chat_claude(username, room, message, model_name="anthropic.claude-v1"):
             "anthropic.claude-v1",
             "anthropic.claude-v2",
             "gpt-4",
+            "gpt-4-1106-preview",
         ]:
             chat_history += f"Assistant: {msg.username}: {msg.content}\n\n"
         else:
@@ -308,11 +276,15 @@ def chat_claude(username, room, message, model_name="anthropic.claude-v1"):
 
 
 def chat_gpt(username, room, message, model_name="gpt-3.5-turbo"):
+    limit = 15
+    if model_name == "gpt-4-1106-preview":
+        limit = 1000
+
     with app.app_context():
         last_messages = (
             Message.query.filter_by(room=room)
             .order_by(Message.id.desc())
-            .limit(10)
+            .limit(limit)
             .all()
         )
 
@@ -324,6 +296,7 @@ def chat_gpt(username, room, message, model_name="gpt-3.5-turbo"):
                 or msg.username == "anthropic.claude-v1"
                 or msg.username == "anthropic.claude-v2"
                 or msg.username == "gpt-4"
+                or msg.username == "gpt-4-1106-preview"
             )
             else "user",
             "content": f"{msg.username}: {msg.content}",
