@@ -26,29 +26,34 @@ db = SQLAlchemy(app)
 
 
 # Create an argument parser for aws profile.
-#import argparse
+# import argparse
 
-#parser = argparse.ArgumentParser()
-#parser.add_argument("--profile", help="AWS profile name")
-#args = parser.parse_args()
-#profile_name = args.profile
+# parser = argparse.ArgumentParser()
+# parser.add_argument("--profile", help="AWS profile name")
+# args = parser.parse_args()
+# profile_name = args.profile
 profile_name = None
+
 
 class Room(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(128), nullable=False, unique=True)
-    title = db.Column(db.String(128), nullable=True)  # Initially, there might be no title
+    title = db.Column(
+        db.String(128), nullable=True
+    )  # Initially, there might be no title
+
 
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(128), nullable=False)
     content = db.Column(db.String(1024), nullable=False)
-    room_id = db.Column(db.Integer, db.ForeignKey('room.id'), nullable=False)
+    room_id = db.Column(db.Integer, db.ForeignKey("room.id"), nullable=False)
 
     def __init__(self, username, content, room_id):
         self.username = username
         self.content = content
         self.room_id = room_id
+
 
 def get_room(room_name):
     """Utility function to get room from room name."""
@@ -62,8 +67,9 @@ def get_room(room_name):
         db.session.commit()
         return new_room
 
+
 # Create the database and tables
-#with app.app_context():
+# with app.app_context():
 #    db.create_all()
 
 from flask_migrate import Migrate
@@ -93,6 +99,10 @@ def on_join(data):
 
     # this makes the client start listening for new events for this room.
     join_room(room_name)
+
+    # update the title bar with the proper room title, if it exists for just this new client.
+    if room.title:
+        socketio.emit("update_room_title", {"title": room.title}, room=request.sid)
 
     # Fetch previous messages from the database
     previous_messages = Message.query.filter_by(room_id=room.id).all()
@@ -298,7 +308,6 @@ def chat_claude(username, room_name, message, model_name="anthropic.claude-v1"):
 
 
 def chat_gpt(username, room_name, message, model_name="gpt-3.5-turbo"):
-
     limit = 15
     if model_name == "gpt-4-1106-preview":
         limit = 1000
@@ -311,24 +320,29 @@ def chat_gpt(username, room_name, message, model_name="gpt-3.5-turbo"):
             .limit(limit)
             .all()
         )
+        if len(last_messages) % 6 == 0 or room.title is None:
+            room.title = gpt_generate_room_title(last_messages, model_name)
+            db.session.add(room)
+            db.session.commit()
+            socketio.emit("update_room_title", {"title": room.title}, room=room.name)
 
-    chat_history = [
-        {
-            "role": "system"
-            if (
-                msg.username == "gpt-3.5-turbo"
-                or msg.username == "anthropic.claude-v1"
-                or msg.username == "anthropic.claude-v2"
-                or msg.username == "gpt-4"
-                or msg.username == "gpt-4-1106-preview"
-            )
-            else "user",
-            "content": f"{msg.username}: {msg.content}",
-        }
-        for msg in reversed(last_messages)
-    ]
+        chat_history = [
+            {
+                "role": "system"
+                if (
+                    msg.username == "gpt-3.5-turbo"
+                    or msg.username == "anthropic.claude-v1"
+                    or msg.username == "anthropic.claude-v2"
+                    or msg.username == "gpt-4"
+                    or msg.username == "gpt-4-1106-preview"
+                )
+                else "user",
+                "content": f"{msg.username}: {msg.content}",
+            }
+            for msg in reversed(last_messages)
+        ]
 
-    chat_history.append({"role": "user", "content": f"{message}\n\n{model_name}: "})
+        chat_history.append({"role": "user", "content": f"{message}\n\n{model_name}: "})
 
     buffer = ""  # Content buffer for accumulating the chunks
 
@@ -380,6 +394,29 @@ def chat_gpt(username, room_name, message, model_name="gpt-3.5-turbo"):
             db.session.commit()
 
     socketio.emit("delete_processing_message", msg_id, room=room.name)
+
+
+def gpt_generate_room_title(messages, model_name):
+    """
+    Generate a title for the room based on a list of messages.
+    """
+    conversation = " ".join([msg.content for msg in messages])
+
+    # Interaction with LLM to generate summary
+    # For example, using OpenAI's GPT model
+    response = openai.ChatCompletion.create(
+        messages=[
+            {
+                "role": "system",
+                "content": f"return a short title for the title bar for this conversation: {conversation}",
+            }
+        ],
+        model=model_name,  # or any appropriate model
+        max_tokens=20,  # Adjust as needed
+    )
+
+    title = response.choices[0]["message"]["content"]
+    return title
 
 
 if __name__ == "__main__":

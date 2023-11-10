@@ -127,6 +127,13 @@ document.getElementById('message').addEventListener('keydown', function(e) {
     }
 });
 
+
+socket.on('update_room_title', (data) => {
+    // Update the window's title
+    document.title = data.title;
+});
+
+
 socket.on('connect', () => {
     socket.emit('join', {username: username, room: room});
 });
