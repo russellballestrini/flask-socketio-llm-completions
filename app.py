@@ -320,7 +320,8 @@ def chat_gpt(username, room_name, message, model_name="gpt-3.5-turbo"):
             .limit(limit)
             .all()
         )
-        if len(last_messages) % 6 == 0 or room.title is None:
+        message_count = len(last_messages)
+        if message_count % 6 == 0 or (room.title is None and message_count > 2):
             room.title = gpt_generate_room_title(last_messages, model_name)
             db.session.add(room)
             db.session.commit()
