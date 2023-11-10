@@ -107,6 +107,7 @@ def on_join(data):
     # Fetch previous messages from the database
     previous_messages = Message.query.filter_by(room_id=room.id).all()
 
+
     # Send the history of messages only to the newly connected client.
     # The reason for using `request.sid` here is to target the specific session (or client) that
     # just connected, so only they receive the backlog of messages, rather than broadcasting
@@ -121,6 +122,13 @@ def on_join(data):
             },
             room=request.sid,
         )
+
+    message_count = len(previous_messages)
+    if room.title is None and message_count > 2:
+        room.title = gpt_generate_room_title(previous_messages, "gpt-4-1106-preview")
+        db.session.add(room)
+        db.session.commit()
+        socketio.emit("update_room_title", {"title": room.title}, room=room.name)
 
     # Broadcast to all clients in the room that a new user has joined.
     # Here, `room=room` ensures the message is sent to everyone in that specific room.
@@ -321,7 +329,7 @@ def chat_gpt(username, room_name, message, model_name="gpt-3.5-turbo"):
             .all()
         )
         message_count = len(last_messages)
-        if message_count % 6 == 0 or (room.title is None and message_count > 2):
+        if message_count % 6 == 0:
             room.title = gpt_generate_room_title(last_messages, model_name)
             db.session.add(room)
             db.session.commit()
