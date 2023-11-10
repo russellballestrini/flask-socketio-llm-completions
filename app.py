@@ -87,10 +87,16 @@ def index():
     return render_template("index.html")
 
 
-@app.route("/chat/<room>")
-def chat(room):
-    return render_template("chat.html", room=room)
+@app.route("/chat/<room_name>")
+def chat(room_name):
+    # Query all rooms so that newest is first.
+    rooms = Room.query.order_by(Room.id.desc()).all()
 
+    # Get username from query parameters
+    username = request.args.get("username", "guest")
+
+    # Pass username and rooms into the template
+    return render_template("chat.html", room_name=room_name, rooms=rooms, username=username)
 
 @socketio.on("join")
 def on_join(data):

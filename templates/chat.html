@@ -71,9 +71,53 @@
         margin-bottom: 8px;
     }
 
+    .main-container {
+        display: grid;
+        grid-template-columns: 20% 80%; /* Adjust the 20% as needed */
+        width: 100%;
+        height: 90vh;
+    }
+
+    #rooms-list {
+        border-right: 1px solid #e1e1e1;
+        overflow-y: auto;
+    }
+
+
+#rooms-list ul {
+    list-style: none; /* Removes default list styling */
+    padding: 0; /* Resets default padding */
+    margin: 0; /* Resets default margin */
+}
+
+#rooms-list li {
+    margin-bottom: 10px; /* Adds space between items */
+    padding: 5px; /* Adds padding inside each item */
+    border: 1px solid #e1e1e1; /* Adds a border around each item */
+    border-radius: 5px; /* Optional: Rounds the corners of the border */
+}
+
+#rooms-list a {
+    text-decoration: none; /* Optional: Removes underline from links */
+    color: inherit; /* Optional: Ensures link color matches the text color */
+}
+
    </style>
 </head>
 <body>
+  <div class="main-container">
+    <div id="rooms-list">
+        <ul>
+            {% for room in rooms %}
+            <a href="{{ url_for('chat', room_name=room.name) }}?username={{ username }}">
+            <li>
+                {{ room.title if room.title else room.name }}
+            </li>
+            </a>
+            {% endfor %}
+        </ul>
+    </div>
+
     <div id="chat-container">
         <div id="chat"></div>
         <form id="message-form">
@@ -81,13 +125,15 @@
         </form>
     </div>
 
+  </div>
+
     <script>
 
 const socket = io.connect('http://' + document.domain + ':' + location.port);
 
 const urlParams = new URLSearchParams(window.location.search);
 const username = urlParams.get('username');
-const room = '{{ room }}';
+const room_name = '{{ room_name }}';
 
 const dompurify_config = {
   ADD_TAGS: ['iframe', 'img'],
@@ -102,14 +148,14 @@ const dompurify_config = {
 function sendMessage() {
     const message = document.getElementById('message').value;
     if (message.trim() !== "") {  // Ensure we're not sending empty messages
-        socket.emit('message', {'username': username, 'message': message, 'room': room});
+        socket.emit('message', {'username': username, 'message': message, 'room': room_name});
         document.getElementById('message').value = '';
     }
 }
 
 
 function deleteMessage(messageId, room) {
-    socket.emit('delete_message', {'message_id': messageId, 'room': room});
+    socket.emit('delete_message', {'message_id': messageId, 'room': room_name});
 }
 
 
@@ -135,7 +181,7 @@ socket.on('update_room_title', (data) => {
 
 
 socket.on('connect', () => {
-    socket.emit('join', {username: username, room: room});
+    socket.emit('join', {username: username, room: room_name});
 });
 
 socket.on('message', (data) => {
@@ -151,7 +197,7 @@ socket.on('message', (data) => {
         // Create the delete button
         const deleteButton = document.createElement('button');
         deleteButton.innerHTML = 'x';
-        deleteButton.onclick = () => deleteMessage(data.id, room);
+        deleteButton.onclick = () => deleteMessage(data.id, room_name);
         messageWrapper.appendChild(deleteButton);
     }
 
@@ -178,7 +224,7 @@ socket.on('previous_messages', (data) => {
     // Create the delete button
     const deleteButton = document.createElement('button');
     deleteButton.innerHTML = 'x';
-    deleteButton.onclick = () => deleteMessage(data.id, room);
+    deleteButton.onclick = () => deleteMessage(data.id, room_name);
 
     messageWrapper.appendChild(deleteButton);
     messageWrapper.appendChild(newMessage);
@@ -220,7 +266,7 @@ socket.on('message_chunk', (data) => {
         // Create the "x" button for deletion
         const deleteButton = document.createElement('button');
         deleteButton.innerHTML = 'x';
-        deleteButton.onclick = () => deleteMessage(data.id, room);
+        deleteButton.onclick = () => deleteMessage(data.id, room_name);
         messageWrapper.appendChild(deleteButton);
 
         // Create the p element to hold the message content
