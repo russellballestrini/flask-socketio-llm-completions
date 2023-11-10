@@ -26,29 +26,49 @@ db = SQLAlchemy(app)
 
 
 # Create an argument parser for aws profile.
-import argparse
+#import argparse
 
-parser = argparse.ArgumentParser()
-parser.add_argument("--profile", help="AWS profile name")
-args = parser.parse_args()
-profile_name = args.profile
+#parser = argparse.ArgumentParser()
+#parser.add_argument("--profile", help="AWS profile name")
+#args = parser.parse_args()
+#profile_name = args.profile
+profile_name = None
 
+class Room(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(128), nullable=False, unique=True)
+    title = db.Column(db.String(128), nullable=True)  # Initially, there might be no title
 
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(128), nullable=False)
     content = db.Column(db.String(1024), nullable=False)
-    room = db.Column(db.String(128), nullable=False)
+    room_id = db.Column(db.Integer, db.ForeignKey('room.id'), nullable=False)
 
-    def __init__(self, username, content, room):
+    def __init__(self, username, content, room_id):
         self.username = username
         self.content = content
-        self.room = room
+        self.room_id = room_id
 
+def get_room(room_name):
+    """Utility function to get room from room name."""
+    room = Room.query.filter_by(name=room_name).first()
+    if room:
+        return room
+    else:
+        # Create a new room since it doesn't exist
+        new_room = Room(name=room_name)
+        db.session.add(new_room)
+        db.session.commit()
+        return new_room
 
 # Create the database and tables
-with app.app_context():
-    db.create_all()
+#with app.app_context():
+#    db.create_all()
+
+from flask_migrate import Migrate
+
+migrate = Migrate(app, db)
 
 
 @app.route("/favicon.ico")
@@ -68,11 +88,14 @@ def chat(room):
 
 @socketio.on("join")
 def on_join(data):
-    room = data["room"]
-    join_room(room)
+    room_name = data["room"]
+    room = get_room(room_name)
+
+    # this makes the client start listening for new events for this room.
+    join_room(room_name)
 
     # Fetch previous messages from the database
-    previous_messages = Message.query.filter_by(room=room).all()
+    previous_messages = Message.query.filter_by(room_id=room.id).all()
 
     # Send the history of messages only to the newly connected client.
     # The reason for using `request.sid` here is to target the specific session (or client) that
@@ -94,17 +117,20 @@ def on_join(data):
     emit(
         "message",
         {"id": None, "content": f"{data['username']} has joined the room."},
-        room=room,
+        room=room.name,
     )
 
 
 @socketio.on("message")
 def handle_message(data):
+    room_name = data["room"]
+    room = get_room(room_name)
+
     # Save the message to the database
     new_message = Message(
         username=data["username"],
         content=data["message"],
-        room=data["room"],
+        room_id=room.id,
     )
     db.session.add(new_message)
     db.session.commit()
@@ -115,7 +141,7 @@ def handle_message(data):
             "id": new_message.id,
             "content": f"**{data['username']}:**\n\n{data['message']}",
         },
-        room=data["room"],
+        room=room.name,
     )
 
     if (
@@ -128,26 +154,26 @@ def handle_message(data):
         emit(
             "message",
             {"id": None, "content": f"<span id='processing'>Processing...</span>"},
-            room=data["room"],
+            room=room.name,
         )
 
         if "claude-v1" in data["message"]:
-            eventlet.spawn(chat_claude, data["username"], data["room"], data["message"])
+            eventlet.spawn(chat_claude, data["username"], room.name, data["message"])
         if "claude-v2" in data["message"]:
             eventlet.spawn(
                 chat_claude,
                 data["username"],
-                data["room"],
+                room.name,
                 data["message"],
                 model_name="anthropic.claude-v2",
             )
         if "gpt-3" in data["message"]:
-            eventlet.spawn(chat_gpt, data["username"], data["room"], data["message"])
+            eventlet.spawn(chat_gpt, data["username"], room.name, data["message"])
         if "gpt-4" in data["message"]:
             eventlet.spawn(
                 chat_gpt,
                 data["username"],
-                data["room"],
+                room.name,
                 data["message"],
                 model_name="gpt-4-1106-preview",
             )
@@ -166,11 +192,12 @@ def handle_delete_message(data):
     emit("message_deleted", {"message_id": msg_id}, room=data["room"])
 
 
-def chat_claude(username, room, message, model_name="anthropic.claude-v1"):
+def chat_claude(username, room_name, message, model_name="anthropic.claude-v1"):
     with app.app_context():
+        room = get_room(room_name)
         # claude has a 100,000 token context window for prompts.
         all_messages = (
-            Message.query.filter_by(room=room).order_by(Message.id.desc()).all()
+            Message.query.filter_by(room_id=room.id).order_by(Message.id.desc()).all()
         )
 
     chat_history = ""
@@ -223,7 +250,7 @@ def chat_claude(username, room, message, model_name="anthropic.claude-v1"):
 
     # save empty message, we need the ID when we chunk the response.
     with app.app_context():
-        new_message = Message(username=model_name, content=buffer, room=room)
+        new_message = Message(username=model_name, content=buffer, room_id=room.id)
         db.session.add(new_message)
         db.session.commit()
         msg_id = new_message.id
@@ -246,14 +273,14 @@ def chat_claude(username, room, message, model_name="anthropic.claude-v1"):
                         "id": msg_id,
                         "content": f"**{username} ({model_name}):**\n\n{content}",
                     },
-                    room=room,
+                    room=room.name,
                 )
                 first_chunk = False
             else:
                 socketio.emit(
                     "message_chunk",
                     {"id": msg_id, "content": content},
-                    room=room,
+                    room=room.name,
                 )
             socketio.sleep(0)  # Force immediate handling
 
@@ -267,17 +294,19 @@ def chat_claude(username, room, message, model_name="anthropic.claude-v1"):
             db.session.add(new_message)
             db.session.commit()
 
-    socketio.emit("delete_processing_message", msg_id, room=room)
+    socketio.emit("delete_processing_message", msg_id, room=room.name)
 
 
-def chat_gpt(username, room, message, model_name="gpt-3.5-turbo"):
+def chat_gpt(username, room_name, message, model_name="gpt-3.5-turbo"):
+
     limit = 15
     if model_name == "gpt-4-1106-preview":
         limit = 1000
 
     with app.app_context():
+        room = get_room(room_name)
         last_messages = (
-            Message.query.filter_by(room=room)
+            Message.query.filter_by(room_id=room.id)
             .order_by(Message.id.desc())
             .limit(limit)
             .all()
@@ -305,7 +334,7 @@ def chat_gpt(username, room, message, model_name="gpt-3.5-turbo"):
 
     # save empty message, we need the ID when we chunk the response.
     with app.app_context():
-        new_message = Message(username=model_name, content=buffer, room=room)
+        new_message = Message(username=model_name, content=buffer, room_id=room.id)
         db.session.add(new_message)
         db.session.commit()
         msg_id = new_message.id
@@ -329,14 +358,14 @@ def chat_gpt(username, room, message, model_name="gpt-3.5-turbo"):
                         "id": msg_id,
                         "content": f"**{username} ({model_name}):**\n\n{content}",
                     },
-                    room=room,
+                    room=room.name,
                 )
                 first_chunk = False
             else:
                 socketio.emit(
                     "message_chunk",
                     {"id": msg_id, "content": content},
-                    room=room,
+                    room=room.name,
                 )
             socketio.sleep(0)  # Force immediate handling
 
@@ -350,7 +379,7 @@ def chat_gpt(username, room, message, model_name="gpt-3.5-turbo"):
             db.session.add(new_message)
             db.session.commit()
 
-    socketio.emit("delete_processing_message", msg_id, room=room)
+    socketio.emit("delete_processing_message", msg_id, room=room.name)
 
 
 if __name__ == "__main__":
