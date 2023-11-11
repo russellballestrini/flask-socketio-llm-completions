@@ -5,19 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chatroom</title>
 
-    <!-- Include highlight.js library -->
+    <!-- Include highlight.js library for syntax highlighting -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/highlight.min.js"></script>
     <!-- Include a highlight.js theme (replace 'default' with your preferred theme) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/styles/default.min.css">
 
+    <!-- Include socket.io for real-time bidirectional event-based communication -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
+    <!-- Include marked.js for markdown parsing -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js" integrity="sha512-rfX4p3RNnxdwLT3wWP1K0NR3ztTobn+sISlT9WhxDDK00zNYbQ6MCHA5OHm0hqKAzEMXYCgFrp8iY/ER5MkXqA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <!-- Include DOMPurify to sanitize HTML and prevent XSS attacks -->
     <script src="https://cdn.jsdelivr.net/npm/dompurify@2/dist/purify.min.js"></script>
 
-
+    <!-- Link to the favicon -->
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
 
     <style>
+    /* Basic styling for the chat application */
     html, body {
         height: 100%;
         margin: 0;
@@ -28,6 +32,7 @@
         place-items: center;
     }
     
+    /* Styling for the chat container */
     #chat-container {
         display: grid;
         grid-template-rows: 1fr auto;
@@ -40,6 +45,7 @@
         box-sizing: border-box;
     }
     
+    /* Styling for the chat area */
     #chat {
         overflow-y: auto;
         border: 1px solid #e1e1e1;
@@ -49,6 +55,7 @@
         min-width: 400px;
     }
     
+    /* Styling for the message input area */
     #message {
         width: 100%;
         border: 1px solid #e1e1e1;
@@ -56,21 +63,25 @@
         padding: 5px;
     }
 
+    /* Styling for individual message wrappers */
     .message-wrapper {
         display: flex;
         align-items: start;
     }
     
+    /* Styling for the delete button next to messages */
     .message-wrapper button {
         margin-top: 16px;
         margin-right: 8px;
     }
 
+    /* Styling for paragraphs, used for messages */
     p {
         margin-top: 8px;
         margin-bottom: 8px;
     }
 
+    /* Styling for the main container that holds the rooms list and chat */
     .main-container {
         display: grid;
         grid-template-columns: 20% 80%; /* Adjust the 20% as needed */
@@ -78,29 +89,32 @@
         height: 90vh;
     }
 
+    /* Styling for the rooms list */
     #rooms-list {
         border-right: 1px solid #e1e1e1;
         overflow-y: auto;
     }
 
+    /* Styling for the unordered list in the rooms list */
+    #rooms-list ul {
+        list-style: none; /* Removes default list styling */
+        padding: 0; /* Resets default padding */
+        margin: 0; /* Resets default margin */
+    }
 
-#rooms-list ul {
-    list-style: none; /* Removes default list styling */
-    padding: 0; /* Resets default padding */
-    margin: 0; /* Resets default margin */
-}
+    /* Styling for list items in the rooms list */
+    #rooms-list li {
+        margin-bottom: 10px; /* Adds space between items */
+        padding: 5px; /* Adds padding inside each item */
+        border: 1px solid #e1e1e1; /* Adds a border around each item */
+        border-radius: 5px; /* Optional: Rounds the corners of the border */
+    }
 
-#rooms-list li {
-    margin-bottom: 10px; /* Adds space between items */
-    padding: 5px; /* Adds padding inside each item */
-    border: 1px solid #e1e1e1; /* Adds a border around each item */
-    border-radius: 5px; /* Optional: Rounds the corners of the border */
-}
-
-#rooms-list a {
-    text-decoration: none; /* Optional: Removes underline from links */
-    color: inherit; /* Optional: Ensures link color matches the text color */
-}
+    /* Styling for links in the rooms list */
+    #rooms-list a {
+        text-decoration: none; /* Optional: Removes underline from links */
+        color: inherit; /* Optional: Ensures link color matches the text color */
+    }
 
    </style>
 </head>
@@ -108,9 +122,11 @@
   <div class="main-container">
     <div id="rooms-list">
         <ul>
+            <!-- Loop through rooms and create list items for each room -->
             {% for room in rooms %}
             <a href="{{ url_for('chat', room_name=room.name) }}?username={{ username }}">
             <li>
+                <!-- Display the room title if available, otherwise the room name -->
                 {{ room.title if room.title else room.name }}
             </li>
             </a>
@@ -119,7 +135,9 @@
     </div>
 
     <div id="chat-container">
+        <!-- Chat area where messages will be displayed -->
         <div id="chat"></div>
+        <!-- Form for sending messages -->
         <form id="message-form">
             <textarea id="message" rows="4" placeholder="Type your message..."></textarea>
         </form>
@@ -127,117 +145,121 @@
 
   </div>
 
-    <script>
+<script>
+// Connect to the server using socket.io
+const socket = io.connect("http://" + document.domain + ":" + location.port);
 
-const socket = io.connect('http://' + document.domain + ':' + location.port);
-
+// Retrieve username and room name from the URL parameters
 const urlParams = new URLSearchParams(window.location.search);
-const username = urlParams.get('username');
-const room_name = '{{ room_name }}';
+const username = urlParams.get("username");
+const room_name = "{{ room_name }}";
 
+// Configuration for DOMPurify to specify which tags and attributes are allowed
 const dompurify_config = {
-  ADD_TAGS: ['iframe', 'img'],
-  FORBID_TAGS: ['form'], 
+  ADD_TAGS: ["iframe", "img"],
+  FORBID_TAGS: ["form"], 
   ALLOWED_ATTR: [
-    'src', 'width', 'height', 'frameborder', 'allowfullscreen', 
-    'alt', 'class', 'title', 'style'
+    "src", "width", "height", "frameborder", "allowfullscreen", 
+    "alt", "class", "title", "style"
   ]
 };
 
 // Function to handle sending the message
 function sendMessage() {
-    const message = document.getElementById('message').value;
+    const message = document.getElementById("message").value;
     if (message.trim() !== "") {  // Ensure we're not sending empty messages
-        socket.emit('message', {'username': username, 'message': message, 'room_name': room_name});
-        document.getElementById('message').value = '';
+        socket.emit("message", {"username": username, "message": message, "room_name": room_name});
+        document.getElementById("message").value = "";
     }
 }
 
-
+// Function to handle deleting a message
 function deleteMessage(messageId, room_name) {
-    socket.emit('delete_message', {'message_id': messageId, 'room_name': room_name});
+    socket.emit("delete_message", {"message_id": messageId, "room_name": room_name});
 }
 
-
-// Event listener for form submission
-document.getElementById('message-form').addEventListener('submit', (e) => {
+// Event listener for form submission to send a message
+document.getElementById("message-form").addEventListener("submit", (e) => {
     e.preventDefault();
     sendMessage();
 });
 
-// Event listener for the Enter key press in the textarea
-document.getElementById('message').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter' && !e.shiftKey) {
+// Event listener for the Enter key press in the textarea to send a message
+document.getElementById("message").addEventListener("keydown", function(e) {
+    if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
         sendMessage();
     }
 });
 
-
-socket.on('update_room_title', (data) => {
-    // Update the window's title
-    document.title = data.title;
+// Socket event for updating the room title
+socket.on("update_room_title", (data) => {
+    document.title = data.title; // Update the window's title
 });
 
-
-socket.on('connect', () => {
-    socket.emit('join', {username: username, room_name: room_name});
+// Socket event when the user connects
+socket.on("connect", () => {
+    socket.emit("join", {"username": username, "room_name": room_name});
 });
 
-socket.on('message', (data) => {
-    const messageWrapper = document.createElement('div');
-    messageWrapper.className = 'message-wrapper';
+// Socket event for receiving a new message
+socket.on("message", (data) => {
+    const messageWrapper = document.createElement("div");
+    messageWrapper.className = "message-wrapper";
     messageWrapper.id = "message-" + data.id;
 
-    const newMessage = document.createElement('p');
+    const newMessage = document.createElement("p");
     newMessage.innerHTML = DOMPurify.sanitize(marked.marked(data.content), dompurify_config);
 
     // Check if the message is NOT a join notification
-    if (!data.content.includes('has joined the room.') && !data.content.includes('Processing...')) {
+    if (!data.content.includes("has joined the room.") && !data.content.includes("Processing...")) {
         // Create the delete button
-        const deleteButton = document.createElement('button');
-        deleteButton.innerHTML = 'x';
+        const deleteButton = document.createElement("button");
+        deleteButton.innerHTML = "x";
         deleteButton.onclick = () => deleteMessage(data.id, room_name);
         messageWrapper.appendChild(deleteButton);
     }
 
     messageWrapper.appendChild(newMessage);
 
-    document.getElementById('chat').appendChild(messageWrapper);
+    document.getElementById("chat").appendChild(messageWrapper);
 
-    newMessage.querySelectorAll('pre code').forEach((block) => {
+    // Apply syntax highlighting to code blocks within the message
+    newMessage.querySelectorAll("pre code").forEach((block) => {
         hljs.highlightElement(block);
     });
 
-    document.getElementById('chat').scrollTop = document.getElementById('chat').scrollHeight;
+    // Scroll to the bottom of the chat container
+    document.getElementById("chat").scrollTop = document.getElementById("chat").scrollHeight;
 });
 
-
-socket.on('previous_messages', (data) => {
-    const messageWrapper = document.createElement('div');
-    messageWrapper.className = 'message-wrapper';
+// Socket event for receiving previous messages
+socket.on("previous_messages", (data) => {
+    const messageWrapper = document.createElement("div");
+    messageWrapper.className = "message-wrapper";
     messageWrapper.id = "message-" + data.id;
 
-    const newMessage = document.createElement('p');
+    const newMessage = document.createElement("p");
     newMessage.innerHTML = DOMPurify.sanitize(marked.marked(`**${data.username}:**\n\n${data.message}`), dompurify_config);
 
     // Create the delete button
-    const deleteButton = document.createElement('button');
-    deleteButton.innerHTML = 'x';
+    const deleteButton = document.createElement("button");
+    deleteButton.innerHTML = "x";
     deleteButton.onclick = () => deleteMessage(data.id, room_name);
 
     messageWrapper.appendChild(deleteButton);
     messageWrapper.appendChild(newMessage);
 
-    document.getElementById('chat').appendChild(messageWrapper);
+    document.getElementById("chat").appendChild(messageWrapper);
 
-    newMessage.querySelectorAll('pre code').forEach((block) => {
+    // Apply syntax highlighting to code blocks within the message
+    newMessage.querySelectorAll("pre code").forEach((block) => {
         hljs.highlightElement(block);
     });
 });
 
-
-socket.on('delete_processing_message', (msg_id) => {
+// Socket event for deleting a processing message
+socket.on("delete_processing_message", (msg_id) => {
     const tempMessages = document.querySelectorAll("#message-null");
     tempMessages.forEach((tempMessage) => {
         tempMessage.remove();
@@ -246,35 +268,34 @@ socket.on('delete_processing_message', (msg_id) => {
     delete messageBuffers[msg_id];
 });
 
-
-
 // A dictionary to hold buffers for each message ID
 const messageBuffers = {};
 
-socket.on('message_chunk', (data) => {
+// Socket event for receiving chunks of a message
+socket.on("message_chunk", (data) => {
     const wrapperId = "message-" + data.id;
     let messageWrapper = document.getElementById(wrapperId);
     let targetMessageElement;
 
     // If the message wrapper doesn't exist, it's an initial chunk
     if (!messageWrapper) {
-        messageWrapper = document.createElement('div');
-        messageWrapper.className = 'message-wrapper';
+        messageWrapper = document.createElement("div");
+        messageWrapper.className = "message-wrapper";
         messageWrapper.id = wrapperId;
-        document.getElementById('chat').appendChild(messageWrapper);
+        document.getElementById("chat").appendChild(messageWrapper);
 
         // Create the "x" button for deletion
-        const deleteButton = document.createElement('button');
-        deleteButton.innerHTML = 'x';
+        const deleteButton = document.createElement("button");
+        deleteButton.innerHTML = "x";
         deleteButton.onclick = () => deleteMessage(data.id, room_name);
         messageWrapper.appendChild(deleteButton);
 
         // Create the p element to hold the message content
-        targetMessageElement = document.createElement('p');
+        targetMessageElement = document.createElement("p");
         messageWrapper.appendChild(targetMessageElement);
     } else {
         // If the wrapper already exists, get the p element inside it
-        targetMessageElement = messageWrapper.querySelector('p');
+        targetMessageElement = messageWrapper.querySelector("p");
     }
 
     // If the message buffer for this ID doesn't exist, create it
@@ -289,25 +310,22 @@ socket.on('message_chunk', (data) => {
     targetMessageElement.innerHTML = DOMPurify.sanitize(marked.marked(messageBuffers[data.id]), dompurify_config);
 
     // Apply syntax highlighting to code blocks within the content
-    targetMessageElement.querySelectorAll('pre code').forEach((block) => {
+    targetMessageElement.querySelectorAll("pre code").forEach((block) => {
         hljs.highlightElement(block);
     });
 
     // Scroll to the bottom of the chat container
-    document.getElementById('chat').scrollTop = document.getElementById('chat').scrollHeight;
+    document.getElementById("chat").scrollTop = document.getElementById("chat").scrollHeight;
 });
 
-
-socket.on('message_deleted', (data) => {
-    const messageElement = document.getElementById('message-' + data.message_id);
+// Socket event for when a message is deleted
+socket.on("message_deleted", (data) => {
+    const messageElement = document.getElementById("message-" + data.message_id);
     if (messageElement) {
         messageElement.remove();
     }
 });
 
- 
-    </script>
+   </script>
 </body>
-
 </html>
-
