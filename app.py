@@ -100,7 +100,7 @@ def chat(room_name):
 
 @socketio.on("join")
 def on_join(data):
-    room_name = data["room"]
+    room_name = data["room_name"]
     room = get_room(room_name)
 
     # this makes the client start listening for new events for this room.
@@ -147,7 +147,7 @@ def on_join(data):
 
 @socketio.on("message")
 def handle_message(data):
-    room_name = data["room"]
+    room_name = data["room_name"]
     room = get_room(room_name)
 
     # Save the message to the database
@@ -213,7 +213,7 @@ def handle_delete_message(data):
         db.session.commit()
 
     # Notify all clients in the room to remove the message from their DOM
-    emit("message_deleted", {"message_id": msg_id}, room=data["room"])
+    emit("message_deleted", {"message_id": msg_id}, room=data["room_name"])
 
 
 def chat_claude(username, room_name, message, model_name="anthropic.claude-v1"):

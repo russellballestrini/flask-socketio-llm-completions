@@ -148,14 +148,14 @@ const dompurify_config = {
 function sendMessage() {
     const message = document.getElementById('message').value;
     if (message.trim() !== "") {  // Ensure we're not sending empty messages
-        socket.emit('message', {'username': username, 'message': message, 'room': room_name});
+        socket.emit('message', {'username': username, 'message': message, 'room_name': room_name});
         document.getElementById('message').value = '';
     }
 }
 
 
-function deleteMessage(messageId, room) {
-    socket.emit('delete_message', {'message_id': messageId, 'room': room_name});
+function deleteMessage(messageId, room_name) {
+    socket.emit('delete_message', {'message_id': messageId, 'room_name': room_name});
 }
 
 
@@ -181,7 +181,7 @@ socket.on('update_room_title', (data) => {
 
 
 socket.on('connect', () => {
-    socket.emit('join', {username: username, room: room_name});
+    socket.emit('join', {username: username, room_name: room_name});
 });
 
 socket.on('message', (data) => {
