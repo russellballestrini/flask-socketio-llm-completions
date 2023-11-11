@@ -96,7 +96,10 @@ def chat(room_name):
     username = request.args.get("username", "guest")
 
     # Pass username and rooms into the template
-    return render_template("chat.html", room_name=room_name, rooms=rooms, username=username)
+    return render_template(
+        "chat.html", room_name=room_name, rooms=rooms, username=username
+    )
+
 
 @socketio.on("join")
 def on_join(data):
@@ -112,7 +115,6 @@ def on_join(data):
 
     # Fetch previous messages from the database
     previous_messages = Message.query.filter_by(room_id=room.id).all()
-
 
     # Send the history of messages only to the newly connected client.
     # The reason for using `request.sid` here is to target the specific session (or client) that
