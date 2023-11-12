@@ -132,7 +132,7 @@ def on_join(data):
         )
 
     message_count = len(previous_messages)
-    if room.title is None and message_count > 2:
+    if room.title is None and message_count >= 6:
         room.title = gpt_generate_room_title(previous_messages, "gpt-4-1106-preview")
         db.session.add(room)
         db.session.commit()
@@ -336,8 +336,7 @@ def chat_gpt(username, room_name, message, model_name="gpt-3.5-turbo"):
             .limit(limit)
             .all()
         )
-        message_count = len(last_messages)
-        if message_count % 6 == 0:
+        if room.title is None and len(last_messages) >= 5:
             room.title = gpt_generate_room_title(last_messages, model_name)
             db.session.add(room)
             db.session.commit()
@@ -433,7 +432,7 @@ def gpt_generate_room_title(messages, model_name):
     )
 
     title = response.choices[0]["message"]["content"]
-    return title
+    return title.replace('"', '')
 
 
 if __name__ == "__main__":
