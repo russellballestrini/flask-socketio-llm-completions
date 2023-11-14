@@ -416,23 +416,40 @@ def gpt_generate_room_title(messages, model_name):
     """
     Generate a title for the room based on a list of messages.
     """
-    conversation = " ".join([msg.content for msg in messages])
+
+    chat_history = [
+        {
+            "role": "system"
+            if (
+                msg.username == "gpt-3.5-turbo"
+                or msg.username == "anthropic.claude-v1"
+                or msg.username == "anthropic.claude-v2"
+                or msg.username == "gpt-4"
+                or msg.username == "gpt-4-1106-preview"
+            )
+            else "user",
+            "content": f"{msg.username}: {msg.content}",
+        }
+        for msg in reversed(messages)
+    ]
+
+    chat_history.append(
+        {
+            "role": "system",
+            "content": "return a short title for the title bar of this conversation.",
+        }
+    )
 
     # Interaction with LLM to generate summary
     # For example, using OpenAI's GPT model
     response = openai.ChatCompletion.create(
-        messages=[
-            {
-                "role": "system",
-                "content": f"return a short title for the title bar for this conversation: {conversation}",
-            }
-        ],
+        messages=chat_history,
         model=model_name,  # or any appropriate model
         max_tokens=20,  # Adjust as needed
     )
 
     title = response.choices[0]["message"]["content"]
-    return title.replace('"', '')
+    return title.replace('"', "")
 
 
 if __name__ == "__main__":
