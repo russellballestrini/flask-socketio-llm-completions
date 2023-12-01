@@ -127,7 +127,7 @@
             <a href="{{ url_for('chat', room_name=room.name) }}?username={{ username }}">
             <li>
                 <!-- Display the room title if available, otherwise the room name -->
-                {{ room.title if room.title else room.name }}
+                <b>{{ room.name }}</b> {% if room.title %}<br />{{ room.title }} {% endif %}
             </li>
             </a>
             {% endfor %}
