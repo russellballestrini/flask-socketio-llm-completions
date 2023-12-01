@@ -6,7 +6,6 @@
     <title>Chatroom</title>
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -52,14 +51,18 @@
         </form>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        $('#join-room-form').submit((e) => {
+        function slugify(str) {
+            return str.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
+        }
+
+        document.getElementById('join-room-form').addEventListener('submit', function(e) {
             e.preventDefault();
-            const username = $('#username').val();
-            const room = $('#room').val();
+            const username = document.getElementById('username').value;
+            const room = slugify(document.getElementById('room').value);
             window.location.href = `/chat/${room}?username=${encodeURIComponent(username)}`;
         });
     </script>
 </body>
 </html>
+
