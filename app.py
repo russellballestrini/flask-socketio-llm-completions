@@ -447,7 +447,7 @@ def gpt_generate_room_title(messages, model_name):
         max_tokens=20,
     )
 
-    title = response.choices[0]["message"]["content"]
+    title = response.choices[0].message.content
     return title.replace('"', "")
 
 
