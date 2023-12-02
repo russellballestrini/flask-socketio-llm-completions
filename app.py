@@ -180,6 +180,7 @@ def load_s3_file(room_name, s3_file_path, username):
                 "message",
                 {
                     "id": new_message.id,
+                    "username": username,
                     "content": formatted_content,
                 },
                 room=room_name,
@@ -205,6 +206,7 @@ def load_s3_file(room_name, s3_file_path, username):
                 "message",
                 {
                     "id": new_error_message.id,
+                    "username": username,
                     "content": error_message,
                 },
                 room=room_name,
@@ -229,7 +231,8 @@ def handle_message(data):
         "message",
         {
             "id": new_message.id,
-            "content": f"**{data['username']}:**\n\n{data['message']}",
+            "username": data["username"],
+            "content": data["message"],
         },
         room=room.name,
     )

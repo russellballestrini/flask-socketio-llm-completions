@@ -209,10 +209,12 @@ socket.on("message", (data) => {
     messageWrapper.id = "message-" + data.id;
 
     const newMessage = document.createElement("p");
-    newMessage.innerHTML = DOMPurify.sanitize(marked.marked(data.content), dompurify_config);
+    // Check if the username is present and prepend it to the message content
+    const messageContent = data.username ? `**${data.username}:**\n\n${data.content}` : data.content;
+    newMessage.innerHTML = DOMPurify.sanitize(marked.marked(messageContent), dompurify_config);
 
-    // Check if the message is NOT a join notification
-    if (!data.content.includes("has joined the room.") && !data.content.includes("Processing...")) {
+    // Check if the message has an id which means we can delete it.
+    if (data.id) {
         // Create the delete button
         const deleteButton = document.createElement("button");
         deleteButton.innerHTML = "x";
