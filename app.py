@@ -149,6 +149,68 @@ def on_join(data):
     )
 
 
+def load_s3_file(room_name, s3_file_path, username):
+    # Initialize the S3 client
+    s3_client = boto3.client("s3")
+
+    # Assuming the bucket name is set in an environment variable
+    bucket_name = os.environ.get("S3_BUCKET_NAME")
+
+    try:
+        # Retrieve the file content from S3
+        response = s3_client.get_object(Bucket=bucket_name, Key=s3_file_path)
+        file_content = response["Body"].read().decode("utf-8")
+
+        # Format the file content as a code block
+        formatted_content = f"```\n{file_content}\n```"
+
+        # Save the message to the database
+        with app.app_context():
+            room = get_room(room_name)
+            new_message = Message(
+                username=username,  # Use the username who issued the command
+                content=formatted_content,
+                room_id=room.id,
+            )
+            db.session.add(new_message)
+            db.session.commit()
+
+            # Emit the file content as a message to the chatroom with the message ID
+            socketio.emit(
+                "message",
+                {
+                    "id": new_message.id,
+                    "content": formatted_content,
+                },
+                room=room_name,
+            )
+
+    except Exception as e:
+        # Handle errors (e.g., file not found, access denied)
+        error_message = f"Error loading file from S3: {e}"
+
+        # Save the error message to the database
+        with app.app_context():
+            room = get_room(room_name)
+            new_error_message = Message(
+                username=username,
+                content=error_message,
+                room_id=room.id,
+            )
+            db.session.add(new_error_message)
+            db.session.commit()
+
+            # Emit the error message to the chatroom without a message ID
+            socketio.emit(
+                "message",
+                {
+                    "id": new_error_message.id,
+                    "content": error_message,
+                },
+                room=room_name,
+            )
+
+
 @socketio.on("message")
 def handle_message(data):
     room_name = data["room_name"]
@@ -171,6 +233,16 @@ def handle_message(data):
         },
         room=room.name,
     )
+
+    # detect and process special commands.
+    commands = data["message"].splitlines()
+
+    for command in commands:
+        if command.startswith("/s3 load"):
+            # Extract the S3 file path
+            s3_file_path = command.split(" ", 2)[2]
+            # Load the file from S3 and emit its content
+            eventlet.spawn(load_s3_file, room_name, s3_file_path, data["username"])
 
     if (
         "claude-v1" in data["message"]
