@@ -229,6 +229,7 @@ socket.on("message", (data) => {
     // Apply syntax highlighting to code blocks within the message
     newMessage.querySelectorAll("pre code").forEach((block) => {
         hljs.highlightElement(block);
+        addCopyButtonToCodeBlock(block);
     });
 
     // Scroll to the bottom of the chat container
@@ -257,6 +258,7 @@ socket.on("previous_messages", (data) => {
     // Apply syntax highlighting to code blocks within the message
     newMessage.querySelectorAll("pre code").forEach((block) => {
         hljs.highlightElement(block);
+        addCopyButtonToCodeBlock(block);
     });
 });
 
@@ -314,6 +316,7 @@ socket.on("message_chunk", (data) => {
     // Apply syntax highlighting to code blocks within the content
     targetMessageElement.querySelectorAll("pre code").forEach((block) => {
         hljs.highlightElement(block);
+        addCopyButtonToCodeBlock(block);
     });
 
     // Scroll to the bottom of the chat container
@@ -327,6 +330,30 @@ socket.on("message_deleted", (data) => {
         messageElement.remove();
     }
 });
+
+// Function to add copy button to code block
+function addCopyButtonToCodeBlock(block) {
+
+    // Create a button to copy the code block's content
+    const copyButton = document.createElement('button');
+    copyButton.textContent = 'Copy';
+    copyButton.classList.add('copy-button'); // Add a class for styling if needed
+    copyButton.onclick = function() {
+        // Copy the code block's content to the clipboard
+        navigator.clipboard.writeText(block.textContent).then(() => {
+            // Optionally, indicate that the text was copied
+            copyButton.textContent = 'Copied!';
+            setTimeout(() => {
+                copyButton.textContent = 'Copy';
+            }, 2000); // Reset button text after 2 seconds
+        }).catch(err => {
+            console.error('Error copying text: ', err);
+        });
+    };
+
+    // Insert the button before the code block
+    block.parentNode.insertBefore(copyButton, block);
+}
 
    </script>
 </body>
