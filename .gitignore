@@ -3,3 +3,4 @@ env
 instance/
 __pycache__/
 .flaskenv
+.flaskenv-exported

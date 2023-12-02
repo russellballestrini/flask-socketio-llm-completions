@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  flask-app:
+    build: .
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./instance:/opt/server/instance
+    env_file:
+      - .flaskenv
+    environment:
+      - PYTHONPATH=/opt

@@ -3,7 +3,9 @@ from flask_socketio import SocketIO, emit, join_room
 
 import eventlet
 
-import openai
+from openai import OpenAI
+
+openai_client = OpenAI()
 
 import os
 
@@ -370,13 +372,10 @@ def chat_gpt(username, room_name, message, model_name="gpt-3.5-turbo"):
         msg_id = new_message.id
 
     first_chunk = True
-    for chunk in openai.ChatCompletion.create(
-        model=model_name,
-        messages=chat_history,
-        temperature=0,
-        stream=True,
+    for chunk in openai_client.chat.completions.create(
+        model=model_name, messages=chat_history, temperature=0, stream=True
     ):
-        content = chunk["choices"][0].get("delta", {}).get("content")
+        content = chunk.choices[0].delta.content
 
         if content:
             buffer += content  # Accumulate content
@@ -442,10 +441,10 @@ def gpt_generate_room_title(messages, model_name):
 
     # Interaction with LLM to generate summary
     # For example, using OpenAI's GPT model
-    response = openai.ChatCompletion.create(
+    response = openai_client.chat.completions.create(
         messages=chat_history,
         model=model_name,  # or any appropriate model
-        max_tokens=20,  # Adjust as needed
+        max_tokens=20,
     )
 
     title = response.choices[0]["message"]["content"]
