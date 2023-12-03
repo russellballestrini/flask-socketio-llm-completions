@@ -116,6 +116,36 @@
         color: inherit; /* Optional: Ensures link color matches the text color */
     }
 
+    .hljs {
+        position: relative;
+        padding-left: 46px !important;
+        counter-reset: line;
+    }
+ 
+    .hljs .line-numbers-rows {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 3em; /* Adjust the width as needed */
+        letter-spacing: -1px;
+        border-right: 1px solid #ccc; /* Optional: adds a line to separate numbers */
+        text-align: right;
+        margin-top: 10px; /* Align with the code block */
+        color: #999;
+        pointer-events: none;
+    }
+    
+    .hljs .line-numbers-rows span {
+        display: block;
+        counter-increment: line;
+    }
+    
+    .hljs .line-numbers-rows span::before {
+        content: counter(line);
+        display: block;
+        padding-right: 0.8em; /* Adjust the padding as needed */
+    }
+
    </style>
 </head>
 <body>
@@ -231,6 +261,7 @@ socket.on("message", (data) => {
         addCopyButtonToCodeBlock(block);
         truncateCodeBlock(block);
         hljs.highlightElement(block);
+        addLineNumbers(block);
     });
 
     // Scroll to the bottom of the chat container
@@ -261,6 +292,7 @@ socket.on("previous_messages", (data) => {
         addCopyButtonToCodeBlock(block);
         truncateCodeBlock(block);
         hljs.highlightElement(block);
+        addLineNumbers(block);
     });
 });
 
@@ -318,8 +350,8 @@ socket.on("message_chunk", (data) => {
     // Apply syntax highlighting to code blocks within the content
     targetMessageElement.querySelectorAll("pre code").forEach((block) => {
         addCopyButtonToCodeBlock(block);
-        truncateCodeBlock(block);
         hljs.highlightElement(block);
+        addLineNumbers(block);
     });
 
     // Scroll to the bottom of the chat container
@@ -354,6 +386,7 @@ function truncateCodeBlock(block, maxLines = 100) {
             block.textContent = block.dataset.fullContent;
             // Reapply syntax highlighting
             hljs.highlightElement(block);
+            addLineNumbers(block);
             // Remove the expand button
             expandButton.remove();
         };
@@ -388,6 +421,16 @@ function addCopyButtonToCodeBlock(block) {
 
     // Insert the button before the code block
     block.parentNode.insertBefore(copyButton, block);
+}
+
+function addLineNumbers(block) {
+    const lines = block.textContent.split('\n').length - 1;
+    const lineNumbersWrapper = document.createElement('div');
+    lineNumbersWrapper.className = 'line-numbers-rows';
+    for (let i = 0; i < lines; i++) {
+        lineNumbersWrapper.appendChild(document.createElement('span'));
+    }
+    block.appendChild(lineNumbersWrapper);
 }
 
    </script>
