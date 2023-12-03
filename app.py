@@ -20,11 +20,12 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///chat.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
- 
+
 socketio = SocketIO(app, async_mode="eventlet")
 
 # Global dictionary to keep track of cancellation requests
 cancellation_requests = {}
+
 
 class Room(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -60,6 +61,7 @@ def get_room(room_name):
 
 
 from flask_migrate import Migrate
+
 migrate = Migrate(app, db)
 
 
@@ -126,7 +128,6 @@ def on_join(data):
         # Emit an event to update this rooms title in the sidebar for all users.
         updated_room_data = {"id": room.id, "name": room.name, "title": room.title}
         socketio.emit("update_room_list", updated_room_data, room=None)
-
 
     # Broadcast to all clients in the room that a new user has joined.
     # Here, `room=room` ensures the message is sent to everyone in that specific room.
@@ -277,6 +278,7 @@ def load_s3_file(room_name, s3_file_path, username):
             room=room_name,
         )
 
+
 def list_s3_files(room_name, s3_file_path_pattern, username):
     import fnmatch
     from datetime import timezone
@@ -305,23 +307,33 @@ def list_s3_files(room_name, s3_file_path_pattern, username):
         response = s3_client.list_objects_v2(**list_kwargs)
 
         # Process the current page of results
-        for obj in response.get('Contents', []):
-            key = obj['Key']
-            if s3_file_path_pattern == '*' or fnmatch.fnmatch(key, s3_file_path_pattern):
-                size = obj['Size']
-                last_modified = obj['LastModified']
+        for obj in response.get("Contents", []):
+            key = obj["Key"]
+            if s3_file_path_pattern == "*" or fnmatch.fnmatch(
+                key, s3_file_path_pattern
+            ):
+                size = obj["Size"]
+                last_modified = obj["LastModified"]
                 # Convert last_modified to a timezone-aware datetime object
-                last_modified = last_modified.replace(tzinfo=timezone.utc).astimezone(tz=None).strftime('%Y-%m-%d %H:%M:%S %Z')
-                files.append(f"{key} (Size: {size} bytes, Last Modified: {last_modified})")
+                last_modified = (
+                    last_modified.replace(tzinfo=timezone.utc)
+                    .astimezone(tz=None)
+                    .strftime("%Y-%m-%d %H:%M:%S %Z")
+                )
+                files.append(
+                    f"{key} (Size: {size} bytes, Last Modified: {last_modified})"
+                )
 
         # Check if there are more pages
-        if response.get('IsTruncated'):
-            continuation_token = response.get('NextContinuationToken')
+        if response.get("IsTruncated"):
+            continuation_token = response.get("NextContinuationToken")
         else:
             break  # No more pages
 
     # Format the message content with the list of files and metadata
-    message_content = "```\n" + "\n".join(files) + "\n```" if files else "No files found."
+    message_content = (
+        "```\n" + "\n".join(files) + "\n```" if files else "No files found."
+    )
 
     # Save the message to the database and emit to the chatroom
     with app.app_context():
@@ -405,7 +417,9 @@ def handle_message(data):
             # Extract the S3 file path pattern
             s3_file_path_pattern = command.split(" ", 2)[2]
             # List files from S3 and emit their names
-            eventlet.spawn(list_s3_files, room.name, s3_file_path_pattern, data["username"])
+            eventlet.spawn(
+                list_s3_files, room.name, s3_file_path_pattern, data["username"]
+            )
         if command.startswith("/s3 load"):
             # Extract the S3 file path
             s3_file_path = command.split(" ", 2)[2]
@@ -498,8 +512,8 @@ def chat_claude(username, room_name, message, model_name="anthropic.claude-v1"):
     chat_history += f"Human: {username}: {message}\n\nAssistant: {model_name}: "
 
     # Initialize the Bedrock client using boto3 and profile name.
-    if app.config.get('PROFILE_NAME'):
-        session = boto3.Session(profile_name=app.config['PROFILE_NAME'])
+    if app.config.get("PROFILE_NAME"):
+        session = boto3.Session(profile_name=app.config["PROFILE_NAME"])
         client = session.client("bedrock-runtime", region_name="us-east-1")
     else:
         client = boto3.client("bedrock-runtime", region_name="us-east-1")
@@ -607,7 +621,6 @@ def chat_gpt(username, room_name, message, model_name="gpt-3.5-turbo"):
             updated_room_data = {"id": room.id, "name": room.name, "title": room.title}
             socketio.emit("update_room_list", updated_room_data, room=None)
 
-
         chat_history = [
             {
                 "role": "system"
@@ -641,7 +654,6 @@ def chat_gpt(username, room_name, message, model_name="gpt-3.5-turbo"):
     for chunk in openai_client.chat.completions.create(
         model=model_name, messages=chat_history, temperature=0, stream=True
     ):
-
         # Check if there has been a cancellation request, break if there is.
         if cancellation_requests.get(msg_id):
             del cancellation_requests[msg_id]
@@ -769,11 +781,12 @@ def generate_new_title(room_name, username):
 
 if __name__ == "__main__":
     import argparse
+
     parser = argparse.ArgumentParser()
     parser.add_argument("--profile", help="AWS profile name", default=None)
     args = parser.parse_args()
 
     # Set profile_name as a global attribute of the app object
-    app.config['PROFILE_NAME'] = args.profile
+    app.config["PROFILE_NAME"] = args.profile
 
     socketio.run(app, host="0.0.0.0", port=5001)
