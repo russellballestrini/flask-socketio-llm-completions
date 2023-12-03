@@ -155,7 +155,7 @@
             <!-- Loop through rooms and create list items for each room -->
             {% for room in rooms %}
             <a href="{{ url_for('chat', room_name=room.name) }}?username={{ username }}">
-            <li>
+            <li data-room-id="{{ room.id }}">
                 <!-- Display the room title if available, otherwise the room name -->
                 <b>{{ room.name }}</b> {% if room.title %}<br />{{ room.title }} {% endif %}
             </li>
@@ -225,6 +225,17 @@ document.getElementById("message").addEventListener("keydown", function(e) {
 // Socket event for updating the room title
 socket.on("update_room_title", (data) => {
     document.title = data.title; // Update the window's title
+});
+
+// Socket event to update the room title in the sidebar.
+socket.on('update_room_list', function(updatedRoom) {
+    // Find the room list item by its data-room-id attribute
+    const roomListItem = document.querySelector(`#rooms-list li[data-room-id="${updatedRoom.id}"]`);
+
+    if (roomListItem) {
+        // Update the room list item's content with the new title
+        roomListItem.innerHTML = `<b>${updatedRoom.name}</b> ${updatedRoom.title ? '<br />' + updatedRoom.title : ''}`;
+    }
 });
 
 // Socket event when the user connects

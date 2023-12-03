@@ -139,6 +139,10 @@ def on_join(data):
         db.session.add(room)
         db.session.commit()
         socketio.emit("update_room_title", {"title": room.title}, room=room.name)
+        # Emit an event to update this rooms title in the sidebar for all users.
+        updated_room_data = {"id": room.id, "name": room.name, "title": room.title}
+        socketio.emit("update_room_list", updated_room_data, room=None)
+
 
     # Broadcast to all clients in the room that a new user has joined.
     # Here, `room=room` ensures the message is sent to everyone in that specific room.
@@ -208,7 +212,9 @@ def save_code_block_to_s3(room_name, s3_key_path, username):
     if code_block_content:
         try:
             # Save the code block content to S3
-            s3_client.put_object(Bucket=bucket_name, Key=s3_key_path, Body=code_block_content)
+            s3_client.put_object(
+                Bucket=bucket_name, Key=s3_key_path, Body=code_block_content
+            )
             # Set the success message content
             message_content = f"Code block saved to S3 at {s3_key_path}"
         except Exception as e:
@@ -224,7 +230,9 @@ def save_code_block_to_s3(room_name, s3_key_path, username):
         room = get_room(room_name)
         if room:
             # Create a new message object
-            new_message = Message(username=username, content=message_content, room_id=room.id)
+            new_message = Message(
+                username=username, content=message_content, room_id=room.id
+            )
             # Add the new message to the session and commit
             db.session.add(new_message)
             db.session.commit()
@@ -326,6 +334,8 @@ def handle_message(data):
             eventlet.spawn(
                 save_code_block_to_s3, room_name, s3_key_path, data["username"]
             )
+        if command.startswith("/title new"):
+            eventlet.spawn(generate_new_title, room_name, data["username"])
 
     if (
         "claude-v1" in data["message"]
@@ -498,6 +508,10 @@ def chat_gpt(username, room_name, message, model_name="gpt-3.5-turbo"):
             db.session.add(room)
             db.session.commit()
             socketio.emit("update_room_title", {"title": room.title}, room=room.name)
+            # Emit an event to update this rooms title in the sidebar for all users.
+            updated_room_data = {"id": room.id, "name": room.name, "title": room.title}
+            socketio.emit("update_room_list", updated_room_data, room=None)
+
 
         chat_history = [
             {
@@ -604,6 +618,50 @@ def gpt_generate_room_title(messages, model_name):
 
     title = response.choices[0].message.content
     return title.replace('"', "")
+
+
+def generate_new_title(room_name, username):
+    with app.app_context():
+        room = get_room(room_name)
+        # Get the last few messages to generate a title
+        last_messages = (
+            Message.query.filter_by(room_id=room.id)
+            .order_by(Message.id.desc())
+            .limit(10)  # Adjust the limit as needed
+            .all()
+        )
+
+        # Generate the title using the messages
+        new_title = gpt_generate_room_title(last_messages, "gpt-4-1106-preview")
+
+        # Update the room title in the database
+        room.title = new_title
+        db.session.add(room)
+        db.session.commit()
+
+        # Emit the new title to the room.
+        socketio.emit("update_room_title", {"title": new_title}, room=room_name)
+
+        # Emit an event to update this rooms title in the sidebar for all users.
+        updated_room_data = {"id": room.id, "name": room.name, "title": room.title}
+        socketio.emit("update_room_list", updated_room_data, room=None)
+
+        # Optionally, send a confirmation message to the room
+        confirmation_message = f"New title created: {new_title}"
+        new_message = Message(
+            username=username, content=confirmation_message, room_id=room.id
+        )
+        db.session.add(new_message)
+        db.session.commit()
+        socketio.emit(
+            "message",
+            {
+                "id": new_message.id,
+                "username": username,
+                "content": confirmation_message,
+            },
+            room=room_name,
+        )
 
 
 if __name__ == "__main__":
