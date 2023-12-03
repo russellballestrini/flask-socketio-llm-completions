@@ -36,6 +36,8 @@ db = SQLAlchemy(app)
 # profile_name = args.profile
 profile_name = None
 
+# Global dictionary to keep track of cancellation requests
+cancellation_requests = {}
 
 class Room(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -293,6 +295,31 @@ def load_s3_file(room_name, s3_file_path, username):
             room=room_name,
         )
 
+def cancel_generation(room_name, username):
+    with app.app_context():
+        room = get_room(room_name)
+        # Get the most recent message for the room that is being generated
+        latest_message = (
+            Message.query.filter_by(room_id=room.id)
+            .order_by(Message.id.desc())
+            .offset(1)
+            .first()
+        )
+
+    if latest_message:
+        # Set the cancellation request for the given message ID
+        cancellation_requests[latest_message.id] = True
+        # Optionally, inform the user that the generation has been canceled
+        socketio.emit(
+            "message",
+            {
+                "id": None,
+                "username": "System",
+                "content": f"Generation for message ID {latest_message.id} has been canceled.",
+            },
+            room=room_name,
+        )
+
 
 @socketio.on("message")
 def handle_message(data):
@@ -336,6 +363,9 @@ def handle_message(data):
             )
         if command.startswith("/title new"):
             eventlet.spawn(generate_new_title, room_name, data["username"])
+        if command.startswith("/cancel"):
+            # Cancel the most recent generation request
+            eventlet.spawn(cancel_generation, room_name, data["username"])
 
     if (
         "claude-v1" in data["message"]
@@ -448,9 +478,16 @@ def chat_claude(username, room_name, message, model_name="anthropic.claude-v1"):
         db.session.commit()
         msg_id = new_message.id
 
+    cancellation_requests[msg_id] = False
+
     first_chunk = True
     for event in response["body"]:
         content = ""
+
+        # Check if there has been a cancellation request, break if there is.
+        if cancellation_requests.get(msg_id):
+            del cancellation_requests[msg_id]
+            break
 
         if "chunk" in event:
             chunk_data = json.loads(event["chunk"]["bytes"].decode())
@@ -540,10 +577,18 @@ def chat_gpt(username, room_name, message, model_name="gpt-3.5-turbo"):
         db.session.commit()
         msg_id = new_message.id
 
+    cancellation_requests[msg_id] = False
+
     first_chunk = True
     for chunk in openai_client.chat.completions.create(
         model=model_name, messages=chat_history, temperature=0, stream=True
     ):
+
+        # Check if there has been a cancellation request, break if there is.
+        if cancellation_requests.get(msg_id):
+            del cancellation_requests[msg_id]
+            break
+
         content = chunk.choices[0].delta.content
 
         if content:

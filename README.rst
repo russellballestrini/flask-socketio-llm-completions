@@ -102,6 +102,7 @@ The application supports special commands for interacting with AWS S3:
 - ``/s3 load <file_path>``: Loads a file from S3 and displays its content in the chatroom.
 - ``/s3 save <file_path>``: Saves the most recent code block from the chatroom to S3.
 - ``/title new``: Generates a new title which reflects conversation content for the current chatroom using gpt-4.
+- ``/cancel``: cancel the most recent chat completion from streaming into chatroom.
 
 Contributing
 ------------
