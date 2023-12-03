@@ -3,6 +3,11 @@ flask-socketio-llm-completions
 
 This project is a chatroom application that allows users to join different chat rooms, send messages, and interact with multiple language models in real-time. The backend is built with Flask and Flask-SocketIO for real-time web communication, while the frontend uses HTML, CSS, and JavaScript to provide an interactive user interface.
 
+
+.. image:: flask-socketio-llm-completions.png
+   :alt: Flask-SocketIO LLM Completions
+   :align: center
+
 Features
 --------
 
@@ -96,6 +101,7 @@ The application supports special commands for interacting with AWS S3:
 
 - ``/s3 load <file_path>``: Loads a file from S3 and displays its content in the chatroom.
 - ``/s3 save <file_path>``: Saves the most recent code block from the chatroom to S3.
+- ``/title new``: Generates a new title which reflects conversation content for the current chatroom using gpt-4.
 
 Contributing
 ------------
