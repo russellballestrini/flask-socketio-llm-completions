@@ -228,9 +228,9 @@ socket.on("message", (data) => {
 
     // Apply syntax highlighting to code blocks within the message
     newMessage.querySelectorAll("pre code").forEach((block) => {
-        hljs.highlightElement(block);
         addCopyButtonToCodeBlock(block);
         truncateCodeBlock(block);
+        hljs.highlightElement(block);
     });
 
     // Scroll to the bottom of the chat container
@@ -258,9 +258,9 @@ socket.on("previous_messages", (data) => {
 
     // Apply syntax highlighting to code blocks within the message
     newMessage.querySelectorAll("pre code").forEach((block) => {
-        hljs.highlightElement(block);
         addCopyButtonToCodeBlock(block);
         truncateCodeBlock(block);
+        hljs.highlightElement(block);
     });
 });
 
@@ -317,9 +317,9 @@ socket.on("message_chunk", (data) => {
 
     // Apply syntax highlighting to code blocks within the content
     targetMessageElement.querySelectorAll("pre code").forEach((block) => {
-        hljs.highlightElement(block);
         addCopyButtonToCodeBlock(block);
         truncateCodeBlock(block);
+        hljs.highlightElement(block);
     });
 
     // Scroll to the bottom of the chat container
@@ -333,6 +333,7 @@ socket.on("message_deleted", (data) => {
         messageElement.remove();
     }
 });
+
 
 function truncateCodeBlock(block, maxLines = 100) {
     // Split the content by new lines and check if it exceeds the maxLines
@@ -351,6 +352,8 @@ function truncateCodeBlock(block, maxLines = 100) {
         expandButton.onclick = function() {
             // Restore the full content from the data attribute
             block.textContent = block.dataset.fullContent;
+            // Reapply syntax highlighting
+            hljs.highlightElement(block);
             // Remove the expand button
             expandButton.remove();
         };
@@ -359,6 +362,7 @@ function truncateCodeBlock(block, maxLines = 100) {
         block.parentNode.insertBefore(expandButton, block.nextSibling);
     }
 }
+
 
 // Modify the addCopyButtonToCodeBlock function to use the full content
 function addCopyButtonToCodeBlock(block) {
