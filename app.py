@@ -149,6 +149,98 @@ def on_join(data):
     )
 
 
+def find_most_recent_code_block(room_name):
+    with app.app_context():
+        # Get the room object from the database
+        room = Room.query.filter_by(name=room_name).first()
+        if not room:
+            return None  # Room not found
+
+        # Get the most recent message for the room
+        latest_message = (
+            Message.query.filter_by(room_id=room.id)
+            .order_by(Message.id.desc())
+            .offset(1)
+            .first()
+        )
+
+    if latest_message:
+        # Split the message content into lines
+        lines = latest_message.content.split("\n")
+        # Initialize variables to store the code block
+        code_block_lines = []
+        code_block_started = False
+        for line in lines:
+            # Check if the line starts with a code block fence
+            if line.startswith("```"):
+                # If we've already started capturing, this fence ends the block
+                if code_block_started:
+                    break
+                else:
+                    # Start capturing from the next line
+                    code_block_started = True
+                    continue
+            elif code_block_started:
+                # If we're inside a code block, capture the line
+                code_block_lines.append(line)
+
+        # Join the captured lines to form the code block content
+        code_block_content = "\n".join(code_block_lines)
+        return code_block_content
+
+    # No code block found in the latest message
+    return None
+
+
+def save_code_block_to_s3(room_name, s3_key_path, username):
+    # Initialize the S3 client
+    s3_client = boto3.client("s3")
+
+    # Assuming the bucket name is set in an environment variable
+    bucket_name = os.environ.get("S3_BUCKET_NAME")
+
+    # Find the most recent code block
+    code_block_content = find_most_recent_code_block(room_name)
+
+    # Initialize a variable to hold the message content
+    message_content = ""
+
+    if code_block_content:
+        try:
+            # Save the code block content to S3
+            s3_client.put_object(Bucket=bucket_name, Key=s3_key_path, Body=code_block_content)
+            # Set the success message content
+            message_content = f"Code block saved to S3 at {s3_key_path}"
+        except Exception as e:
+            # Set the error message content if S3 save fails
+            message_content = f"Error saving file to S3: {e}"
+    else:
+        # Set the error message content if no code block is found
+        message_content = "No code block found to save to S3."
+
+    # Save the message to the database and emit to the frontend
+    with app.app_context():
+        # Get the room object from the database
+        room = Room.query.filter_by(name=room_name).first()
+        if room:
+            # Create a new message object
+            new_message = Message(username=username, content=message_content, room_id=room.id)
+            # Add the new message to the session and commit
+            db.session.add(new_message)
+            db.session.commit()
+
+            # Emit the message to the frontend with the new message ID
+            socketio.emit(
+                "message",
+                {
+                    "id": new_message.id,
+                    "username": username,
+                    "content": message_content,
+                },
+                room=room_name,
+            )
+
+
 def load_s3_file(room_name, s3_file_path, username):
     # Initialize the S3 client
     s3_client = boto3.client("s3")
@@ -246,6 +338,13 @@ def handle_message(data):
             s3_file_path = command.split(" ", 2)[2]
             # Load the file from S3 and emit its content
             eventlet.spawn(load_s3_file, room_name, s3_file_path, data["username"])
+        if command.startswith("/s3 save"):
+            # Extract the S3 key path
+            s3_key_path = command.split(" ", 2)[2]
+            # Save the most recent code block to S3
+            eventlet.spawn(
+                save_code_block_to_s3, room_name, s3_key_path, data["username"]
+            )
 
     if (
         "claude-v1" in data["message"]
