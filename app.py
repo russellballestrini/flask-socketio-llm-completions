@@ -5,36 +5,23 @@ import eventlet
 
 from openai import OpenAI
 
-openai_client = OpenAI()
-
 import os
-
 import time
 
 import boto3
 import json
 
-
-app = Flask(__name__)
-app.config["SECRET_KEY"] = "your_secret_key"
-socketio = SocketIO(app, async_mode="eventlet")
-
-
 from flask_sqlalchemy import SQLAlchemy
 
+app = Flask(__name__)
+
+app.config["SECRET_KEY"] = "your_secret_key"
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///chat.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
 db = SQLAlchemy(app)
-
-
-# Create an argument parser for aws profile.
-# import argparse
-
-# parser = argparse.ArgumentParser()
-# parser.add_argument("--profile", help="AWS profile name")
-# args = parser.parse_args()
-# profile_name = args.profile
-profile_name = None
+ 
+socketio = SocketIO(app, async_mode="eventlet")
 
 # Global dictionary to keep track of cancellation requests
 cancellation_requests = {}
@@ -72,12 +59,7 @@ def get_room(room_name):
         return new_room
 
 
-# Create the database and tables
-# with app.app_context():
-#    db.create_all()
-
 from flask_migrate import Migrate
-
 migrate = Migrate(app, db)
 
 
@@ -295,6 +277,76 @@ def load_s3_file(room_name, s3_file_path, username):
             room=room_name,
         )
 
+def list_s3_files(room_name, s3_file_path_pattern, username):
+    import fnmatch
+    from datetime import timezone
+
+    # Initialize the S3 client
+    s3_client = boto3.client("s3")
+
+    # Assuming the bucket name is set in an environment variable
+    bucket_name = os.environ.get("S3_BUCKET_NAME")
+
+    # Initialize the list to hold all file information
+    files = []
+
+    # Initialize the pagination token
+    continuation_token = None
+
+    # Loop to handle pagination
+    while True:
+        # List objects in the S3 bucket with pagination support
+        list_kwargs = {
+            "Bucket": bucket_name,
+        }
+        if continuation_token:
+            list_kwargs["ContinuationToken"] = continuation_token
+
+        response = s3_client.list_objects_v2(**list_kwargs)
+
+        # Process the current page of results
+        for obj in response.get('Contents', []):
+            key = obj['Key']
+            if s3_file_path_pattern == '*' or fnmatch.fnmatch(key, s3_file_path_pattern):
+                size = obj['Size']
+                last_modified = obj['LastModified']
+                # Convert last_modified to a timezone-aware datetime object
+                last_modified = last_modified.replace(tzinfo=timezone.utc).astimezone(tz=None).strftime('%Y-%m-%d %H:%M:%S %Z')
+                files.append(f"{key} (Size: {size} bytes, Last Modified: {last_modified})")
+
+        # Check if there are more pages
+        if response.get('IsTruncated'):
+            continuation_token = response.get('NextContinuationToken')
+        else:
+            break  # No more pages
+
+    # Format the message content with the list of files and metadata
+    message_content = "```\n" + "\n".join(files) + "\n```" if files else "No files found."
+
+    # Save the message to the database and emit to the chatroom
+    with app.app_context():
+        room = Room.query.filter_by(name=room_name).first()
+        if room:
+            new_message = Message(
+                username=username,
+                content=message_content,
+                room_id=room.id,
+            )
+            db.session.add(new_message)
+            db.session.commit()
+
+            # Emit the message to the chatroom with the message ID
+            socketio.emit(
+                "message",
+                {
+                    "id": new_message.id,
+                    "username": username,
+                    "content": message_content,
+                },
+                room=room_name,
+            )
+
+
 def cancel_generation(room_name, username):
     with app.app_context():
         room = get_room(room_name)
@@ -349,6 +401,11 @@ def handle_message(data):
     commands = data["message"].splitlines()
 
     for command in commands:
+        if command.startswith("/s3 ls"):
+            # Extract the S3 file path pattern
+            s3_file_path_pattern = command.split(" ", 2)[2]
+            # List files from S3 and emit their names
+            eventlet.spawn(list_s3_files, room.name, s3_file_path_pattern, data["username"])
         if command.startswith("/s3 load"):
             # Extract the S3 file path
             s3_file_path = command.split(" ", 2)[2]
@@ -441,8 +498,8 @@ def chat_claude(username, room_name, message, model_name="anthropic.claude-v1"):
     chat_history += f"Human: {username}: {message}\n\nAssistant: {model_name}: "
 
     # Initialize the Bedrock client using boto3 and profile name.
-    if profile_name:
-        session = boto3.Session(profile_name=profile_name)
+    if app.config.get('PROFILE_NAME'):
+        session = boto3.Session(profile_name=app.config['PROFILE_NAME'])
         client = session.client("bedrock-runtime", region_name="us-east-1")
     else:
         client = boto3.client("bedrock-runtime", region_name="us-east-1")
@@ -528,6 +585,7 @@ def chat_claude(username, room_name, message, model_name="anthropic.claude-v1"):
 
 
 def chat_gpt(username, room_name, message, model_name="gpt-3.5-turbo"):
+    openai_client = OpenAI()
     limit = 15
     if model_name == "gpt-4-1106-preview":
         limit = 1000
@@ -629,7 +687,7 @@ def gpt_generate_room_title(messages, model_name):
     """
     Generate a title for the room based on a list of messages.
     """
-
+    openai_client = OpenAI()
     chat_history = [
         {
             "role": "system"
@@ -710,4 +768,12 @@ def generate_new_title(room_name, username):
 
 
 if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--profile", help="AWS profile name", default=None)
+    args = parser.parse_args()
+
+    # Set profile_name as a global attribute of the app object
+    app.config['PROFILE_NAME'] = args.profile
+
     socketio.run(app, host="0.0.0.0", port=5001)

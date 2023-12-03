@@ -97,12 +97,22 @@ Structure
 Commands
 --------
 
-The application supports special commands for interacting with AWS S3:
+The application supports special commands for interacting with the chatroom:
 
 - ``/s3 load <file_path>``: Loads a file from S3 and displays its content in the chatroom.
 - ``/s3 save <file_path>``: Saves the most recent code block from the chatroom to S3.
+- ``/s3 ls <file_s3_path_pattern>``: Lists files from S3 that match the given pattern. Use ``*`` to list all files.
 - ``/title new``: Generates a new title which reflects conversation content for the current chatroom using gpt-4.
-- ``/cancel``: cancel the most recent chat completion from streaming into chatroom.
+- ``/cancel``: Cancel the most recent chat completion from streaming into the chatroom.
+- ``/python``: Executes the most recent Python code block sent in the chatroom and returns the output or any errors.
+
+The ``/s3 ls`` command can be used to list files in the connected S3 bucket. You can specify a pattern to filter the files listed. For example:
+
+- ``/s3 ls *`` will list all files in the bucket.
+- ``/s3 ls *.py`` will list all Python files.
+- ``/s3 ls README.*`` will list files starting with "README." and any extension.
+
+The command will return the file name, size in bytes, and the last modified timestamp for each file that matches the pattern.
 
 Contributing
 ------------
