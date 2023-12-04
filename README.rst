@@ -3,10 +3,14 @@ flask-socketio-llm-completions
 
 This project is a chatroom application that allows users to join different chat rooms, send messages, and interact with multiple language models in real-time. The backend is built with Flask and Flask-SocketIO for real-time web communication, while the frontend uses HTML, CSS, and JavaScript to provide an interactive user interface.
 
-
 .. image:: flask-socketio-llm-completions.png
    :alt: Flask-SocketIO LLM Completions
    :align: center
+
+.. image:: flask-socketio-llm-completions-2.png
+   :alt: Flask-SocketIO LLM Completions Dall-e-3
+   :align: center
+
 
 Features
 --------
@@ -83,6 +87,7 @@ To interact with the various language models, you can use the following commands
 - For GPT-4, send a message with ``gpt-4`` including your prompt.
 - For Claude-v1, send a message with ``claude-v1`` including your prompt.
 - For Claude-v2, send a message with ``claude-v2`` including your prompt.
+- For Dall-e-3, send a message with ``dall-e-3`` including your prompt.
 
 The system will process your message and provide a response from the selected language model.
 

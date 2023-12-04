@@ -716,6 +716,11 @@ def gpt_generate_room_title(messages, model_name):
     Generate a title for the room based on a list of messages.
     """
     openai_client = OpenAI()
+
+    def is_base64_image(content):
+        return "<img src=\"data:image/jpeg;base64," in content
+
+
     chat_history = [
         {
             "role": "system"
@@ -730,6 +735,7 @@ def gpt_generate_room_title(messages, model_name):
             "content": f"{msg.username}: {msg.content}",
         }
         for msg in reversed(messages)
+        if not is_base64_image(msg.content)
     ]
 
     chat_history.append(
@@ -758,7 +764,7 @@ def generate_new_title(room_name, username):
         last_messages = (
             Message.query.filter_by(room_id=room.id)
             .order_by(Message.id.desc())
-            .limit(10)  # Adjust the limit as needed
+            .limit(100)  # Adjust the limit as needed
             .all()
         )
 
