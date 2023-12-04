@@ -438,6 +438,13 @@ def handle_message(data):
             # Cancel the most recent generation request
             eventlet.spawn(cancel_generation, room_name, data["username"])
 
+    if "dall-e-3" in data["message"]:
+        # Use the entire message as the prompt for DALL-E 3
+        # Generate the image and emit its URL
+        eventlet.spawn(
+            generate_dalle_image, data["room_name"], data["message"], data["username"]
+        )
+
     if (
         "claude-v1" in data["message"]
         or "claude-v2" in data["message"]
@@ -496,7 +503,12 @@ def chat_claude(username, room_name, message, model_name="anthropic.claude-v1"):
 
     chat_history = ""
 
+    def is_base64_image(content):
+        return "<img src=\"data:image/jpeg;base64," in content
+
     for msg in reversed(all_messages):
+        if is_base64_image(msg.content):
+            continue
         if msg.username in [
             "gpt-3.5-turbo",
             "anthropic.claude-v1",
@@ -621,6 +633,9 @@ def chat_gpt(username, room_name, message, model_name="gpt-3.5-turbo"):
             updated_room_data = {"id": room.id, "name": room.name, "title": room.title}
             socketio.emit("update_room_list", updated_room_data, room=None)
 
+        def is_base64_image(content):
+            return "<img src=\"data:image/jpeg;base64," in content
+
         chat_history = [
             {
                 "role": "system"
@@ -635,6 +650,7 @@ def chat_gpt(username, room_name, message, model_name="gpt-3.5-turbo"):
                 "content": f"{msg.username}: {msg.content}",
             }
             for msg in reversed(last_messages)
+            if not is_base64_image(msg.content)
         ]
 
         chat_history.append({"role": "user", "content": f"{message}\n\n{model_name}: "})
@@ -775,6 +791,56 @@ def generate_new_title(room_name, username):
                 "username": username,
                 "content": confirmation_message,
             },
+            room=room_name,
+        )
+
+
+def generate_dalle_image(room_name, message, username):
+    socketio.emit(
+        "message",
+        {"id": None, "content": "Processing..."},
+        room=room_name,
+    )
+
+    openai_client = OpenAI()
+    # Initialize the content variable to hold either the image tag or an error message
+    content = ""
+    try:
+        # Call the DALL-E 3 API to generate an image in base64 format
+        response = openai_client.images.generate(
+            model="dall-e-3",
+            prompt=message,
+            n=1,
+            size="1024x1024",
+            response_format="b64_json",
+        )
+
+        # Access the base64-encoded image data
+        image_data = response.data[0].b64_json
+        revised_prompt = response.data[0].revised_prompt
+
+        # Create an HTML img tag with the base64 data
+        content = f'<img src="data:image/jpeg;base64,{image_data}" alt="{message}"><p>{revised_prompt}</p>'
+
+    except Exception as e:
+        # Set the content to an error message
+        content = f"Error generating image: {e}"
+
+    # Store the content in the database and emit to the frontend
+    with app.app_context():
+        room = get_room(room_name)
+        new_message = Message(
+            username=username,
+            content=content,  # Store the img tag or error message as the content
+            room_id=room.id,  # Make sure you have the room ID available
+        )
+        db.session.add(new_message)
+        db.session.commit()
+
+        # Emit the message with the content to the frontend
+        socketio.emit(
+            "message",
+            {"id": new_message.id, "username": username, "content": content},
             room=room_name,
         )
 
