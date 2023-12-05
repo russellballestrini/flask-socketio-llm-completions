@@ -43,13 +43,13 @@ To set up the project, follow these steps:
 
 1. Clone this repository::
 
-    git clone https://github.com/your-username/flask-socketio-llm-completions.git
+    git clone https://github.com/russellballestrini/flask-socketio-llm-completions.git
     cd flask-socketio-llm-completions
 
 2. Create a virtual environment and activate it::
 
-    python3 -m venv venv
-    source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+    python3 -m venv ven
+    source env/bin/activate  # On Windows use `env\Scripts\activate`
 
 3. Install the required dependencies::
 
@@ -76,28 +76,23 @@ To start the application with socket.io run::
 
     python app.py
 
+Optionally pass ``python app.py --profile <aws-profile-name>`` 
+
 The application will be available at ``http://127.0.0.1:5001`` by default.
+
 
 Interacting with Language Models
 --------------------------------
 
 To interact with the various language models, you can use the following commands within the chat:
 
-- For GPT-3, send a message with ``gpt-3`` including your prompt.
-- For GPT-4, send a message with ``gpt-4`` including your prompt.
-- For Claude-v1, send a message with ``claude-v1`` including your prompt.
-- For Claude-v2, send a message with ``claude-v2`` including your prompt.
-- For Dall-e-3, send a message with ``dall-e-3`` including your prompt.
+- For GPT-3, send a message with ``gpt-3`` and include your prompt.
+- For GPT-4, send a message with ``gpt-4`` and include your prompt.
+- For Claude-v1, send a message with ``claude-v1`` and include your prompt.
+- For Claude-v2, send a message with ``claude-v2`` and include your prompt.
+- For Dall-e-3, send a message with ``dall-e-3`` and include your prompt.
 
 The system will process your message and provide a response from the selected language model.
-
-Structure
----------
-
-- ``app.py``: The main Flask application file containing the backend logic.
-- ``chat.html``: The HTML template for the chatroom interface.
-- ``static/``: Directory for static files like CSS, JavaScript, and images.
-- ``templates/``: Directory for HTML templates.
 
 Commands
 --------
@@ -118,6 +113,14 @@ The ``/s3 ls`` command can be used to list files in the connected S3 bucket. You
 - ``/s3 ls README.*`` will list files starting with "README." and any extension.
 
 The command will return the file name, size in bytes, and the last modified timestamp for each file that matches the pattern.
+
+Structure
+---------
+
+- ``app.py``: The main Flask application file containing the backend logic.
+- ``chat.html``: The HTML template for the chatroom interface.
+- ``static/``: Directory for static files like CSS, JavaScript, and images.
+- ``templates/``: Directory for HTML templates.
 
 Contributing
 ------------
