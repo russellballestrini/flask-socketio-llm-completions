@@ -73,6 +73,12 @@ else
     echo "Service file $SERVICE_FILE already exists."
 fi
 
+# Initialize the database
+python init_db.py
+
+# Stamp the database with the Alembic head revision
+FLASK_APP=app.py flask db stamp head
+
 # Deactivate the virtual environment
 deactivate
 
