@@ -1,0 +1,96 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Example arch to deploy application in AWS.
+
+  Assumes us-east-1 AMI.
+
+  SAM template to create an EC2 instance, an ALB with a target group on port 5001,
+  and a security group to allow access over port 5001.
+
+  you will need to allow access to the ALB to certain ips in the security group.
+
+  Don't run this application publicly unless you a generous with your API bill.
+
+Parameters:
+  CertificateArn:
+    Type: String
+    Description: The ARN of the certificate to attach to the ALB listener.
+  VPCId:
+    Type: AWS::EC2::VPC::Id
+    Description: The VPC ID where the resources will be deployed.
+  SubnetIds:
+    Type: List<AWS::EC2::Subnet::Id>
+    Description: The list of Subnet IDs for the ALB.
+  KeyPairName:
+    Type: AWS::EC2::KeyPair::KeyName
+    Description: The name of the EC2 KeyPair to allow SSH access to the instance.
+
+Resources:
+  EC2InstanceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security Group for EC2 instance
+      VpcId: !Ref VPCId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 5001
+          ToPort: 5001
+          SourceSecurityGroupId: !Ref ALBSecurityGroup
+        - IpProtocol: '-1' # Allows all traffic
+          CidrIp: 172.31.0.0/16
+
+  EC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-0fc5d935ebf8bc3bc
+      InstanceType: t3.small
+      KeyName: !Ref KeyPairName
+      SecurityGroupIds:
+        - !Ref EC2InstanceSecurityGroup
+      SubnetId: !Select [0, !Ref SubnetIds]
+
+  ALBSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security Group for ALB
+      VpcId: !Ref VPCId
+      SecurityGroupIngress:
+        - IpProtocol: '-1' # Allows all traffic
+          CidrIp: 172.31.0.0/16
+
+  LoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Subnets: !Ref SubnetIds
+      Scheme: internal
+      SecurityGroups:
+        - !Ref ALBSecurityGroup
+
+  Listener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref TargetGroup
+      LoadBalancerArn: !Ref LoadBalancer
+      Port: 443
+      Protocol: HTTPS
+      Certificates:
+        - CertificateArn: !Ref CertificateArn
+
+  TargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Port: 5001
+      Protocol: HTTP
+      VpcId: !Ref VPCId
+      HealthCheckProtocol: HTTP
+      HealthCheckPort: '5001'
+      HealthCheckPath: '/'
+
+Outputs:
+
+  LoadBalancerDNSName:
+    Description: The DNS name of the ALB
+    Value: !GetAtt LoadBalancer.DNSName

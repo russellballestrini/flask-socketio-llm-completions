@@ -182,8 +182,9 @@
   </div>
 
 <script>
-// Connect to the server using socket.io
-const socket = io.connect("http://" + document.domain + ":" + location.port);
+// Connect to the server using socket.io with dynamic scheme (http or https)
+const socket = io.connect(window.location.protocol + "//" + document.domain + ":" + location.port);
+
 
 // Retrieve username and room name from the URL parameters
 const urlParams = new URLSearchParams(window.location.search);
