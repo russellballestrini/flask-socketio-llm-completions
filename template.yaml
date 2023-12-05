@@ -25,6 +25,9 @@ Parameters:
   KeyPairName:
     Type: AWS::EC2::KeyPair::KeyName
     Description: The name of the EC2 KeyPair to allow SSH access to the instance.
+  S3BucketName:
+    Type: String
+    Description: The name of the S3 bucket to which the instance will have read access.
 
 Resources:
   EC2InstanceSecurityGroup:
@@ -65,6 +68,18 @@ Resources:
                 Action:
                   - "bedrock:InvokeModelWithResponseStream"
                 Resource: "*"
+        - PolicyName: S3BucketReadOnlyPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Sid: "S3BucketRead"
+                Effect: "Allow"
+                Action:
+                  - "s3:GetObject"
+                  - "s3:ListBucket"
+                Resource:
+                  - !Sub "arn:aws:s3:::${S3BucketName}"
+                  - !Sub "arn:aws:s3:::${S3BucketName}/*"
 
   InstanceProfile:
     Type: AWS::IAM::InstanceProfile
