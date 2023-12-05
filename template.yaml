@@ -40,10 +40,38 @@ Resources:
         - IpProtocol: '-1' # Allows all traffic
           CidrIp: 172.31.0.0/16
 
+  ExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: BedrockInvokeModelPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Sid: "Statement1"
+                Effect: "Allow"
+                Action:
+                  - "bedrock:InvokeModel"
+                Resource: "*"
+
+  InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+        - !Ref ExecutionRole
+
   EC2Instance:
     Type: AWS::EC2::Instance
     Properties:
       ImageId: ami-0fc5d935ebf8bc3bc
+      IamInstanceProfile: !Ref InstanceProfile
       InstanceType: t3.small
       KeyName: !Ref KeyPairName
       SecurityGroupIds:
