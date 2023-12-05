@@ -118,6 +118,13 @@ Resources:
       HealthCheckPath: '/'
 
 Outputs:
+  EC2InstanceId:
+    Description: The Instance ID of the EC2 instance
+    Value: !Ref EC2Instance
+
+  EC2PrivateIpAddress:
+    Description: "Private IP address of the EC2 instance"
+    Value: !GetAtt EC2Instance.PrivateIpAddress
 
   LoadBalancerDNSName:
     Description: The DNS name of the ALB
