@@ -55,10 +55,15 @@ Resources:
           PolicyDocument:
             Version: '2012-10-17'
             Statement:
-              - Sid: "Statement1"
+              - Sid: "InvokeModel"
                 Effect: "Allow"
                 Action:
                   - "bedrock:InvokeModel"
+                Resource: "*"
+              - Sid: "InvokeModelWithResponseStream"
+                Effect: "Allow"
+                Action:
+                  - "bedrock:InvokeModelWithResponseStream"
                 Resource: "*"
 
   InstanceProfile:
@@ -121,10 +126,6 @@ Outputs:
   EC2InstanceId:
     Description: The Instance ID of the EC2 instance
     Value: !Ref EC2Instance
-
-  EC2PrivateIpAddress:
-    Description: "Private IP address of the EC2 instance"
-    Value: !GetAtt EC2Instance.PrivateIpAddress
 
   LoadBalancerDNSName:
     Description: The DNS name of the ALB

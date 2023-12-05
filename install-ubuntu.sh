@@ -12,6 +12,7 @@ sudo apt install -y git python3-pip python3.10-venv
 # Clone the repository
 if [ ! -d "/opt/flask-socketio-llm-completions" ]; then
     sudo git clone https://github.com/russellballestrini/flask-socketio-llm-completions.git /opt/flask-socketio-llm-completions
+    touch /opt/flask-socketio-llm-completions/.flaskenv
 else
     echo "The directory /opt/flask-socketio-llm-completions already exists."
 fi
@@ -52,6 +53,7 @@ Group=$(whoami)
 WorkingDirectory=/opt/flask-socketio-llm-completions
 Environment="PATH=/opt/flask-socketio-llm-completions/env/bin"
 ExecStart=/opt/flask-socketio-llm-completions/env/bin/python app.py
+EnvironmentFile=/opt/flask-socketio-llm-completions/.flaskenv
 
 Restart=always
 
@@ -83,4 +85,3 @@ FLASK_APP=app.py flask db stamp head
 deactivate
 
 echo "Setup and service configuration completed successfully."
-
