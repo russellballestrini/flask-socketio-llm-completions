@@ -548,9 +548,6 @@ def chat_claude(username, room_name, message, model_name="anthropic.claude-v1"):
         ).encode(),
     }
 
-    # Invoke the model with response stream
-    response = client.invoke_model_with_response_stream(**params)
-
     # Process the event stream
     buffer = ""
 
@@ -561,41 +558,68 @@ def chat_claude(username, room_name, message, model_name="anthropic.claude-v1"):
         db.session.commit()
         msg_id = new_message.id
 
-    cancellation_requests[msg_id] = False
+    try:
+        # Invoke the model with response stream
+        response = client.invoke_model_with_response_stream(**params)["body"]
 
-    first_chunk = True
-    for event in response["body"]:
-        content = ""
+        cancellation_requests[msg_id] = False
 
-        # Check if there has been a cancellation request, break if there is.
-        if cancellation_requests.get(msg_id):
-            del cancellation_requests[msg_id]
-            break
+        first_chunk = True
+        for event in response:
+            content = ""
 
-        if "chunk" in event:
-            chunk_data = json.loads(event["chunk"]["bytes"].decode())
-            content = chunk_data["completion"]
+            # Check if there has been a cancellation request, break if there is.
+            if cancellation_requests.get(msg_id):
+                del cancellation_requests[msg_id]
+                break
 
-        if content:
-            buffer += content  # Accumulate content
+            if "chunk" in event:
+                chunk_data = json.loads(event["chunk"]["bytes"].decode())
+                content = chunk_data["completion"]
 
-            if first_chunk:
-                socketio.emit(
-                    "message_chunk",
-                    {
-                        "id": msg_id,
-                        "content": f"**{username} ({model_name}):**\n\n{content}",
-                    },
-                    room=room.name,
-                )
-                first_chunk = False
-            else:
-                socketio.emit(
-                    "message_chunk",
-                    {"id": msg_id, "content": content},
-                    room=room.name,
-                )
-            socketio.sleep(0)  # Force immediate handling
+            if content:
+                buffer += content  # Accumulate content
+
+                if first_chunk:
+                    socketio.emit(
+                        "message_chunk",
+                        {
+                            "id": msg_id,
+                            "content": f"**{username} ({model_name}):**\n\n{content}",
+                        },
+                        room=room.name,
+                    )
+                    first_chunk = False
+                else:
+                    socketio.emit(
+                        "message_chunk",
+                        {"id": msg_id, "content": content},
+                        room=room.name,
+                    )
+                socketio.sleep(0)  # Force immediate handling
+
+    except Exception as e:
+        with app.app_context():
+            message_content = f"AWS Bedrock Error: {e}"
+            new_message = (
+                db.session.query(Message).filter(Message.id == msg_id).one_or_none()
+            )
+            if new_message:
+                new_message.content = message_content
+                db.session.add(new_message)
+                db.session.commit()
+        socketio.emit(
+            "message",
+            {
+                "id": msg_id,
+                "username": model_name,
+                "content": message_content,
+            },
+            room=room_name,
+        )
+        socketio.emit("delete_processing_message", msg_id, room=room.name)
+        # exit early to avoid clobbering the error message.
+        return None    
 
     # Save the entire completion to the database
     with app.app_context():
@@ -667,9 +691,35 @@ def chat_gpt(username, room_name, message, model_name="gpt-3.5-turbo"):
     cancellation_requests[msg_id] = False
 
     first_chunk = True
-    for chunk in openai_client.chat.completions.create(
-        model=model_name, messages=chat_history, temperature=0, stream=True
-    ):
+
+    try:
+        chunks = openai_client.chat.completions.create(
+            model=model_name, messages=chat_history, temperature=0, stream=True
+        )
+    except Exception as e:
+        with app.app_context():
+            message_content = f"OpenAi Error: {e}"
+            new_message = (
+                db.session.query(Message).filter(Message.id == msg_id).one_or_none()
+            )
+            if new_message:
+                new_message.content = message_content
+                db.session.add(new_message)
+                db.session.commit()
+        socketio.emit(
+            "message",
+            {
+                "id": msg_id,
+                "username": model_name,
+                "content": message_content,
+            },
+            room=room_name,
+        )
+        socketio.emit("delete_processing_message", msg_id, room=room.name)
+        # exit early to avoid clobbering the error message.
+        return None
+
+    for chunk in chunks:
         # Check if there has been a cancellation request, break if there is.
         if cancellation_requests.get(msg_id):
             del cancellation_requests[msg_id]
