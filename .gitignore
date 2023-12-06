@@ -4,3 +4,5 @@ instance/
 __pycache__/
 .flaskenv
 .flaskenv-exported
+.aws-sam/
+samconfig.toml
