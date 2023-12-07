@@ -39,12 +39,21 @@ class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(128), nullable=False)
     content = db.Column(db.String(1024), nullable=False)
+    token_count = db.Column(db.Integer)
     room_id = db.Column(db.Integer, db.ForeignKey("room.id"), nullable=False)
 
     def __init__(self, username, content, room_id):
         self.username = username
         self.content = content
         self.room_id = room_id
+        self.token_count = self._count_tokens()
+
+    def _count_tokens(self):
+        return len(self.content.split())
+
+    def is_base64_image(self):
+        return '<img src="data:image/jpeg;base64,' in self.content
+
 
 
 def get_room(room_name):
@@ -104,11 +113,16 @@ def on_join(data):
     # Fetch previous messages from the database
     previous_messages = Message.query.filter_by(room_id=room.id).all()
 
+    # count the number of tokens in this room.
+    total_token_count = 0
+
     # Send the history of messages only to the newly connected client.
     # The reason for using `request.sid` here is to target the specific session (or client) that
     # just connected, so only they receive the backlog of messages, rather than broadcasting
     # this information to all clients in the room.
     for message in previous_messages:
+        if not message.is_base64_image():
+            total_token_count += message.token_count
         emit(
             "previous_messages",
             {
@@ -135,6 +149,11 @@ def on_join(data):
         "message",
         {"id": None, "content": f"{data['username']} has joined the room."},
         room=room.name,
+    )
+    emit(
+        "message",
+        {"id": None, "content": f"Estimated {total_token_count} total tokens in conversation."},
+        room=request.sid,
     )
 
 
@@ -256,11 +275,8 @@ def chat_claude(username, room_name, message, model_name="anthropic.claude-v1"):
 
     chat_history = ""
 
-    def is_base64_image(content):
-        return '<img src="data:image/jpeg;base64,' in content
-
     for msg in reversed(all_messages):
-        if is_base64_image(msg.content):
+        if msg.is_base64_image():
             continue
         if msg.username in [
             "gpt-3.5-turbo",
@@ -410,9 +426,6 @@ def chat_gpt(username, room_name, message, model_name="gpt-3.5-turbo"):
             updated_room_data = {"id": room.id, "name": room.name, "title": room.title}
             socketio.emit("update_room_list", updated_room_data, room=None)
 
-        def is_base64_image(content):
-            return '<img src="data:image/jpeg;base64,' in content
-
         chat_history = [
             {
                 "role": "system"
@@ -427,7 +440,7 @@ def chat_gpt(username, room_name, message, model_name="gpt-3.5-turbo"):
                 "content": f"{msg.username}: {msg.content}",
             }
             for msg in reversed(last_messages)
-            if not is_base64_image(msg.content)
+            if not msg.is_base64_image()
         ]
 
         chat_history.append({"role": "user", "content": f"{message}\n\n{model_name}: "})
