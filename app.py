@@ -5,6 +5,8 @@ import eventlet
 
 from openai import OpenAI
 
+import tiktoken
+
 import os
 import time
 
@@ -49,11 +51,15 @@ class Message(db.Model):
         self.token_count = self._count_tokens()
 
     def _count_tokens(self):
+        # Replace 'gpt-3.5-turbo' with the model you are using.
+        encoding = tiktoken.encoding_for_model("gpt-3.5-turbo")
+        return len(encoding.encode(self.content))
+
+    def _count_tokens(self):
         return len(self.content.split())
 
     def is_base64_image(self):
         return '<img src="data:image/jpeg;base64,' in self.content
-
 
 
 def get_room(room_name):
@@ -152,7 +158,10 @@ def on_join(data):
     )
     emit(
         "message",
-        {"id": None, "content": f"Estimated {total_token_count} total tokens in conversation."},
+        {
+            "id": None,
+            "content": f"Estimated {total_token_count} total tokens in conversation.",
+        },
         room=request.sid,
     )
 

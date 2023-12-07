@@ -2,6 +2,7 @@ flask
 flask-socketio
 eventlet
 openai
+tiktoken
 
 # sqlite
 Flask-SQLAlchemy
