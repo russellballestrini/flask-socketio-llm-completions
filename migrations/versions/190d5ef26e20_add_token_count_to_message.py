@@ -32,8 +32,7 @@ def upgrade():
     for message in messages:
         message.count_tokens()
         session.add(message)
-
-    session.commit()
+        session.commit()
 
 
 def downgrade():

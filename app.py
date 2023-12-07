@@ -228,6 +228,8 @@ def handle_message(data):
         if command.startswith("/cancel"):
             # Cancel the most recent generation request
             eventlet.spawn(cancel_generation, room_name, data["username"])
+        if command.startswith("/python"):
+            eventlet.spawn(handle_python_command, room.name, room.id, data["username"])
 
     if "dall-e-3" in data["message"]:
         # Use the entire message as the prompt for DALL-E 3
@@ -1040,6 +1042,56 @@ def cancel_generation(room_name, username):
             },
             room=room_name,
         )
+
+
+def handle_python_command(room_name, room_id, username):
+    # Find the most recent code block
+    with app.app_context():
+        code_block_content = find_most_recent_code_block(room_name)
+        if code_block_content:
+            # Execute the code block content in a background task
+            output = execute_python_code(code_block_content)
+            output = f"```\n{output}\n```"
+            # Create a new message with the output
+            new_message = Message(
+                username="Python Interpreter", content=output, room_id=room_id
+            )
+            # Save the new message to the database
+            db.session.add(new_message)
+            db.session.commit()
+            # Send the output back to the chatroom with the new message ID
+            socketio.emit(
+                "message",
+                {
+                    "id": new_message.id,
+                    "username": "Python Interpreter",
+                    "content": output,
+                },
+                room=room_name,
+            )
+
+
+def execute_python_code(code):
+    import sys
+    import io
+    from contextlib import redirect_stdout
+
+    # Print the code block for debugging purposes
+    print("Executing the following code block:")
+    print(code)
+    print("-" * 50)  # Separator for clarity
+
+    # Redirect stdout to capture the output
+    output = io.StringIO()
+    with redirect_stdout(output):
+        try:
+            # Execute the code
+            exec(code, {})
+        except Exception as e:
+            # Capture any errors
+            return f"Error executing code: {e}"
+    # Return the captured output
+    return output.getvalue()
 
 
 if __name__ == "__main__":

@@ -100,7 +100,7 @@ The system will process your message and provide a response from the selected la
 Commands
 --------
 
-The application supports special commands for interacting with the chatroom:
+The application supports special commands for interacting with the chatroom: 
 
 - ``/s3 load <file_path>``: Loads a file from S3 and displays its content in the chatroom.
 - ``/s3 save <file_path>``: Saves the most recent code block from the chatroom to S3.
@@ -109,13 +109,17 @@ The application supports special commands for interacting with the chatroom:
 - ``/cancel``: Cancel the most recent chat completion from streaming into the chatroom.
 - ``/python``: Executes the most recent Python code block sent in the chatroom and returns the output or any errors.
 
+---
+
 The ``/s3 ls`` command can be used to list files in the connected S3 bucket. You can specify a pattern to filter the files listed. For example:
 
 - ``/s3 ls *`` will list all files in the bucket.
 - ``/s3 ls *.py`` will list all Python files.
 - ``/s3 ls README.*`` will list files starting with "README." and any extension.
 
-The command will return the file name, size in bytes, and the last modified timestamp for each file that matches the pattern.
+- ``/python``: Executes the most recent Python code block sent in the chatroom and returns the output or any errors. This command allows users to run Python code snippets in real-time and is useful for quick debugging, learning, or collaborative coding sessions. Use this command with caution, as executing arbitrary code can pose security risks.
+
+Please note that the ``/python`` command should be used responsibly and with consideration of the security implications of executing arbitrary code. It is recommended to implement additional security measures if this command is to be used in a production environment.
 
 Structure
 ---------
