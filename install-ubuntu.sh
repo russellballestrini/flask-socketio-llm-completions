@@ -4,14 +4,14 @@
 set -e
 
 # Update the package list
-sudo apt update
+apt update
 
 # Install git, python3-pip, and python3-venv if they are not already installed
-sudo apt install -y git python3-pip python3.10-venv sqlite3
+apt install -y git python3-pip python3.10-venv sqlite3
 
 # Clone the repository
 if [ ! -d "/opt/flask-socketio-llm-completions" ]; then
-    sudo git clone https://github.com/russellballestrini/flask-socketio-llm-completions.git /opt/flask-socketio-llm-completions
+    git clone https://github.com/russellballestrini/flask-socketio-llm-completions.git /opt/flask-socketio-llm-completions
     touch /opt/flask-socketio-llm-completions/.flaskenv
 else
     echo "The directory /opt/flask-socketio-llm-completions already exists."
@@ -42,7 +42,7 @@ SERVICE_FILE="/etc/systemd/system/$SERVICE_NAME.service"
 # Check if the service file already exists
 if [ ! -f "$SERVICE_FILE" ]; then
     # Create the service file with the following content
-    sudo bash -c "cat > $SERVICE_FILE" << EOF
+    cat > $SERVICE_FILE << EOF
 [Unit]
 Description=Flask SocketIO LLM Completions Service
 After=network.target
@@ -62,13 +62,13 @@ WantedBy=multi-user.target
 EOF
 
     # Reload systemd to read the new service file
-    sudo systemctl daemon-reload
+    systemctl daemon-reload
 
     # Enable the service to start on boot
-    sudo systemctl enable $SERVICE_NAME
+    systemctl enable $SERVICE_NAME
 
     # Start the service
-    sudo systemctl start $SERVICE_NAME
+    systemctl start $SERVICE_NAME
 
     echo "Service $SERVICE_NAME has been installed and started."
 else
@@ -85,3 +85,4 @@ FLASK_APP=app.py flask db stamp head
 deactivate
 
 echo "Setup and service configuration completed successfully."
+
