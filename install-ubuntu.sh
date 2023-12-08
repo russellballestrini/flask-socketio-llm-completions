@@ -3,35 +3,45 @@
 # Exit on any error
 set -e
 
+# Application user, group, and installation path
+APP_USER="flaskapp"
+APP_GROUP="flaskapp"
+INSTALL_PATH="/opt/flask-socketio-llm-completions"
+
 # Update the package list
 apt update
 
 # Install git, python3-pip, and python3-venv if they are not already installed
 apt install -y git python3-pip python3.10-venv sqlite3
 
-# Clone the repository
-if [ ! -d "/opt/flask-socketio-llm-completions" ]; then
-    git clone https://github.com/russellballestrini/flask-socketio-llm-completions.git /opt/flask-socketio-llm-completions
-    touch /opt/flask-socketio-llm-completions/.flaskenv
-else
-    echo "The directory /opt/flask-socketio-llm-completions already exists."
+# Create a user and group for the application if they don't exist
+if ! id "$APP_USER" &>/dev/null; then
+    useradd --system --create-home --shell /bin/false $APP_USER
 fi
 
+# Clone the repository
+if [ ! -d "$INSTALL_PATH" ]; then
+    git clone https://github.com/russellballestrini/flask-socketio-llm-completions.git $INSTALL_PATH
+    touch $INSTALL_PATH/.flaskenv
+else
+    echo "The directory $INSTALL_PATH already exists."
+fi
+
+# Change ownership of the directory to the application user
+chown -R $APP_USER:$APP_GROUP $INSTALL_PATH
+
 # Navigate to the repository directory
-cd /opt/flask-socketio-llm-completions
+cd $INSTALL_PATH
 
 # Create a Python virtual environment
 if [ ! -d "env" ]; then
     python3 -m venv env
-else
-    echo "The virtual environment already exists."
+    # Change ownership of the virtual environment to the application user
+    chown -R $APP_USER:$APP_GROUP env
 fi
 
-# Activate the virtual environment
-source env/bin/activate
-
-# Install the Python dependencies from requirements.txt
-pip install -r requirements.txt
+# Activate the virtual environment and install the Python dependencies as the application user
+sudo -u $APP_USER /bin/bash -c "source $INSTALL_PATH/env/bin/activate && pip install -r $INSTALL_PATH/requirements.txt"
 
 # Define the service name
 SERVICE_NAME="flask-socketio-llm-completions"
@@ -48,12 +58,12 @@ Description=Flask SocketIO LLM Completions Service
 After=network.target
 
 [Service]
-User=$(whoami)
-Group=$(whoami)
-WorkingDirectory=/opt/flask-socketio-llm-completions
-Environment="PATH=/opt/flask-socketio-llm-completions/env/bin"
-ExecStart=/opt/flask-socketio-llm-completions/env/bin/python app.py
-EnvironmentFile=/opt/flask-socketio-llm-completions/.flaskenv
+User=$APP_USER
+Group=$APP_GROUP
+WorkingDirectory=$INSTALL_PATH
+Environment="PATH=$INSTALL_PATH/env/bin"
+ExecStart=$INSTALL_PATH/env/bin/python app.py
+EnvironmentFile=$INSTALL_PATH/.flaskenv
 
 Restart=always
 
@@ -75,14 +85,10 @@ else
     echo "Service file $SERVICE_FILE already exists."
 fi
 
-# Initialize the database
-python init_db.py
+# Initialize the database as the application user within the virtual environment
+sudo -u $APP_USER /bin/bash -c "source $INSTALL_PATH/env/bin/activate && python $INSTALL_PATH/init_db.py"
 
-# Stamp the database with the Alembic head revision
-FLASK_APP=app.py flask db stamp head
-
-# Deactivate the virtual environment
-deactivate
+# Stamp the database with the Alembic head revision as the application user within the virtual environment
+sudo -u $APP_USER /bin/bash -c "source $INSTALL_PATH/env/bin/activate && FLASK_APP=$INSTALL_PATH/app.py flask db stamp head"
 
 echo "Setup and service configuration completed successfully."
-

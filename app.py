@@ -338,8 +338,6 @@ def chat_claude(username, room_name, message, model_name="anthropic.claude-v1"):
         # Invoke the model with response stream
         response = client.invoke_model_with_response_stream(**params)["body"]
 
-        cancellation_requests[msg_id] = False
-
         first_chunk = True
         for event in response:
             content = ""
@@ -462,8 +460,6 @@ def chat_gpt(username, room_name, message, model_name="gpt-3.5-turbo"):
         db.session.add(new_message)
         db.session.commit()
         msg_id = new_message.id
-
-    cancellation_requests[msg_id] = False
 
     first_chunk = True
 
@@ -637,6 +633,7 @@ def generate_dalle_image(room_name, message, username):
     openai_client = OpenAI()
     # Initialize the content variable to hold either the image tag or an error message
     content = ""
+
     try:
         # Call the DALL-E 3 API to generate an image in base64 format
         response = openai_client.images.generate(
