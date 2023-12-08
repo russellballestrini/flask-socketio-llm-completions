@@ -7,7 +7,7 @@ set -e
 sudo apt update
 
 # Install git, python3-pip, and python3-venv if they are not already installed
-sudo apt install -y git python3-pip python3.10-venv
+sudo apt install -y git python3-pip python3.10-venv sqlite3
 
 # Clone the repository
 if [ ! -d "/opt/flask-socketio-llm-completions" ]; then
