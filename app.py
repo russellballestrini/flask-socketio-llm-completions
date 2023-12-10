@@ -57,7 +57,7 @@ class Message(db.Model):
         return self.token_count
 
     def is_base64_image(self):
-        return '<img src="data:image/jpeg;base64,' in self.content
+        return self.content.startswith('<img src="data:image/jpeg;base64,')
 
 
 def get_room(room_name):

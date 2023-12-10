@@ -259,7 +259,15 @@ socket.on("message", (data) => {
     const newMessage = document.createElement("p");
     // Check if the username is present and prepend it to the message content
     const messageContent = data.username ? `**${data.username}:**\n\n${data.content}` : data.content;
-    newMessage.innerHTML = DOMPurify.sanitize(marked.marked(messageContent), dompurify_config);
+
+    // Check if the message starts with a base64 image tag
+    if (data.content.startsWith('<img src="data:image/jpeg;base64')) {
+        // Directly assign the message as innerHTML if it starts with a base64 image
+        newMessage.innerHTML = data.content;
+    } else {
+        // Otherwise, sanitize and process the message with marked
+        newMessage.innerHTML = DOMPurify.sanitize(marked.marked(messageContent), dompurify_config);
+    }
 
     // Check if the message has an id which means we can delete it.
     if (data.id) {
@@ -293,7 +301,15 @@ socket.on("previous_messages", (data) => {
     messageWrapper.id = "message-" + data.id;
 
     const newMessage = document.createElement("p");
-    newMessage.innerHTML = DOMPurify.sanitize(marked.marked(`**${data.username}:**\n\n${data.message}`), dompurify_config);
+
+    // Check if the message contains a base64 image
+    if (data.message.startsWith('<img src="data:image/jpeg;base64')) {
+        // Directly assign the message as innerHTML if it's a base64 image
+        newMessage.innerHTML = data.message;
+    } else {
+        // Otherwise, sanitize and process the message with marked
+        newMessage.innerHTML = DOMPurify.sanitize(marked.marked(`**${data.username}:**\n\n${data.message}`), dompurify_config);
+    }
 
     // Create the delete button
     const deleteButton = document.createElement("button");
