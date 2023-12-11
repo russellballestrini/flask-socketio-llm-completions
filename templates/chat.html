@@ -421,9 +421,23 @@ function truncateCodeBlock(block, maxLines = 100) {
             // Reapply syntax highlighting
             hljs.highlightElement(block);
             addLineNumbers(block);
-            // Remove the expand button
-            expandButton.remove();
+            // Change the button text to "Show Less"
+            expandButton.textContent = 'Show Less';
+            // Change the onclick function to truncate the block again
+            expandButton.onclick = function() {
+                block.textContent = truncatedText;
+                // Reapply syntax highlighting
+                hljs.highlightElement(block);
+                addLineNumbers(block);
+                // Change the button text back to "Show More"
+                expandButton.textContent = 'Show More';
+                // Set the onclick function back to the original expand function
+                expandButton.onclick = originalExpandFunction;
+            };
         };
+
+        // Keep a reference to the original expand function
+        const originalExpandFunction = expandButton.onclick;
 
         // Insert the expand button after the code block
         block.parentNode.insertBefore(expandButton, block.nextSibling);
