@@ -279,6 +279,8 @@ socket.on("message", (data) => {
 
     // Check if the message has an id which means we can delete it.
     if (data.id) {
+        newMessage.dataset.rawMarkdown = data.content;
+
         // Create the delete button
         const deleteButton = document.createElement("button");
         deleteButton.innerHTML = "x";
@@ -327,6 +329,8 @@ socket.on("previous_messages", (data) => {
         newMessage.innerHTML = DOMPurify.sanitize(marked.marked(`**${data.username}:**\n\n${data.message}`), dompurify_config);
     }
 
+    newMessage.dataset.rawMarkdown = data.message;
+
     // Create the delete button
     const deleteButton = document.createElement("button");
     deleteButton.innerHTML = "x";
@@ -338,7 +342,7 @@ socket.on("previous_messages", (data) => {
     const editButton = document.createElement("button");
     editButton.textContent = "Edit";
     editButton.className = "edit-button";
-    editButton.onclick = () => editMessage(data.id, newMessage, data.message);
+    editButton.onclick = () => editMessage(data.id, newMessage);
     messageWrapper.appendChild(editButton);
 
     messageWrapper.appendChild(newMessage);
@@ -381,7 +385,7 @@ socket.on("message_chunk", (data) => {
         document.getElementById("chat").appendChild(messageWrapper);
 
         // Create the div element to hold the message content
-        const targetMessageElement = document.createElement("div");
+        targetMessageElement = document.createElement("div");
         targetMessageElement.className = "message-content";
 
         // Create the "x" button for deletion
@@ -394,14 +398,13 @@ socket.on("message_chunk", (data) => {
         const editButton = document.createElement("button");
         editButton.textContent = "Edit";
         editButton.className = "edit-button";
-        editButton.onclick = () => editMessage(data.id, targetMessageElement, messageBuffers[data.id]);
+        editButton.onclick = () => editMessage(data.id, targetMessageElement);
         messageWrapper.appendChild(editButton);
 
         messageWrapper.appendChild(targetMessageElement);
-
     } else {
-        // If the wrapper already exists, get the p element inside it
-        targetMessageElement = messageWrapper.querySelector("div.message-content");
+        // If the wrapper already exists, get the message-content div inside it
+        targetMessageElement = messageWrapper.querySelector(".message-content");
     }
 
     // If the message buffer for this ID doesn't exist, create it
@@ -413,7 +416,11 @@ socket.on("message_chunk", (data) => {
     messageBuffers[data.id] += data.content;
 
     // Process the entire buffer with marked and set it as the content of the target element
-    targetMessageElement.innerHTML = DOMPurify.sanitize(marked.marked(messageBuffers[data.id]), dompurify_config);
+    const sanitizedContent = DOMPurify.sanitize(marked.marked(messageBuffers[data.id]), dompurify_config);
+    targetMessageElement.innerHTML = sanitizedContent;
+
+    // Store the raw markdown in a data attribute for later use in editing
+    targetMessageElement.dataset.rawMarkdown = messageBuffers[data.id];
 
     // Apply syntax highlighting to code blocks within the content
     targetMessageElement.querySelectorAll("pre code").forEach((block) => {
@@ -425,6 +432,7 @@ socket.on("message_chunk", (data) => {
     // Scroll to the bottom of the chat container
     document.getElementById("chat").scrollTop = document.getElementById("chat").scrollHeight;
 });
+
 
 // Socket event for when a message is deleted
 socket.on("message_deleted", (data) => {
@@ -465,10 +473,10 @@ socket.on("message_updated", (data) => {
 
 
 // Function to enter edit mode
-function editMessage(messageId, messageContentContainer, rawMarkdown) {
+function editMessage(messageId, messageContentContainer) {
     // Store the current HTML in a data attribute
     messageContentContainer.dataset.originalHtml = messageContentContainer.innerHTML;
-    messageContentContainer.dataset.rawMarkdown = rawMarkdown;
+    const rawMarkdown = messageContentContainer.dataset.rawMarkdown;
 
     // Create a textarea for editing
     const textarea = document.createElement("textarea");
