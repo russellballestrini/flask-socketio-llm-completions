@@ -321,22 +321,21 @@ socket.on("previous_messages", (data) => {
     newMessage.className = "message-content";
 
     // Check if the message contains a base64 image
-    if (data.message.startsWith('<img src="data:image/jpeg;base64')) {
+    if (data.content.startsWith('<img src="data:image/jpeg;base64')) {
         // Directly assign the message as innerHTML if it's a base64 image
-        newMessage.innerHTML = data.message;
+        newMessage.innerHTML = data.content;
     } else {
         // Otherwise, sanitize and process the message with marked
-        newMessage.innerHTML = DOMPurify.sanitize(marked.marked(`**${data.username}:**\n\n${data.message}`), dompurify_config);
+        newMessage.innerHTML = DOMPurify.sanitize(marked.marked(`**${data.username}:**\n\n${data.content}`), dompurify_config);
     }
 
-    newMessage.dataset.rawMarkdown = data.message;
+    newMessage.dataset.rawMarkdown = data.content;
 
     // Create the delete button
     const deleteButton = document.createElement("button");
     deleteButton.innerHTML = "x";
     deleteButton.onclick = () => deleteMessage(data.id, room_name);
     messageWrapper.appendChild(deleteButton);
-
 
     // Create the edit button
     const editButton = document.createElement("button");

@@ -132,7 +132,7 @@ def on_join(data):
             {
                 "id": message.id,
                 "username": message.username,
-                "message": message.content,
+                "content": message.content,
             },
             room=request.sid,
         )
