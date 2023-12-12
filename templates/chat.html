@@ -461,6 +461,9 @@ socket.on("message_updated", (data) => {
             messageContentContainer.innerHTML = DOMPurify.sanitize(marked.marked(data.content), dompurify_config);
         }
 
+        // Update the raw markdown stored in the data attribute
+        messageContentContainer.dataset.rawMarkdown = data.content;
+
         // Apply syntax highlighting and other functionalities to code blocks within the message
         messageContentContainer.querySelectorAll("pre code").forEach((block) => {
             addCopyButtonToCodeBlock(block);
