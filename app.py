@@ -272,6 +272,33 @@ def handle_delete_message(data):
     emit("message_deleted", {"message_id": msg_id}, room=data["room_name"])
 
 
+@socketio.on("update_message")
+def handle_update_message(data):
+    message_id = data["message_id"]
+    new_content = data["content"]
+    room_name = data["room_name"]
+
+    # Find the message by ID
+    message = Message.query.get(message_id)
+    if message:
+        # Update the message content
+        message.content = new_content
+        message.count_tokens()
+        db.session.add(message)
+        db.session.commit()
+
+        # Emit an event to update the message on all clients
+        emit(
+            "message_updated",
+            {
+                "message_id": message_id,
+                "content": new_content,
+                "username": message.username
+            },
+            room=room_name
+        )
+
+
 def chat_claude(username, room_name, message, model_name="anthropic.claude-v1"):
     with app.app_context():
         room = get_room(room_name)

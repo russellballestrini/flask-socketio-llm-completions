@@ -62,11 +62,17 @@
     }
     
     /* Styling for the message input area */
-    #message {
+    #message, .message-edit {
         width: 100%;
         border: 1px solid #e1e1e1;
         border-radius: 5px;
         padding: 5px;
+        display: block;
+    }
+
+    /* Styling for the message div holding html/markdown content  */
+    .message-content {
+        width: 100%;
     }
 
     /* Styling for individual message wrappers */
@@ -256,7 +262,9 @@ socket.on("message", (data) => {
     messageWrapper.className = "message-wrapper";
     messageWrapper.id = "message-" + data.id;
 
-    const newMessage = document.createElement("p");
+    const newMessage = document.createElement("div");
+    newMessage.className = "message-content";
+
     // Check if the username is present and prepend it to the message content
     const messageContent = data.username ? `**${data.username}:**\n\n${data.content}` : data.content;
 
@@ -276,6 +284,13 @@ socket.on("message", (data) => {
         deleteButton.innerHTML = "x";
         deleteButton.onclick = () => deleteMessage(data.id, room_name);
         messageWrapper.appendChild(deleteButton);
+
+        // Create the edit button
+        const editButton = document.createElement("button");
+        editButton.textContent = "Edit";
+        editButton.className = "edit-button";
+        editButton.onclick = () => editMessage(data.id, newMessage, data.content);
+        messageWrapper.appendChild(editButton);
     }
 
     messageWrapper.appendChild(newMessage);
@@ -300,7 +315,8 @@ socket.on("previous_messages", (data) => {
     messageWrapper.className = "message-wrapper";
     messageWrapper.id = "message-" + data.id;
 
-    const newMessage = document.createElement("p");
+    const newMessage = document.createElement("div");
+    newMessage.className = "message-content";
 
     // Check if the message contains a base64 image
     if (data.message.startsWith('<img src="data:image/jpeg;base64')) {
@@ -315,8 +331,16 @@ socket.on("previous_messages", (data) => {
     const deleteButton = document.createElement("button");
     deleteButton.innerHTML = "x";
     deleteButton.onclick = () => deleteMessage(data.id, room_name);
-
     messageWrapper.appendChild(deleteButton);
+
+
+    // Create the edit button
+    const editButton = document.createElement("button");
+    editButton.textContent = "Edit";
+    editButton.className = "edit-button";
+    editButton.onclick = () => editMessage(data.id, newMessage, data.message);
+    messageWrapper.appendChild(editButton);
+
     messageWrapper.appendChild(newMessage);
 
     document.getElementById("chat").appendChild(messageWrapper);
@@ -356,18 +380,28 @@ socket.on("message_chunk", (data) => {
         messageWrapper.id = wrapperId;
         document.getElementById("chat").appendChild(messageWrapper);
 
+        // Create the div element to hold the message content
+        const targetMessageElement = document.createElement("div");
+        targetMessageElement.className = "message-content";
+
         // Create the "x" button for deletion
         const deleteButton = document.createElement("button");
         deleteButton.innerHTML = "x";
         deleteButton.onclick = () => deleteMessage(data.id, room_name);
         messageWrapper.appendChild(deleteButton);
 
-        // Create the p element to hold the message content
-        targetMessageElement = document.createElement("p");
+        // Create the edit button
+        const editButton = document.createElement("button");
+        editButton.textContent = "Edit";
+        editButton.className = "edit-button";
+        editButton.onclick = () => editMessage(data.id, targetMessageElement, messageBuffers[data.id]);
+        messageWrapper.appendChild(editButton);
+
         messageWrapper.appendChild(targetMessageElement);
+
     } else {
         // If the wrapper already exists, get the p element inside it
-        targetMessageElement = messageWrapper.querySelector("p");
+        targetMessageElement = messageWrapper.querySelector("div.message-content");
     }
 
     // If the message buffer for this ID doesn't exist, create it
@@ -399,6 +433,113 @@ socket.on("message_deleted", (data) => {
         messageElement.remove();
     }
 });
+
+
+// Socket event for when a message is updated
+socket.on("message_updated", (data) => {
+    // Find the existing message wrapper by ID
+    const messageWrapper = document.getElementById("message-" + data.message_id);
+
+    if (messageWrapper) {
+        // Find the specific element that contains the message content
+        const messageContentContainer = messageWrapper.querySelector(".message-content");
+
+        // Update the message content
+        if (data.content.startsWith('<img src="data:image/jpeg;base64')) {
+            // If it's a base64 image, set it directly
+            messageContentContainer.innerHTML = data.content;
+        } else {
+            // If it's not an image, sanitize and process the message with marked
+            messageContentContainer.innerHTML = DOMPurify.sanitize(marked.marked(data.content), dompurify_config);
+        }
+
+        // Apply syntax highlighting and other functionalities to code blocks within the message
+        messageContentContainer.querySelectorAll("pre code").forEach((block) => {
+            addCopyButtonToCodeBlock(block);
+            truncateCodeBlock(block);
+            hljs.highlightElement(block);
+            addLineNumbers(block);
+        });
+    }
+});
+
+
+// Function to enter edit mode
+function editMessage(messageId, messageContentContainer, rawMarkdown) {
+    // Store the current HTML in a data attribute
+    messageContentContainer.dataset.originalHtml = messageContentContainer.innerHTML;
+    messageContentContainer.dataset.rawMarkdown = rawMarkdown;
+
+    // Create a textarea for editing
+    const textarea = document.createElement("textarea");
+    textarea.value = rawMarkdown;
+    textarea.rows = 16;
+    textarea.className = "message-edit";
+
+    // Replace the message content with the textarea
+    messageContentContainer.innerHTML = '';
+    messageContentContainer.appendChild(textarea);
+
+    // Find the message wrapper to access the edit and save buttons
+    const messageWrapper = messageContentContainer.closest('.message-wrapper');
+
+    // Create a save button with the 'save-button' class
+    const saveButton = document.createElement("button");
+    saveButton.textContent = "Save";
+    saveButton.className = "save-button"; // Add the class here
+    saveButton.onclick = () => saveEditedMessage(messageId, textarea, messageContentContainer);
+
+    // Change the edit button to a cancel button
+    const editButton = messageWrapper.querySelector(".edit-button");
+    editButton.textContent = "Cancel";
+    editButton.onclick = () => cancelEdit(messageId, messageContentContainer);
+
+    // Append the save button next to the cancel button
+    editButton.after(saveButton);
+}
+
+// Function to save the edited message
+function saveEditedMessage(messageId, textarea, messageContentContainer) {
+    // Get the updated markdown from the textarea
+    const updatedMarkdown = textarea.value;
+
+    // Emit the update_message event to the server
+    socket.emit("update_message", {
+        "message_id": messageId,
+        "content": updatedMarkdown,
+        "room_name": room_name
+    });
+
+    // Reset the edit button to its original state
+    const messageWrapper = messageContentContainer.closest('.message-wrapper');
+    const editButton = messageWrapper.querySelector(".edit-button");
+    editButton.textContent = 'Edit';
+    editButton.onclick = () => editMessage(messageId, messageContentContainer, updatedMarkdown);
+
+    // Remove the save button using the 'save-button' class
+    const saveButton = messageWrapper.querySelector(".save-button");
+    if (saveButton) {
+        saveButton.remove();
+    }
+}
+
+// Function to cancel the edit and revert changes
+function cancelEdit(messageId, messageContentContainer) {
+    // Restore the original HTML of the message content from the data attribute
+    messageContentContainer.innerHTML = messageContentContainer.dataset.originalHtml;
+
+    // Reset the edit button to its original state
+    const messageWrapper = messageContentContainer.closest('.message-wrapper');
+    const editButton = messageWrapper.querySelector(".edit-button");
+    editButton.textContent = 'Edit';
+    editButton.onclick = () => editMessage(messageId, messageContentContainer, messageContentContainer.dataset.rawMarkdown);
+
+    // Remove the save button using the 'save-button' class
+    const saveButton = messageWrapper.querySelector(".save-button");
+    if (saveButton) {
+        saveButton.remove();
+    }
+}
 
 
 function truncateCodeBlock(block, maxLines = 100) {
