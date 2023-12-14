@@ -35,6 +35,7 @@ Requirements
 - eventlet or gevent
 - boto3 (for interacting with AWS Bedrock currently Claude, and S3 access)
 - openai (for interacting with OpenAI's language models)
+- mistralai (for interacting with MistralAI's language models)
 
 Installation
 ------------
@@ -61,6 +62,7 @@ To set up the project, follow these steps:
     export AWS_SECRET_ACCESS_KEY="your_secret_key"
     export S3_BUCKET_NAME="your_s3_bucket_name"
     export OPENAI_API_KEY="your_openai_api_key"
+    export MISTRAL_API_KEY="your_mistralai_api_key"
 
 5. Initialize the database:
 
@@ -90,6 +92,7 @@ To interact with the various language models, you can use the following commands
 - For GPT-4, send a message with ``gpt-4`` and include your prompt.
 - For Claude-v1, send a message with ``claude-v1`` and include your prompt.
 - For Claude-v2, send a message with ``claude-v2`` and include your prompt.
+- For Mistral-tiny, send a message with ``mistral`` and include your prompt.
 - For Dall-e-3, send a message with ``dall-e-3`` and include your prompt.
 
 The system will process your message and provide a response from the selected language model.
