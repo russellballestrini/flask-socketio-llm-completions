@@ -1,6 +1,7 @@
 flask
 flask-socketio
 eventlet
+mistralai
 openai
 tiktoken
 

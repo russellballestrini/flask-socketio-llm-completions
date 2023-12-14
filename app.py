@@ -3,6 +3,9 @@ from flask_socketio import SocketIO, emit, join_room
 
 import eventlet
 
+from mistralai.client import MistralClient
+from mistralai.models.chat_completion import ChatMessage
+
 from openai import OpenAI
 
 import tiktoken
@@ -28,6 +31,15 @@ socketio = SocketIO(app, async_mode="eventlet")
 # Global dictionary to keep track of cancellation requests
 cancellation_requests = {}
 
+system_users = [
+  "gpt-3.5-turbo",
+  "anthropic.claude-v1",
+  "anthropic.claude-v2",
+  "gpt-4",
+  "gpt-4-1106-preview",
+  "mistral",
+  "mistral-tiny",
+]
 
 class Room(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -229,6 +241,7 @@ def handle_message(data):
         or "claude-v2" in data["message"]
         or "gpt-3" in data["message"]
         or "gpt-4" in data["message"]
+        or "mistral" in data["message"]
     ):
         # Emit a temporary message indicating that llm is processing
         emit(
@@ -257,6 +270,8 @@ def handle_message(data):
                 data["message"],
                 model_name="gpt-4-1106-preview",
             )
+        if "mistral" in data["message"]:
+            eventlet.spawn(chat_mistral, data["username"], room.name, data["message"])
 
 
 @socketio.on("delete_message")
@@ -312,19 +327,10 @@ def chat_claude(username, room_name, message, model_name="anthropic.claude-v1"):
     for msg in reversed(all_messages):
         if msg.is_base64_image():
             continue
-        if msg.username in [
-            "gpt-3.5-turbo",
-            "anthropic.claude-v1",
-            "anthropic.claude-v2",
-            "gpt-4",
-            "gpt-4-1106-preview",
-        ]:
+        if msg.username in system_users:
             chat_history += f"Assistant: {msg.username}: {msg.content}\n\n"
         else:
             chat_history += f"Human: {msg.username}: {msg.content}\n\n"
-
-    # append the new message.
-    chat_history += f"Human: {username}: {message}\n\nAssistant: {model_name}: "
 
     # Initialize the Bedrock client using boto3 and profile name.
     if app.config.get("PROFILE_NAME"):
@@ -462,22 +468,12 @@ def chat_gpt(username, room_name, message, model_name="gpt-3.5-turbo"):
 
         chat_history = [
             {
-                "role": "system"
-                if (
-                    msg.username == "gpt-3.5-turbo"
-                    or msg.username == "anthropic.claude-v1"
-                    or msg.username == "anthropic.claude-v2"
-                    or msg.username == "gpt-4"
-                    or msg.username == "gpt-4-1106-preview"
-                )
-                else "user",
+                "role": "system" if msg.username in system_users else "user",
                 "content": f"{msg.username}: {msg.content}",
             }
             for msg in reversed(last_messages)
             if not msg.is_base64_image()
         ]
-
-        chat_history.append({"role": "user", "content": f"{message}\n\n{model_name}: "})
 
     buffer = ""  # Content buffer for accumulating the chunks
 
@@ -546,6 +542,101 @@ def chat_gpt(username, room_name, message, model_name="gpt-3.5-turbo"):
                     room=room.name,
                 )
             socketio.sleep(0)  # Force immediate handling
+
+    # Save the entire completion to the database
+    with app.app_context():
+        new_message = (
+            db.session.query(Message).filter(Message.id == msg_id).one_or_none()
+        )
+        if new_message:
+            new_message.content = buffer
+            new_message.count_tokens()
+            db.session.add(new_message)
+            db.session.commit()
+
+    socketio.emit("delete_processing_message", msg_id, room=room.name)
+
+
+def chat_mistral(username, room_name, message, model_name="mistral-tiny"):
+    with app.app_context():
+        room = get_room(room_name)
+        last_messages = (
+            Message.query.filter_by(room_id=room.id)
+            .order_by(Message.id.desc())
+            .limit(15)
+            .all()
+        )
+
+        chat_history = [
+            ChatMessage(
+                role="assistant" if msg.username in system_users else "user",
+                content=f"{msg.username}: {msg.content}"
+            )
+            for msg in reversed(last_messages)
+            if not msg.is_base64_image()
+        ]
+
+    # Initialize the Mistral client
+    mistral_client = MistralClient(api_key=os.environ["MISTRAL_API_KEY"])
+
+    buffer = ""  # Content buffer for accumulating the chunks
+
+    # Save an empty message to get an ID for the chunks
+    with app.app_context():
+        new_message = Message(username=model_name, content=buffer, room_id=room.id)
+        db.session.add(new_message)
+        db.session.commit()
+        msg_id = new_message.id
+
+    first_chunk = True
+
+    try:
+        # Use the Mistral client to stream the chat completion
+        for chunk in mistral_client.chat_stream(model=model_name, messages=chat_history):
+            content_chunk = chunk.choices[0].delta.content
+
+            if content_chunk:
+                buffer += content_chunk  # Accumulate content
+
+                if first_chunk:
+                    socketio.emit(
+                        "message_chunk",
+                        {
+                            "id": msg_id,
+                            "content": f"**{username} ({model_name}):**\n\n{content_chunk}",
+                        },
+                        room=room.name,
+                    )
+                    first_chunk = False
+                else:
+                    socketio.emit(
+                        "message_chunk",
+                        {"id": msg_id, "content": content_chunk},
+                        room=room.name,
+                    )
+                socketio.sleep(0)  # Force immediate handling
+
+    except Exception as e:
+        with app.app_context():
+            message_content = f"Mistral Error: {e}"
+            new_message = (
+                db.session.query(Message).filter(Message.id == msg_id).one_or_none()
+            )
+            if new_message:
+                new_message.content = message_content
+                new_message.count_tokens()
+                db.session.add(new_message)
+                db.session.commit()
+        socketio.emit(
+            "message",
+            {
+                "id": msg_id,
+                "username": model_name,
+                "content": message_content,
+            },
+            room=room.name,
+        )
+        return None
 
     # Save the entire completion to the database
     with app.app_context():
