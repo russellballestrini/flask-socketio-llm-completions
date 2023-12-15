@@ -308,7 +308,9 @@ socket.on("message", (data) => {
     });
 
     // Scroll to the bottom of the chat container
-    document.getElementById("chat").scrollTop = document.getElementById("chat").scrollHeight;
+    if (data.id) {
+        document.getElementById("chat").scrollTop = document.getElementById("chat").scrollHeight;
+    }
 });
 
 // Socket event for receiving previous messages
@@ -355,6 +357,10 @@ socket.on("previous_messages", (data) => {
         hljs.highlightElement(block);
         addLineNumbers(block);
     });
+
+    // Scroll to the bottom of the chat container
+    document.getElementById("chat").scrollTop = document.getElementById("chat").scrollHeight;
+
 });
 
 // Socket event for deleting a processing message
