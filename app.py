@@ -332,6 +332,9 @@ def chat_claude(username, room_name, message, model_name="anthropic.claude-v1"):
         else:
             chat_history += f"Human: {msg.username}: {msg.content}\n\n"
 
+    # prompt must end with "Assistant:" turn.
+    chat_history += "Assistant:"
+
     # Initialize the Bedrock client using boto3 and profile name.
     if app.config.get("PROFILE_NAME"):
         session = boto3.Session(profile_name=app.config["PROFILE_NAME"])
