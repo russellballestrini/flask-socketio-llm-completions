@@ -3,13 +3,13 @@ flask-socketio-llm-completions
 
 This project is a chatroom application that allows users to join different chat rooms, send messages, and interact with multiple language models in real-time. The backend is built with Flask and Flask-SocketIO for real-time web communication, while the frontend uses HTML, CSS, and JavaScript to provide an interactive user interface.
 
-.. image:: flask-socketio-llm-completions.png
-   :alt: Flask-SocketIO LLM Completions
-   :align: center
+To view a short video of the chat in action click this screenshot:
 
 .. image:: flask-socketio-llm-completions-2.png
-   :alt: Flask-SocketIO LLM Completions Dall-e-3
-   :align: center
+    :alt: youtube video link image
+    :target: https://www.youtube.com/watch?v=pd3shNtSojY
+    :align: center
+
 
 
 Features
