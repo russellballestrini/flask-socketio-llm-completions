@@ -315,6 +315,12 @@ socket.on("message", (data) => {
 
 // Socket event for receiving previous messages
 socket.on("previous_messages", (data) => {
+
+    if (document.getElementById("message-" + data.id)) {
+        // If it exists, skip appending it
+        return;
+    }
+
     const messageWrapper = document.createElement("div");
     messageWrapper.className = "message-wrapper";
     messageWrapper.id = "message-" + data.id;
