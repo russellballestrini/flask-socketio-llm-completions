@@ -56,7 +56,7 @@ To set up the project, follow these steps:
 
     pip install -r requirements.txt
 
-4. Set up environment variables for your AWS credentials and OpenAI API key::
+4. Set up environment variables for your AWS, OpenAI, or Mistral API keys::
 
     export AWS_ACCESS_KEY_ID="your_access_key"
     export AWS_SECRET_ACCESS_KEY="your_secret_key"
