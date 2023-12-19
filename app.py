@@ -32,14 +32,15 @@ socketio = SocketIO(app, async_mode="eventlet")
 cancellation_requests = {}
 
 system_users = [
-  "gpt-3.5-turbo",
-  "anthropic.claude-v1",
-  "anthropic.claude-v2",
-  "gpt-4",
-  "gpt-4-1106-preview",
-  "mistral",
-  "mistral-tiny",
+    "gpt-3.5-turbo",
+    "anthropic.claude-v1",
+    "anthropic.claude-v2",
+    "gpt-4",
+    "gpt-4-1106-preview",
+    "mistral",
+    "mistral-tiny",
 ]
+
 
 class Room(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -209,19 +210,21 @@ def handle_message(data):
             s3_file_path_pattern = command.split(" ", 2)[2]
             # List files from S3 and emit their names
             eventlet.spawn(
-                list_s3_files, room.name, s3_file_path_pattern, data["username"]
+                list_s3_files, room.name, s3_file_path_pattern.strip(), data["username"]
             )
         if command.startswith("/s3 load"):
             # Extract the S3 file path
             s3_file_path = command.split(" ", 2)[2]
             # Load the file from S3 and emit its content
-            eventlet.spawn(load_s3_file, room_name, s3_file_path, data["username"])
+            eventlet.spawn(
+                load_s3_file, room_name, s3_file_path.strip(), data["username"]
+            )
         if command.startswith("/s3 save"):
             # Extract the S3 key path
             s3_key_path = command.split(" ", 2)[2]
             # Save the most recent code block to S3
             eventlet.spawn(
-                save_code_block_to_s3, room_name, s3_key_path, data["username"]
+                save_code_block_to_s3, room_name, s3_key_path.strip(), data["username"]
             )
         if command.startswith("/title new"):
             eventlet.spawn(generate_new_title, room_name, data["username"])
@@ -242,6 +245,7 @@ def handle_message(data):
         or "gpt-3" in data["message"]
         or "gpt-4" in data["message"]
         or "mistral" in data["message"]
+        or "together/" in data["message"]
     ):
         # Emit a temporary message indicating that llm is processing
         emit(
@@ -270,8 +274,33 @@ def handle_message(data):
                 data["message"],
                 model_name="gpt-4-1106-preview",
             )
-        if "mistral" in data["message"]:
+        if "mistral-tiny" in data["message"]:
             eventlet.spawn(chat_mistral, data["username"], room.name, data["message"])
+        if "together/openchat" in data["message"]:
+            eventlet.spawn(
+                chat_together,
+                data["username"],
+                room.name,
+                data["message"],
+                model_name="openchat/openchat-3.5-1210",
+                stop=["<|end_of_turn|>", "</s>"]
+            )
+        if "together/mixtral" in data["message"]:
+            eventlet.spawn(
+                chat_together,
+                data["username"],
+                room.name,
+                data["message"],
+                model_name="mistralai/Mixtral-8x7B-v0.1",
+            )
+        if "together/mistral" in data["message"]:
+            eventlet.spawn(
+                chat_together,
+                data["username"],
+                room.name,
+                data["message"],
+                model_name="mistralai/Mistral-7B-Instruct-v0.1",
+            )
 
 
 @socketio.on("delete_message")
@@ -308,9 +337,9 @@ def handle_update_message(data):
             {
                 "message_id": message_id,
                 "content": new_content,
-                "username": message.username
+                "username": message.username,
             },
-            room=room_name
+            room=room_name,
         )
 
 
@@ -573,7 +602,7 @@ def chat_mistral(username, room_name, message, model_name="mistral-tiny"):
         chat_history = [
             ChatMessage(
                 role="assistant" if msg.username in system_users else "user",
-                content=f"{msg.username}: {msg.content}"
+                content=f"{msg.username}: {msg.content}",
             )
             for msg in reversed(last_messages)
             if not msg.is_base64_image()
@@ -595,7 +624,9 @@ def chat_mistral(username, room_name, message, model_name="mistral-tiny"):
 
     try:
         # Use the Mistral client to stream the chat completion
-        for chunk in mistral_client.chat_stream(model=model_name, messages=chat_history):
+        for chunk in mistral_client.chat_stream(
+            model=model_name, messages=chat_history
+        ):
             content_chunk = chunk.choices[0].delta.content
 
             if content_chunk:
@@ -622,6 +653,111 @@ def chat_mistral(username, room_name, message, model_name="mistral-tiny"):
     except Exception as e:
         with app.app_context():
             message_content = f"Mistral Error: {e}"
+            new_message = (
+                db.session.query(Message).filter(Message.id == msg_id).one_or_none()
+            )
+            if new_message:
+                new_message.content = message_content
+                new_message.count_tokens()
+                db.session.add(new_message)
+                db.session.commit()
+        socketio.emit(
+            "message",
+            {
+                "id": msg_id,
+                "username": model_name,
+                "content": message_content,
+            },
+            room=room.name,
+        )
+        return None
+
+    # Save the entire completion to the database
+    with app.app_context():
+        new_message = (
+            db.session.query(Message).filter(Message.id == msg_id).one_or_none()
+        )
+        if new_message:
+            new_message.content = buffer
+            new_message.count_tokens()
+            db.session.add(new_message)
+            db.session.commit()
+
+    socketio.emit("delete_processing_message", msg_id, room=room.name)
+
+
+def chat_together(
+    username, room_name, message, model_name="mistralai/Mixtral-8x7B-Instruct-v0.1", stop=["[/INST]", "</s>"]
+):
+    # Initialize the Together client
+    import together
+
+    together.api_key = os.environ["TOGETHER_API_KEY"]
+
+    with app.app_context():
+        room = get_room(room_name)
+        last_messages = (
+            Message.query.filter_by(room_id=room.id)
+            .order_by(Message.id.desc())
+            .limit(15)
+            .all()
+        )
+
+        chat_history = [
+            f"{msg.username}: {msg.content}"
+            for msg in reversed(last_messages)
+            if not msg.is_base64_image()
+        ]
+        if "mistralai" in model_name:
+            chat_history_str = "\n\n".join(chat_history)
+        else:
+            chat_history_str = "<|end_of_turn|>\n\n".join(chat_history)
+            chat_history_str += "Assistant:"
+
+    buffer = ""  # Content buffer for accumulating the chunks
+
+    # Save an empty message to get an ID for the chunks
+    with app.app_context():
+        new_message = Message(username=model_name, content=buffer, room_id=room.id)
+        db.session.add(new_message)
+        db.session.commit()
+        msg_id = new_message.id
+
+    first_chunk = True
+
+    try:
+        # Use the Together client to stream the chat completion
+        prompt = f"{chat_history_str}"
+        if "mistralai" in model_name:
+            prompt = f"[INST] {chat_history_str} [/INST]"
+        chunks = together.Complete.create_streaming(
+            prompt, model=model_name, max_tokens=2048, stop=stop, repetition_penalty=1, top_p=0.7, top_k=50
+        )
+
+        for chunk in chunks:
+            buffer += chunk  # Accumulate content
+
+            if first_chunk:
+                socketio.emit(
+                    "message_chunk",
+                    {
+                        "id": msg_id,
+                        "content": f"**{username} ({model_name}):**\n\n{chunk}",
+                    },
+                    room=room.name,
+                )
+                first_chunk = False
+            else:
+                socketio.emit(
+                    "message_chunk",
+                    {"id": msg_id, "content": chunk},
+                    room=room.name,
+                )
+            socketio.sleep(0)  # Force immediate handling
+
+    except Exception as e:
+        with app.app_context():
+            message_content = f"Together Error: {e}"
             new_message = (
                 db.session.query(Message).filter(Message.id == msg_id).one_or_none()
             )

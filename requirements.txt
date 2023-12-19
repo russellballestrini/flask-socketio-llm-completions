@@ -4,6 +4,7 @@ eventlet
 mistralai
 openai
 tiktoken
+together
 
 # sqlite
 Flask-SQLAlchemy
