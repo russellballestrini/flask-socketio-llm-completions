@@ -39,6 +39,11 @@ system_users = [
     "gpt-4-1106-preview",
     "mistral",
     "mistral-tiny",
+    "mistral-small",
+    "mistral-medium",
+    "mistralai/Mixtral-8x7B-v0.1",
+    "mistralai/Mistral-7B-Instruct-v0.1",
+    "openchat/openchat-3.5-1210",
 ]
 
 
@@ -244,7 +249,7 @@ def handle_message(data):
         or "claude-v2" in data["message"]
         or "gpt-3" in data["message"]
         or "gpt-4" in data["message"]
-        or "mistral" in data["message"]
+        or "mistral-" in data["message"]
         or "together/" in data["message"]
     ):
         # Emit a temporary message indicating that llm is processing
@@ -275,7 +280,29 @@ def handle_message(data):
                 model_name="gpt-4-1106-preview",
             )
         if "mistral-tiny" in data["message"]:
-            eventlet.spawn(chat_mistral, data["username"], room.name, data["message"])
+            eventlet.spawn(
+                chat_mistral,
+                data["username"],
+                room.name,
+                data["message"],
+                model_name="mistral-tiny",
+            )
+        if "mistral-small" in data["message"]:
+            eventlet.spawn(
+                chat_mistral,
+                data["username"],
+                room.name,
+                data["message"],
+                model_name="mistral-small",
+            )
+        if "mistral-medium" in data["message"]:
+            eventlet.spawn(
+                chat_mistral,
+                data["username"],
+                room.name,
+                data["message"],
+                model_name="mistral-medium",
+            )
         if "together/openchat" in data["message"]:
             eventlet.spawn(
                 chat_together,
@@ -283,7 +310,7 @@ def handle_message(data):
                 room.name,
                 data["message"],
                 model_name="openchat/openchat-3.5-1210",
-                stop=["<|end_of_turn|>", "</s>"]
+                stop=["<|end_of_turn|>", "</s>"],
             )
         if "together/mixtral" in data["message"]:
             eventlet.spawn(
@@ -687,7 +714,11 @@ def chat_mistral(username, room_name, message, model_name="mistral-tiny"):
 
 
 def chat_together(
-    username, room_name, message, model_name="mistralai/Mixtral-8x7B-Instruct-v0.1", stop=["[/INST]", "</s>"]
+    username,
+    room_name,
+    message,
+    model_name="mistralai/Mixtral-8x7B-Instruct-v0.1",
+    stop=["[/INST]", "</s>"],
 ):
     # Initialize the Together client
     import together
@@ -731,7 +762,13 @@ def chat_together(
         if "mistralai" in model_name:
             prompt = f"[INST] {chat_history_str} [/INST]"
         chunks = together.Complete.create_streaming(
-            prompt, model=model_name, max_tokens=2048, stop=stop, repetition_penalty=1, top_p=0.7, top_k=50
+            prompt,
+            model=model_name,
+            max_tokens=2048,
+            stop=stop,
+            repetition_penalty=1,
+            top_p=0.7,
+            top_k=50,
         )
 
         for chunk in chunks:
