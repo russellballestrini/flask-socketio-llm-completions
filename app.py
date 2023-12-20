@@ -712,7 +712,7 @@ def chat_together(
             chat_history_str = "\n\n".join(chat_history)
         else:
             chat_history_str = "<|end_of_turn|>\n\n".join(chat_history)
-            chat_history_str += "Assistant:"
+            chat_history_str += "<|end_of_turn|>Math Correct Assistant:"
 
     buffer = ""  # Content buffer for accumulating the chunks
 
