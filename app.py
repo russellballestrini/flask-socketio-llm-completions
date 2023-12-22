@@ -212,24 +212,24 @@ def handle_message(data):
     for command in commands:
         if command.startswith("/s3 ls"):
             # Extract the S3 file path pattern
-            s3_file_path_pattern = command.split(" ", 2)[2]
+            s3_file_path_pattern = command.split(" ", 2)[2].strip()
             # List files from S3 and emit their names
             eventlet.spawn(
-                list_s3_files, room.name, s3_file_path_pattern.strip(), data["username"]
+                list_s3_files, room.name, s3_file_path_pattern, data["username"]
             )
         if command.startswith("/s3 load"):
             # Extract the S3 file path
-            s3_file_path = command.split(" ", 2)[2]
+            s3_file_path = command.split(" ", 2)[2].strip()
             # Load the file from S3 and emit its content
             eventlet.spawn(
-                load_s3_file, room_name, s3_file_path.strip(), data["username"]
+                load_s3_file, room_name, s3_file_path, data["username"]
             )
         if command.startswith("/s3 save"):
             # Extract the S3 key path
-            s3_key_path = command.split(" ", 2)[2]
+            s3_key_path = command.split(" ", 2)[2].strip()
             # Save the most recent code block to S3
             eventlet.spawn(
-                save_code_block_to_s3, room_name, s3_key_path.strip(), data["username"]
+                save_code_block_to_s3, room_name, s3_key_path, data["username"]
             )
         if command.startswith("/title new"):
             eventlet.spawn(generate_new_title, room_name, data["username"])
