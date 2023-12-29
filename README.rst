@@ -17,7 +17,7 @@ Features
 
 - Real-time messaging between users in a chatroom.
 - Ability to join different chatrooms with unique URLs.
-- Integration with OpenAI's language models for generating room titles and processing messages.
+- Integration with language models for generating room titles and processing messages.
 - Syntax highlighting for code blocks within messages.
 - Markdown rendering for messages.
 - Commands to load and save code blocks to AWS S3.
@@ -57,16 +57,7 @@ To set up the project, follow these steps:
 
     pip install -r requirements.txt
 
-4. Set up environment variables for your AWS, OpenAI, MistralAI, or together.ai API keys::
-
-    export AWS_ACCESS_KEY_ID="your_access_key"
-    export AWS_SECRET_ACCESS_KEY="your_secret_key"
-    export S3_BUCKET_NAME="your_s3_bucket_name"
-    export OPENAI_API_KEY="your_openai_api_key"
-    export MISTRAL_API_KEY="your_mistralai_api_key"
-    export TOGETHER_API_KEY="your_togetherai_api_key"
-
-5. Initialize the database:
+4. Initialize the database:
 
    Before running the application for the first time, you need to create the database and tables, and then stamp the Alembic migrations to mark them as up to date. Follow these steps::
 
@@ -75,6 +66,15 @@ To set up the project, follow these steps:
 
 Usage
 -----
+
+Set up environment variables for your AWS, OpenAI, MistralAI, or together.ai API keys::
+
+    export AWS_ACCESS_KEY_ID="your_access_key"
+    export AWS_SECRET_ACCESS_KEY="your_secret_key"
+    export S3_BUCKET_NAME="your_s3_bucket_name"
+    export OPENAI_API_KEY="your_openai_api_key"
+    export MISTRAL_API_KEY="your_mistralai_api_key"
+    export TOGETHER_API_KEY="your_togetherai_api_key"
 
 To start the application with socket.io run::
 
