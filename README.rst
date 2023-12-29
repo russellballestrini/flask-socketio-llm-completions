@@ -100,6 +100,7 @@ To interact with the various language models, you can use the following commands
 - For Together OpenChat, send a message with ``together/openchat`` and include your prompt.
 - For Together Mistral, send a message with ``together/mistral`` and include your prompt.
 - For Together Mixtral, send a message with ``together/mixtral`` and include your prompt.
+- For Together Solar, send a message with ``together/solar`` and include your prompt.
 - For Dall-e-3, send a message with ``dall-e-3`` and include your prompt.
 
 The system will process your message and provide a response from the selected language model.

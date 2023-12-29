@@ -44,6 +44,7 @@ system_users = [
     "mistralai/Mixtral-8x7B-v0.1",
     "mistralai/Mistral-7B-Instruct-v0.1",
     "openchat/openchat-3.5-1210",
+    "upstage/SOLAR-10.7B-Instruct-v1.0",
 ]
 
 
@@ -327,6 +328,15 @@ def handle_message(data):
                 room.name,
                 data["message"],
                 model_name="mistralai/Mistral-7B-Instruct-v0.1",
+            )
+        if "together/solar" in data["message"]:
+            eventlet.spawn(
+                chat_together,
+                data["username"],
+                room.name,
+                data["message"],
+                model_name="upstage/SOLAR-10.7B-Instruct-v1.0",
+                stop=["###", "</s>"],
             )
 
 
@@ -741,6 +751,10 @@ def chat_together(
         ]
         if "mistralai" in model_name:
             chat_history_str = "\n\n".join(chat_history)
+        elif "solar" in model_name:
+            chat_history_str = "### \n\n".join(chat_history)
+            chat_history_str += "### Assistant:"
+
         else:
             chat_history_str = "<|end_of_turn|>\n\n".join(chat_history)
             chat_history_str += "<|end_of_turn|>Math Correct Assistant:"
@@ -761,6 +775,9 @@ def chat_together(
         prompt = f"{chat_history_str}"
         if "mistralai" in model_name:
             prompt = f"[INST] {chat_history_str} [/INST]"
+        if "solar" in model_name:
+            prompt = f"<s> {chat_history_str}"
+
         chunks = together.Complete.create_streaming(
             prompt,
             model=model_name,
