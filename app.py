@@ -859,16 +859,13 @@ def gpt_generate_room_title(messages, model_name):
     """
     openai_client = OpenAI()
 
-    def is_base64_image(content):
-        return '<img src="data:image/jpeg;base64,' in content
-
     chat_history = [
         {
             "role": "system" if msg.username in system_users else "user",
             "content": f"{msg.username}: {msg.content}",
         }
         for msg in reversed(messages)
-        if not is_base64_image(msg.content)
+        if not msg.is_base64_image()
     ]
 
     chat_history.append(
