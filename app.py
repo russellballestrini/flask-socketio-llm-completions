@@ -222,9 +222,7 @@ def handle_message(data):
             # Extract the S3 file path
             s3_file_path = command.split(" ", 2)[2].strip()
             # Load the file from S3 and emit its content
-            eventlet.spawn(
-                load_s3_file, room_name, s3_file_path, data["username"]
-            )
+            eventlet.spawn(load_s3_file, room_name, s3_file_path, data["username"])
         if command.startswith("/s3 save"):
             # Extract the S3 key path
             s3_key_path = command.split(" ", 2)[2].strip()
@@ -664,6 +662,11 @@ def chat_mistral(username, room_name, message, model_name="mistral-tiny"):
         for chunk in mistral_client.chat_stream(
             model=model_name, messages=chat_history
         ):
+            # Check if there has been a cancellation request, break if there is.
+            if cancellation_requests.get(msg_id):
+                del cancellation_requests[msg_id]
+                break
+
             content_chunk = chunk.choices[0].delta.content
 
             if content_chunk:
@@ -789,6 +792,11 @@ def chat_together(
         )
 
         for chunk in chunks:
+            # Check if there has been a cancellation request, break if there is.
+            if cancellation_requests.get(msg_id):
+                del cancellation_requests[msg_id]
+                break
+
             buffer += chunk  # Accumulate content
 
             if first_chunk:
@@ -856,15 +864,7 @@ def gpt_generate_room_title(messages, model_name):
 
     chat_history = [
         {
-            "role": "system"
-            if (
-                msg.username == "gpt-3.5-turbo"
-                or msg.username == "anthropic.claude-v1"
-                or msg.username == "anthropic.claude-v2"
-                or msg.username == "gpt-4"
-                or msg.username == "gpt-4-1106-preview"
-            )
-            else "user",
+            "role": "system" if msg.username in system_users else "user",
             "content": f"{msg.username}: {msg.content}",
         }
         for msg in reversed(messages)
@@ -897,7 +897,7 @@ def generate_new_title(room_name, username):
         last_messages = (
             Message.query.filter_by(room_id=room.id)
             .order_by(Message.id.desc())
-            .limit(100)  # Adjust the limit as needed
+            .limit(1000)  # Adjust the limit as needed
             .all()
         )
 
