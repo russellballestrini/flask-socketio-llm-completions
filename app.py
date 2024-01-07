@@ -250,6 +250,7 @@ def handle_message(data):
         or "gpt-4" in data["message"]
         or "mistral-" in data["message"]
         or "together/" in data["message"]
+        or "localhost/" in data["message"]
     ):
         # Emit a temporary message indicating that llm is processing
         emit(
@@ -336,6 +337,15 @@ def handle_message(data):
                 model_name="upstage/SOLAR-10.7B-Instruct-v1.0",
                 stop=["###", "</s>"],
             )
+        if "localhost/openchat" in data["message"]:
+            eventlet.spawn(
+                chat_gpt,
+                data["username"],
+                room.name,
+                data["message"],
+                model_name="openchat_3.5",
+            )
+
 
 
 @socketio.on("delete_message")
@@ -511,7 +521,10 @@ def chat_claude(username, room_name, message, model_name="anthropic.claude-v1"):
 
 
 def chat_gpt(username, room_name, message, model_name="gpt-3.5-turbo"):
-    openai_client = OpenAI()
+    if model_name == "openchat_3.5":
+        openai_client = OpenAI(base_url="http://localhost:18888/v1", api_key="not-needed")
+    else:
+        openai_client = OpenAI()
     limit = 15
     if model_name == "gpt-4-1106-preview":
         limit = 1000

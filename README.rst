@@ -50,7 +50,7 @@ To set up the project, follow these steps:
 
 2. Create a virtual environment and activate it::
 
-    python3 -m venv ven
+    python3 -m venv env
     source env/bin/activate  # On Windows use `env\Scripts\activate`
 
 3. Install the required dependencies::
