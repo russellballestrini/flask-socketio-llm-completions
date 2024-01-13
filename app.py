@@ -8,6 +8,8 @@ from mistralai.models.chat_completion import ChatMessage
 
 from openai import OpenAI
 
+import llama_cpp
+
 import tiktoken
 
 import os
@@ -345,7 +347,14 @@ def handle_message(data):
                 data["message"],
                 model_name="openchat_3.5",
             )
-
+        if "localhost/mistral" in data["message"]:
+            eventlet.spawn(
+                chat_llama,
+                data["username"],
+                room.name,
+                data["message"],
+                model_name="mistral-7b-instruct-v0.2.Q3_K_L.gguf",
+            )
 
 
 @socketio.on("delete_message")
@@ -537,14 +546,6 @@ def chat_gpt(username, room_name, message, model_name="gpt-3.5-turbo"):
             .limit(limit)
             .all()
         )
-        if room.title is None and len(last_messages) >= 5:
-            room.title = gpt_generate_room_title(last_messages, model_name)
-            db.session.add(room)
-            db.session.commit()
-            socketio.emit("update_room_title", {"title": room.title}, room=room.name)
-            # Emit an event to update this rooms title in the sidebar for all users.
-            updated_room_data = {"id": room.id, "name": room.name, "title": room.title}
-            socketio.emit("update_room_list", updated_room_data, room=None)
 
         chat_history = [
             {
@@ -851,6 +852,109 @@ def chat_together(
             room=room.name,
         )
         return None
+
+    # Save the entire completion to the database
+    with app.app_context():
+        new_message = (
+            db.session.query(Message).filter(Message.id == msg_id).one_or_none()
+        )
+        if new_message:
+            new_message.content = buffer
+            new_message.count_tokens()
+            db.session.add(new_message)
+            db.session.commit()
+
+    socketio.emit("delete_processing_message", msg_id, room=room.name)
+
+
+def chat_llama(username, room_name, message, model_name="mistral-7b-instruct-v0.2.Q3_K_L.gguf"):
+
+    model = llama_cpp.Llama(model_name, n_gpu_layers=-1, n_ctx=32000)
+
+    limit = 15
+    with app.app_context():
+        room = get_room(room_name)
+        last_messages = (
+            Message.query.filter_by(room_id=room.id)
+            .order_by(Message.id.desc())
+            .limit(limit)
+            .all()
+        )
+
+        chat_history = [
+            {
+                "role": "system" if msg.username in system_users else "user",
+                "content": f"{msg.username}: {msg.content}",
+            }
+            for msg in reversed(last_messages)
+            if not msg.is_base64_image()
+        ]
+
+    buffer = ""  # Content buffer for accumulating the chunks
+
+    # save empty message, we need the ID when we chunk the response.
+    with app.app_context():
+        new_message = Message(username=model_name, content=buffer, room_id=room.id)
+        db.session.add(new_message)
+        db.session.commit()
+        msg_id = new_message.id
+
+    first_chunk = True
+
+    try:
+        chunks = model.create_chat_completion(messages=chat_history, stream=True,)
+    except Exception as e:
+        with app.app_context():
+            message_content = f"LLama Error: {e}"
+            new_message = (
+                db.session.query(Message).filter(Message.id == msg_id).one_or_none()
+            )
+            if new_message:
+                new_message.content = message_content
+                new_message.count_tokens()
+                db.session.add(new_message)
+                db.session.commit()
+        socketio.emit(
+            "message",
+            {
+                "id": msg_id,
+                "username": model_name,
+                "content": message_content,
+            },
+            room=room_name,
+        )
+        socketio.emit("delete_processing_message", msg_id, room=room.name)
+        # exit early to avoid clobbering the error message.
+        return None
+
+    for chunk in chunks:
+        # Check if there has been a cancellation request, break if there is.
+        if cancellation_requests.get(msg_id):
+            del cancellation_requests[msg_id]
+            break
+
+        content = chunk['choices'][0]['delta'].get('content')
+
+        if content:
+            buffer += content  # Accumulate content
+
+            if first_chunk:
+                socketio.emit(
+                    "message_chunk",
+                    {
+                        "id": msg_id,
+                        "content": f"**{username} ({model_name}):**\n\n{content}",
+                    },
+                    room=room.name,
+                )
+                first_chunk = False
+            else:
+                socketio.emit(
+                    "message_chunk",
+                    {"id": msg_id, "content": content},
+                    room=room.name,
+                )
+            socketio.sleep(0)  # Force immediate handling
 
     # Save the entire completion to the database
     with app.app_context():

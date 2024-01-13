@@ -2,9 +2,11 @@ flask
 flask-socketio
 eventlet
 mistralai
+together
 openai
 tiktoken
-together
+
+#llama-cpp-python[server]
 
 # sqlite
 Flask-SQLAlchemy
