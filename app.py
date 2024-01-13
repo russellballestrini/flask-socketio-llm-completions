@@ -869,6 +869,7 @@ def chat_together(
 
 def chat_llama(username, room_name, message, model_name="mistral-7b-instruct-v0.2.Q3_K_L.gguf"):
 
+    # https://llama-cpp-python.readthedocs.io/en/latest/api-reference/
     model = llama_cpp.Llama(model_name, n_gpu_layers=-1, n_ctx=32000)
 
     limit = 15
