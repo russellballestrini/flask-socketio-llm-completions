@@ -8,8 +8,6 @@ from mistralai.models.chat_completion import ChatMessage
 
 from openai import OpenAI
 
-import llama_cpp
-
 import tiktoken
 
 import os
@@ -868,6 +866,8 @@ def chat_together(
 
 
 def chat_llama(username, room_name, message, model_name="mistral-7b-instruct-v0.2.Q3_K_L.gguf"):
+
+    import llama_cpp
 
     # https://llama-cpp-python.readthedocs.io/en/latest/api-reference/
     model = llama_cpp.Llama(model_name, n_gpu_layers=-1, n_ctx=32000)
