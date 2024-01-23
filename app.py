@@ -345,6 +345,14 @@ def handle_message(data):
                 data["message"],
                 model_name="openchat_3.5",
             )
+        if "localhost/openhermes" in data["message"]:
+            eventlet.spawn(
+                chat_gpt,
+                data["username"],
+                room.name,
+                data["message"],
+                model_name="teknium/OpenHermes-2.5-Mistral-7B",
+            )
         if "localhost/mistral" in data["message"]:
             eventlet.spawn(
                 chat_llama,
@@ -353,6 +361,22 @@ def handle_message(data):
                 data["message"],
                 model_name="mistral-7b-instruct-v0.2.Q3_K_L.gguf",
             )
+        if "localhost/mistral-code" in data["message"]:
+            eventlet.spawn(
+                chat_llama,
+                data["username"],
+                room.name,
+                data["message"],
+                model_name="mistral-7b-instruct-v0.2-code-ft.Q3_K_L.gguf",
+            )
+        #if "localhost/openhermes" in data["message"]:
+        #    eventlet.spawn(
+        #        chat_llama,
+        #        data["username"],
+        #        room.name,
+        #        data["message"],
+        #        model_name="openhermes-2.5-mistral-7b.Q6_K.gguf",
+        #    )
 
 
 @socketio.on("delete_message")
@@ -528,7 +552,7 @@ def chat_claude(username, room_name, message, model_name="anthropic.claude-v1"):
 
 
 def chat_gpt(username, room_name, message, model_name="gpt-3.5-turbo"):
-    if model_name == "openchat_3.5":
+    if model_name == "openchat_3.5" or "teknium/OpenHermes-2.5-Mistral-7B":
         openai_client = OpenAI(base_url="http://localhost:18888/v1", api_key="not-needed")
     else:
         openai_client = OpenAI()
