@@ -564,6 +564,7 @@ def chat_gpt(username, room_name, message, model_name="gpt-3.5-turbo"):
         openai_client = OpenAI(base_url=vllm_endpoint, api_key=vllm_api_key)
     else:
         openai_client = OpenAI()
+
     limit = 15
     if model_name == "gpt-4-1106-preview":
         limit = 1000
@@ -897,8 +898,9 @@ def chat_together(
     socketio.emit("delete_processing_message", msg_id, room=room.name)
 
 
-def chat_llama(username, room_name, message, model_name="mistral-7b-instruct-v0.2.Q3_K_L.gguf"):
-
+def chat_llama(
+    username, room_name, message, model_name="mistral-7b-instruct-v0.2.Q3_K_L.gguf"
+):
     import llama_cpp
 
     # https://llama-cpp-python.readthedocs.io/en/latest/api-reference/
@@ -935,7 +937,10 @@ def chat_llama(username, room_name, message, model_name="mistral-7b-instruct-v0.
     first_chunk = True
 
     try:
-        chunks = model.create_chat_completion(messages=chat_history, stream=True,)
+        chunks = model.create_chat_completion(
+            messages=chat_history,
+            stream=True,
+        )
     except Exception as e:
         with app.app_context():
             message_content = f"LLama Error: {e}"
@@ -966,7 +971,7 @@ def chat_llama(username, room_name, message, model_name="mistral-7b-instruct-v0.
             del cancellation_requests[msg_id]
             break
 
-        content = chunk['choices'][0]['delta'].get('content')
+        content = chunk["choices"][0]["delta"].get("content")
 
         if content:
             buffer += content  # Accumulate content
