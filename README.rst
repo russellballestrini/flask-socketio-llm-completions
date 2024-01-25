@@ -67,7 +67,7 @@ To set up the project, follow these steps:
 Usage
 -----
 
-Set up environment variables for your AWS, OpenAI, MistralAI, or together.ai API keys::
+Set up optional environment variables for your AWS, OpenAI, MistralAI, or together.ai API keys::
 
     export AWS_ACCESS_KEY_ID="your_access_key"
     export AWS_SECRET_ACCESS_KEY="your_secret_key"
@@ -75,6 +75,8 @@ Set up environment variables for your AWS, OpenAI, MistralAI, or together.ai API
     export OPENAI_API_KEY="your_openai_api_key"
     export MISTRAL_API_KEY="your_mistralai_api_key"
     export TOGETHER_API_KEY="your_togetherai_api_key"
+    export VLLM_API_KEY="not-needed"
+    export VLLM_ENDPOINT="http://localhost:18888/v1"
 
 To start the application with socket.io run::
 
@@ -101,6 +103,8 @@ To interact with the various language models, you can use the following commands
 - For Together Mistral, send a message with ``together/mistral`` and include your prompt.
 - For Together Mixtral, send a message with ``together/mixtral`` and include your prompt.
 - For Together Solar, send a message with ``together/solar`` and include your prompt.
+- For vLLM OpenChat, send a message with ``vllm/openchat`` and include your prompt.
+- For vLLM OpenHermes, send a message with ``vllm/openhermes`` and include your prompt.
 - For Dall-e-3, send a message with ``dall-e-3`` and include your prompt.
 
 The system will process your message and provide a response from the selected language model.

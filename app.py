@@ -32,9 +32,9 @@ socketio = SocketIO(app, async_mode="eventlet")
 cancellation_requests = {}
 
 system_users = [
-    "gpt-3.5-turbo",
     "anthropic.claude-v1",
     "anthropic.claude-v2",
+    "gpt-3.5-turbo",
     "gpt-4",
     "gpt-4-1106-preview",
     "mistral",
@@ -44,7 +44,12 @@ system_users = [
     "mistralai/Mixtral-8x7B-v0.1",
     "mistralai/Mistral-7B-Instruct-v0.1",
     "openchat/openchat-3.5-1210",
+    "openchat/openchat-3.5-0106",
     "upstage/SOLAR-10.7B-Instruct-v1.0",
+    "teknium/OpenHermes-2.5-Mistral-7B",
+    "mistral-7b-instruct-v0.2.Q3_K_L.gguf",
+    "mistral-7b-instruct-v0.2-code-ft.Q3_K_L.gguf",
+    "openhermes-2.5-mistral-7b.Q6_K.gguf",
 ]
 
 
@@ -251,6 +256,7 @@ def handle_message(data):
         or "mistral-" in data["message"]
         or "together/" in data["message"]
         or "localhost/" in data["message"]
+        or "vllm/" in data["message"]
     ):
         # Emit a temporary message indicating that llm is processing
         emit(
@@ -337,15 +343,15 @@ def handle_message(data):
                 model_name="upstage/SOLAR-10.7B-Instruct-v1.0",
                 stop=["###", "</s>"],
             )
-        if "localhost/openchat" in data["message"]:
+        if "vllm/openchat" in data["message"]:
             eventlet.spawn(
                 chat_gpt,
                 data["username"],
                 room.name,
                 data["message"],
-                model_name="openchat_3.5",
+                model_name="openchat/openchat-3.5-0106",
             )
-        if "localhost/openhermes" in data["message"]:
+        if "vllm/openhermes" in data["message"]:
             eventlet.spawn(
                 chat_gpt,
                 data["username"],
@@ -369,14 +375,14 @@ def handle_message(data):
                 data["message"],
                 model_name="mistral-7b-instruct-v0.2-code-ft.Q3_K_L.gguf",
             )
-        #if "localhost/openhermes" in data["message"]:
-        #    eventlet.spawn(
-        #        chat_llama,
-        #        data["username"],
-        #        room.name,
-        #        data["message"],
-        #        model_name="openhermes-2.5-mistral-7b.Q6_K.gguf",
-        #    )
+        if "localhost/openhermes" in data["message"]:
+            eventlet.spawn(
+                chat_llama,
+                data["username"],
+                room.name,
+                data["message"],
+                model_name="openhermes-2.5-mistral-7b.Q6_K.gguf",
+            )
 
 
 @socketio.on("delete_message")
@@ -552,8 +558,10 @@ def chat_claude(username, room_name, message, model_name="anthropic.claude-v1"):
 
 
 def chat_gpt(username, room_name, message, model_name="gpt-3.5-turbo"):
-    if model_name == "openchat_3.5" or "teknium/OpenHermes-2.5-Mistral-7B":
-        openai_client = OpenAI(base_url="http://localhost:18888/v1", api_key="not-needed")
+    if "gpt" not in model_name:
+        vllm_endpoint = os.environ.get("VLLM_ENDPOINT", "http://localhost:18888/v1")
+        vllm_api_key = os.environ.get("VLLM_API_KEY", "not-needed")
+        openai_client = OpenAI(base_url=vllm_endpoint, api_key=vllm_api_key)
     else:
         openai_client = OpenAI()
     limit = 15
@@ -595,7 +603,7 @@ def chat_gpt(username, room_name, message, model_name="gpt-3.5-turbo"):
         )
     except Exception as e:
         with app.app_context():
-            message_content = f"OpenAi Error: {e}"
+            message_content = f"{model_name} Error: {e}"
             new_message = (
                 db.session.query(Message).filter(Message.id == msg_id).one_or_none()
             )
