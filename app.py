@@ -37,6 +37,7 @@ system_users = [
     "gpt-3.5-turbo",
     "gpt-4",
     "gpt-4-1106-preview",
+    "gpt-4-turbo-preview",
     "mistral",
     "mistral-tiny",
     "mistral-small",
@@ -163,7 +164,7 @@ def on_join(data):
 
     message_count = len(previous_messages)
     if room.title is None and message_count >= 6:
-        room.title = gpt_generate_room_title(previous_messages, "gpt-4-1106-preview")
+        room.title = gpt_generate_room_title(previous_messages, "gpt-4-turbo-preview")
         db.session.add(room)
         db.session.commit()
         socketio.emit("update_room_title", {"title": room.title}, room=room.name)
@@ -283,7 +284,7 @@ def handle_message(data):
                 data["username"],
                 room.name,
                 data["message"],
-                model_name="gpt-4-1106-preview",
+                model_name="gpt-4-turbo-preview",
             )
         if "mistral-tiny" in data["message"]:
             eventlet.spawn(
@@ -566,7 +567,7 @@ def chat_gpt(username, room_name, message, model_name="gpt-3.5-turbo"):
         openai_client = OpenAI()
 
     limit = 15
-    if model_name == "gpt-4-1106-preview":
+    if model_name == "gpt-4-turbo-preview":
         limit = 1000
 
     with app.app_context():
@@ -1054,7 +1055,7 @@ def generate_new_title(room_name, username):
         )
 
         # Generate the title using the messages
-        new_title = gpt_generate_room_title(last_messages, "gpt-4-1106-preview")
+        new_title = gpt_generate_room_title(last_messages, "gpt-4-turbo-preview")
 
         # Update the room title in the database
         room.title = new_title
