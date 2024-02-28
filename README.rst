@@ -37,6 +37,7 @@ Requirements
 - openai (for interacting with OpenAI's language models)
 - mistralai (for interacting with MistralAI's language models)
 - together (for interacting with together.ai language models)
+- groq (for interacting with very fast groq language models)
 
 Installation
 ------------
@@ -75,6 +76,7 @@ Set up optional environment variables for your AWS, OpenAI, MistralAI, or togeth
     export OPENAI_API_KEY="your_openai_api_key"
     export MISTRAL_API_KEY="your_mistralai_api_key"
     export TOGETHER_API_KEY="your_togetherai_api_key"
+    export GROQ_API_KEY="your_groq_api_key"
     export VLLM_API_KEY="not-needed"
     export VLLM_ENDPOINT="http://localhost:18888/v1"
 
@@ -103,6 +105,8 @@ To interact with the various language models, you can use the following commands
 - For Together Mistral, send a message with ``together/mistral`` and include your prompt.
 - For Together Mixtral, send a message with ``together/mixtral`` and include your prompt.
 - For Together Solar, send a message with ``together/solar`` and include your prompt.
+- For Groq Mixtral, send a message with ``groq/mixtral`` and include your prompt.
+- For Groq Llama-2, send a message with ``groq/llama2`` and include your prompt.
 - For vLLM OpenChat, send a message with ``vllm/openchat`` and include your prompt.
 - For vLLM OpenHermes, send a message with ``vllm/openhermes`` and include your prompt.
 - For Dall-e-3, send a message with ``dall-e-3`` and include your prompt.

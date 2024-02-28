@@ -4,6 +4,7 @@ eventlet
 mistralai
 together
 openai
+groq
 tiktoken
 
 #llama-cpp-python[server]

@@ -8,6 +8,8 @@ from mistralai.models.chat_completion import ChatMessage
 
 from openai import OpenAI
 
+from groq import Groq
+
 import tiktoken
 
 import os
@@ -44,6 +46,8 @@ system_users = [
     "mistral-medium",
     "mistralai/Mixtral-8x7B-v0.1",
     "mistralai/Mistral-7B-Instruct-v0.1",
+    "mixtral-8x7b-32768",
+    "llama2-70b-4096",
     "openchat/openchat-3.5-1210",
     "openchat/openchat-3.5-0106",
     "upstage/SOLAR-10.7B-Instruct-v1.0",
@@ -258,6 +262,7 @@ def handle_message(data):
         or "together/" in data["message"]
         or "localhost/" in data["message"]
         or "vllm/" in data["message"]
+        or "groq/" in data["message"]
     ):
         # Emit a temporary message indicating that llm is processing
         emit(
@@ -343,6 +348,22 @@ def handle_message(data):
                 data["message"],
                 model_name="upstage/SOLAR-10.7B-Instruct-v1.0",
                 stop=["###", "</s>"],
+            )
+        if "groq/mixtral" in data["message"]:
+            eventlet.spawn(
+                chat_groq,
+                data["username"],
+                room.name,
+                data["message"],
+                model_name="mixtral-8x7b-32768",
+            )
+        if "groq/llama2" in data["message"]:
+            eventlet.spawn(
+                chat_groq,
+                data["username"],
+                room.name,
+                data["message"],
+                model_name="llama2-70b-4096",
             )
         if "vllm/openchat" in data["message"]:
             eventlet.spawn(
@@ -582,7 +603,8 @@ def chat_gpt(username, room_name, message, model_name="gpt-3.5-turbo"):
         chat_history = [
             {
                 "role": "system" if msg.username in system_users else "user",
-                "content": f"{msg.username}: {msg.content}",
+                #"content": f"{msg.username}: {msg.content}",
+                "content": msg.content,
             }
             for msg in reversed(last_messages)
             if not msg.is_base64_image()
@@ -866,6 +888,112 @@ def chat_together(
     except Exception as e:
         with app.app_context():
             message_content = f"Together Error: {e}"
+            new_message = (
+                db.session.query(Message).filter(Message.id == msg_id).one_or_none()
+            )
+            if new_message:
+                new_message.content = message_content
+                new_message.count_tokens()
+                db.session.add(new_message)
+                db.session.commit()
+        socketio.emit(
+            "message",
+            {
+                "id": msg_id,
+                "username": model_name,
+                "content": message_content,
+            },
+            room=room.name,
+        )
+        return None
+
+    # Save the entire completion to the database
+    with app.app_context():
+        new_message = (
+            db.session.query(Message).filter(Message.id == msg_id).one_or_none()
+        )
+        if new_message:
+            new_message.content = buffer
+            new_message.count_tokens()
+            db.session.add(new_message)
+            db.session.commit()
+
+    socketio.emit("delete_processing_message", msg_id, room=room.name)
+
+
+def chat_groq(username, room_name, message, model_name="mixtral-8x7b-32768"):
+
+    _limit = 15
+    if "mixtral" in model_name:
+        _limit = 50
+
+    with app.app_context():
+        room = get_room(room_name)
+        last_messages = (
+            Message.query.filter_by(room_id=room.id)
+            .order_by(Message.id.desc())
+            .limit(_limit)
+            .all()
+        )
+
+        chat_history = [
+            {
+                "role": "system" if msg.username in system_users else "user",
+                "content": msg.content,
+            }
+            for msg in reversed(last_messages)
+            if not msg.is_base64_image()
+        ]
+
+    # Initialize the Groq client
+    client = Groq()
+
+    buffer = ""  # Content buffer for accumulating the chunks
+
+    # Save an empty message to get an ID for the chunks
+    with app.app_context():
+        new_message = Message(username=model_name, content=buffer, room_id=room.id)
+        db.session.add(new_message)
+        db.session.commit()
+        msg_id = new_message.id
+
+    first_chunk = True
+
+    try:
+        # Use the Groq client to stream the chat completion
+        stream = client.chat.completions.create(
+            messages=chat_history,
+            model=model_name,
+            stream=True,
+        )
+
+        for chunk in stream:
+            content_chunk = chunk.choices[0].delta.content
+
+            if content_chunk:
+                buffer += content_chunk  # Accumulate content
+
+                if first_chunk:
+                    socketio.emit(
+                        "message_chunk",
+                        {
+                            "id": msg_id,
+                            "content": f"**{username} ({model_name}):**\n\n{content_chunk}",
+                        },
+                        room=room.name,
+                    )
+                    first_chunk = False
+                else:
+                    socketio.emit(
+                        "message_chunk",
+                        {"id": msg_id, "content": content_chunk},
+                        room=room.name,
+                    )
+                socketio.sleep(0)  # Force immediate handling
+
+    except Exception as e:
+        with app.app_context():
+            message_content = f"Groq Error: {e}"
             new_message = (
                 db.session.query(Message).filter(Message.id == msg_id).one_or_none()
             )
