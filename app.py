@@ -6,17 +6,18 @@ import eventlet
 from mistralai.client import MistralClient
 from mistralai.models.chat_completion import ChatMessage
 
+import together
+
 from openai import OpenAI
 
 from groq import Groq
 
+import boto3
+import json
+
 import tiktoken
 
 import os
-import time
-
-import boto3
-import json
 
 from flask_sqlalchemy import SQLAlchemy
 
@@ -801,9 +802,6 @@ def chat_together(
     model_name="mistralai/Mixtral-8x7B-Instruct-v0.1",
     stop=["[/INST]", "</s>"],
 ):
-    # Initialize the Together client
-    import together
-
     together.api_key = os.environ["TOGETHER_API_KEY"]
 
     with app.app_context():
