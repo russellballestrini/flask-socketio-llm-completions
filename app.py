@@ -45,7 +45,7 @@ system_users = [
     "mistral-tiny",
     "mistral-small",
     "mistral-medium",
-    "mistral-large",
+    "mistral-large-latest",
     "mistralai/Mixtral-8x7B-v0.1",
     "mistralai/Mistral-7B-Instruct-v0.1",
     "mixtral-8x7b-32768",
@@ -323,7 +323,7 @@ def handle_message(data):
                 data["username"],
                 room.name,
                 data["message"],
-                model_name="mistral-large",
+                model_name="mistral-large-latest",
             )
         if "together/openchat" in data["message"]:
             eventlet.spawn(
@@ -740,6 +740,7 @@ def chat_mistral(username, room_name, message, model_name="mistral-tiny"):
         for chunk in mistral_client.chat_stream(
             model=model_name, messages=chat_history
         ):
+
             # Check if there has been a cancellation request, break if there is.
             if cancellation_requests.get(msg_id):
                 del cancellation_requests[msg_id]
