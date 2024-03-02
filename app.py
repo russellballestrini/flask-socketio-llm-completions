@@ -45,6 +45,7 @@ system_users = [
     "mistral-tiny",
     "mistral-small",
     "mistral-medium",
+    "mistral-large",
     "mistralai/Mixtral-8x7B-v0.1",
     "mistralai/Mistral-7B-Instruct-v0.1",
     "mixtral-8x7b-32768",
@@ -315,6 +316,14 @@ def handle_message(data):
                 room.name,
                 data["message"],
                 model_name="mistral-medium",
+            )
+        if "mistral-large" in data["message"]:
+            eventlet.spawn(
+                chat_mistral,
+                data["username"],
+                room.name,
+                data["message"],
+                model_name="mistral-large",
             )
         if "together/openchat" in data["message"]:
             eventlet.spawn(

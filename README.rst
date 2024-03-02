@@ -101,6 +101,7 @@ To interact with the various language models, you can use the following commands
 - For Mistral-tiny, send a message with ``mistral-tiny`` and include your prompt.
 - For Mistral-small, send a message with ``mistral-small`` and include your prompt.
 - For Mistral-medium, send a message with ``mistral-medium`` and include your prompt.
+- For Mistral-medium, send a message with ``mistral-large`` and include your prompt.
 - For Together OpenChat, send a message with ``together/openchat`` and include your prompt.
 - For Together Mistral, send a message with ``together/mistral`` and include your prompt.
 - For Together Mixtral, send a message with ``together/mixtral`` and include your prompt.
