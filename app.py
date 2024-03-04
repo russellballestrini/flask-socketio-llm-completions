@@ -28,7 +28,7 @@ cancellation_requests = {}
 
 system_users = [
     "anthropic.claude-v2",
-    "anthropic.claude-sonnet",
+    "anthropic.claude-3-sonnet-20240229-v1:0",
     "gpt-3.5-turbo",
     "gpt-4",
     "gpt-4-1106-preview",
@@ -437,7 +437,7 @@ def handle_update_message(data):
         )
 
 
-def chat_claude(username, room_name, model_name="anthropic.claude-sonnet"):
+def chat_claude(username, room_name, model_name="anthropic.claude-3-sonnet-20240229-v1:0"):
     with app.app_context():
         room = get_room(room_name)
         # claude has a 200,000 token context window for prompts.
