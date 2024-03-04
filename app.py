@@ -1,25 +1,17 @@
-from flask import Flask, render_template, request, send_from_directory
-from flask_socketio import SocketIO, emit, join_room
-
-import eventlet
-
-from mistralai.client import MistralClient
-from mistralai.models.chat_completion import ChatMessage
-
-import together
-
-from openai import OpenAI
-
-from groq import Groq
-
-import boto3
 import json
-
-import tiktoken
-
 import os
 
+import boto3
+import eventlet
+import tiktoken
+import together
+from flask import Flask, render_template, request, send_from_directory
+from flask_socketio import SocketIO, emit, join_room
 from flask_sqlalchemy import SQLAlchemy
+from groq import Groq
+from mistralai.client import MistralClient
+from mistralai.models.chat_completion import ChatMessage
+from openai import OpenAI
 
 app = Flask(__name__)
 
@@ -63,9 +55,7 @@ system_users = [
 class Room(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(128), nullable=False, unique=True)
-    title = db.Column(
-        db.String(128), nullable=True
-    )  # Initially, there might be no title
+    title = db.Column(db.String(128), nullable=True)
 
 
 class Message(db.Model):
@@ -98,7 +88,8 @@ def get_room(room_name):
         return room
     else:
         # Create a new room since it doesn't exist
-        new_room = Room(name=room_name)
+        new_room = Room()
+        new_room.name = room_name
         db.session.add(new_room)
         db.session.commit()
         return new_room
@@ -246,7 +237,7 @@ def handle_message(data):
             eventlet.spawn(generate_new_title, room_name, data["username"])
         if command.startswith("/cancel"):
             # Cancel the most recent generation request
-            eventlet.spawn(cancel_generation, room_name, data["username"])
+            eventlet.spawn(cancel_generation, room_name)
 
     if "dall-e-3" in data["message"]:
         # Use the entire message as the prompt for DALL-E 3
@@ -269,28 +260,26 @@ def handle_message(data):
         # Emit a temporary message indicating that llm is processing
         emit(
             "message",
-            {"id": None, "content": f"<span id='processing'>Processing...</span>"},
+            {"id": None, "content": "<span id='processing'>Processing...</span>"},
             room=room.name,
         )
 
         if "claude-v1" in data["message"]:
-            eventlet.spawn(chat_claude, data["username"], room.name, data["message"])
+            eventlet.spawn(chat_claude, data["username"], room.name)
         if "claude-v2" in data["message"]:
             eventlet.spawn(
                 chat_claude,
                 data["username"],
                 room.name,
-                data["message"],
                 model_name="anthropic.claude-v2",
             )
         if "gpt-3" in data["message"]:
-            eventlet.spawn(chat_gpt, data["username"], room.name, data["message"])
+            eventlet.spawn(chat_gpt, data["username"], room.name)
         if "gpt-4" in data["message"]:
             eventlet.spawn(
                 chat_gpt,
                 data["username"],
                 room.name,
-                data["message"],
                 model_name="gpt-4-turbo-preview",
             )
         if "mistral-tiny" in data["message"]:
@@ -298,7 +287,6 @@ def handle_message(data):
                 chat_mistral,
                 data["username"],
                 room.name,
-                data["message"],
                 model_name="mistral-tiny",
             )
         if "mistral-small" in data["message"]:
@@ -306,7 +294,6 @@ def handle_message(data):
                 chat_mistral,
                 data["username"],
                 room.name,
-                data["message"],
                 model_name="mistral-small",
             )
         if "mistral-medium" in data["message"]:
@@ -314,7 +301,6 @@ def handle_message(data):
                 chat_mistral,
                 data["username"],
                 room.name,
-                data["message"],
                 model_name="mistral-medium",
             )
         if "mistral-large" in data["message"]:
@@ -322,7 +308,6 @@ def handle_message(data):
                 chat_mistral,
                 data["username"],
                 room.name,
-                data["message"],
                 model_name="mistral-large-latest",
             )
         if "together/openchat" in data["message"]:
@@ -330,7 +315,6 @@ def handle_message(data):
                 chat_together,
                 data["username"],
                 room.name,
-                data["message"],
                 model_name="openchat/openchat-3.5-1210",
                 stop=["<|end_of_turn|>", "</s>"],
             )
@@ -339,7 +323,6 @@ def handle_message(data):
                 chat_together,
                 data["username"],
                 room.name,
-                data["message"],
                 model_name="mistralai/Mixtral-8x7B-v0.1",
             )
         if "together/mistral" in data["message"]:
@@ -347,7 +330,6 @@ def handle_message(data):
                 chat_together,
                 data["username"],
                 room.name,
-                data["message"],
                 model_name="mistralai/Mistral-7B-Instruct-v0.1",
             )
         if "together/solar" in data["message"]:
@@ -355,7 +337,6 @@ def handle_message(data):
                 chat_together,
                 data["username"],
                 room.name,
-                data["message"],
                 model_name="upstage/SOLAR-10.7B-Instruct-v1.0",
                 stop=["###", "</s>"],
             )
@@ -364,7 +345,6 @@ def handle_message(data):
                 chat_groq,
                 data["username"],
                 room.name,
-                data["message"],
                 model_name="mixtral-8x7b-32768",
             )
         if "groq/llama2" in data["message"]:
@@ -372,7 +352,6 @@ def handle_message(data):
                 chat_groq,
                 data["username"],
                 room.name,
-                data["message"],
                 model_name="llama2-70b-4096",
             )
         if "vllm/openchat" in data["message"]:
@@ -380,7 +359,6 @@ def handle_message(data):
                 chat_gpt,
                 data["username"],
                 room.name,
-                data["message"],
                 model_name="openchat/openchat-3.5-0106",
             )
         if "vllm/openhermes" in data["message"]:
@@ -388,7 +366,6 @@ def handle_message(data):
                 chat_gpt,
                 data["username"],
                 room.name,
-                data["message"],
                 model_name="teknium/OpenHermes-2.5-Mistral-7B",
             )
         if "localhost/mistral" in data["message"]:
@@ -396,7 +373,6 @@ def handle_message(data):
                 chat_llama,
                 data["username"],
                 room.name,
-                data["message"],
                 model_name="mistral-7b-instruct-v0.2.Q3_K_L.gguf",
             )
         if "localhost/mistral-code" in data["message"]:
@@ -404,7 +380,6 @@ def handle_message(data):
                 chat_llama,
                 data["username"],
                 room.name,
-                data["message"],
                 model_name="mistral-7b-instruct-v0.2-code-ft.Q3_K_L.gguf",
             )
         if "localhost/openhermes" in data["message"]:
@@ -412,7 +387,6 @@ def handle_message(data):
                 chat_llama,
                 data["username"],
                 room.name,
-                data["message"],
                 model_name="openhermes-2.5-mistral-7b.Q6_K.gguf",
             )
 
@@ -457,7 +431,7 @@ def handle_update_message(data):
         )
 
 
-def chat_claude(username, room_name, message, model_name="anthropic.claude-v1"):
+def chat_claude(username, room_name, model_name="anthropic.claude-v1"):
     with app.app_context():
         room = get_room(room_name)
         # claude has a 100,000 token context window for prompts.
@@ -589,7 +563,7 @@ def chat_claude(username, room_name, message, model_name="anthropic.claude-v1"):
     socketio.emit("delete_processing_message", msg_id, room=room.name)
 
 
-def chat_gpt(username, room_name, message, model_name="gpt-3.5-turbo"):
+def chat_gpt(username, room_name, model_name="gpt-3.5-turbo"):
     if "gpt" not in model_name:
         vllm_endpoint = os.environ.get("VLLM_ENDPOINT", "http://localhost:18888/v1")
         vllm_api_key = os.environ.get("VLLM_API_KEY", "not-needed")
@@ -613,7 +587,7 @@ def chat_gpt(username, room_name, message, model_name="gpt-3.5-turbo"):
         chat_history = [
             {
                 "role": "system" if msg.username in system_users else "user",
-                #"content": f"{msg.username}: {msg.content}",
+                # "content": f"{msg.username}: {msg.content}",
                 "content": msg.content,
             }
             for msg in reversed(last_messages)
@@ -702,7 +676,7 @@ def chat_gpt(username, room_name, message, model_name="gpt-3.5-turbo"):
     socketio.emit("delete_processing_message", msg_id, room=room.name)
 
 
-def chat_mistral(username, room_name, message, model_name="mistral-tiny"):
+def chat_mistral(username, room_name, model_name="mistral-tiny"):
     with app.app_context():
         room = get_room(room_name)
         last_messages = (
@@ -740,7 +714,6 @@ def chat_mistral(username, room_name, message, model_name="mistral-tiny"):
         for chunk in mistral_client.chat_stream(
             model=model_name, messages=chat_history
         ):
-
             # Check if there has been a cancellation request, break if there is.
             if cancellation_requests.get(msg_id):
                 del cancellation_requests[msg_id]
@@ -929,8 +902,7 @@ def chat_together(
     socketio.emit("delete_processing_message", msg_id, room=room.name)
 
 
-def chat_groq(username, room_name, message, model_name="mixtral-8x7b-32768"):
-
+def chat_groq(username, room_name, model_name="mixtral-8x7b-32768"):
     _limit = 15
     if "mixtral" in model_name:
         _limit = 50
@@ -1035,9 +1007,7 @@ def chat_groq(username, room_name, message, model_name="mixtral-8x7b-32768"):
     socketio.emit("delete_processing_message", msg_id, room=room.name)
 
 
-def chat_llama(
-    username, room_name, message, model_name="mistral-7b-instruct-v0.2.Q3_K_L.gguf"
-):
+def chat_llama(username, room_name, model_name="mistral-7b-instruct-v0.2.Q3_K_L.gguf"):
     import llama_cpp
 
     # https://llama-cpp-python.readthedocs.io/en/latest/api-reference/
@@ -1495,7 +1465,7 @@ def list_s3_files(room_name, s3_file_path_pattern, username):
             )
 
 
-def cancel_generation(room_name, username):
+def cancel_generation(room_name):
     with app.app_context():
         room = get_room(room_name)
         # Get the most recent message for the room that is being generated
@@ -1531,4 +1501,4 @@ if __name__ == "__main__":
     # Set profile_name as a global attribute of the app object
     app.config["PROFILE_NAME"] = args.profile
 
-    socketio.run(app, host="0.0.0.0", port=5001)
+    socketio.run(app, host="0.0.0.0", port=5001, use_reloader=True)
