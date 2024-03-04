@@ -27,8 +27,8 @@ socketio = SocketIO(app, async_mode="eventlet")
 cancellation_requests = {}
 
 system_users = [
-    "anthropic.claude-v1",
     "anthropic.claude-v2",
+    "anthropic.claude-sonnet",
     "gpt-3.5-turbo",
     "gpt-4",
     "gpt-4-1106-preview",
@@ -247,25 +247,27 @@ def handle_message(data):
         )
 
     if (
-        "claude-v1" in data["message"]
-        or "claude-v2" in data["message"]
-        or "gpt-3" in data["message"]
-        or "gpt-4" in data["message"]
+        "claude-" in data["message"]
+        or "gpt-" in data["message"]
         or "mistral-" in data["message"]
         or "together/" in data["message"]
         or "localhost/" in data["message"]
         or "vllm/" in data["message"]
         or "groq/" in data["message"]
     ):
-        # Emit a temporary message indicating that llm is processing
+        # Emit a temporary message indicating that the llm is processing
         emit(
             "message",
             {"id": None, "content": "<span id='processing'>Processing...</span>"},
             room=room.name,
         )
 
-        if "claude-v1" in data["message"]:
-            eventlet.spawn(chat_claude, data["username"], room.name)
+        if "claude-sonnet" in data["message"]:
+            eventlet.spawn(
+                chat_claude,
+                data["username"],
+                room.name
+            )
         if "claude-v2" in data["message"]:
             eventlet.spawn(
                 chat_claude,
@@ -274,7 +276,11 @@ def handle_message(data):
                 model_name="anthropic.claude-v2",
             )
         if "gpt-3" in data["message"]:
-            eventlet.spawn(chat_gpt, data["username"], room.name)
+            eventlet.spawn(
+                chat_gpt,
+                data["username"],
+                room.name
+            )
         if "gpt-4" in data["message"]:
             eventlet.spawn(
                 chat_gpt,
@@ -431,10 +437,10 @@ def handle_update_message(data):
         )
 
 
-def chat_claude(username, room_name, model_name="anthropic.claude-v1"):
+def chat_claude(username, room_name, model_name="anthropic.claude-sonnet"):
     with app.app_context():
         room = get_room(room_name)
-        # claude has a 100,000 token context window for prompts.
+        # claude has a 200,000 token context window for prompts.
         all_messages = (
             Message.query.filter_by(room_id=room.id).order_by(Message.id.desc()).all()
         )
