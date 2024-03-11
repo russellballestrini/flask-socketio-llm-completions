@@ -263,24 +263,9 @@ def handle_message(data):
         )
 
         if "claude-sonnet" in data["message"]:
-            eventlet.spawn(
-                chat_claude,
-                data["username"],
-                room.name
-            )
-        if "claude-v2" in data["message"]:
-            eventlet.spawn(
-                chat_claude,
-                data["username"],
-                room.name,
-                model_name="anthropic.claude-v2",
-            )
+            eventlet.spawn(chat_claude, data["username"], room.name)
         if "gpt-3" in data["message"]:
-            eventlet.spawn(
-                chat_gpt,
-                data["username"],
-                room.name
-            )
+            eventlet.spawn(chat_gpt, data["username"], room.name)
         if "gpt-4" in data["message"]:
             eventlet.spawn(
                 chat_gpt,
@@ -437,7 +422,9 @@ def handle_update_message(data):
         )
 
 
-def chat_claude(username, room_name, model_name="anthropic.claude-3-sonnet-20240229-v1:0"):
+def chat_claude(
+    username, room_name, model_name="anthropic.claude-3-sonnet-20240229-v1:0"
+):
     with app.app_context():
         room = get_room(room_name)
         # claude has a 200,000 token context window for prompts.
@@ -445,25 +432,19 @@ def chat_claude(username, room_name, model_name="anthropic.claude-3-sonnet-20240
             Message.query.filter_by(room_id=room.id).order_by(Message.id.desc()).all()
         )
 
-    chat_history = ""
-
+    chat_history = []
     for msg in reversed(all_messages):
         if msg.is_base64_image():
             continue
-        if msg.username in system_users:
-            chat_history += f"Assistant: {msg.username}: {msg.content}\n\n"
-        else:
-            chat_history += f"Human: {msg.username}: {msg.content}\n\n"
-
-    # prompt must end with "Assistant:" turn.
-    chat_history += "Assistant:"
+        role = "assistant" if msg.username in system_users else "user"
+        chat_history.append({"role": role, "content": msg.content})
 
     # Initialize the Bedrock client using boto3 and profile name.
     if app.config.get("PROFILE_NAME"):
         session = boto3.Session(profile_name=app.config["PROFILE_NAME"])
-        client = session.client("bedrock-runtime", region_name="us-east-1")
+        client = session.client("bedrock-runtime", region_name="us-west-2")
     else:
-        client = boto3.client("bedrock-runtime", region_name="us-east-1")
+        client = boto3.client("bedrock-runtime", region_name="us-west-2")
 
     # Define the request parameters
     params = {
@@ -472,8 +453,8 @@ def chat_claude(username, room_name, model_name="anthropic.claude-3-sonnet-20240
         "accept": "*/*",
         "body": json.dumps(
             {
-                "prompt": chat_history,
-                "max_tokens_to_sample": 2048,
+                "messages": chat_history,
+                "max_tokens": 4096,
                 "temperature": 0,
                 "top_k": 250,
                 "top_p": 0.999,
@@ -508,7 +489,10 @@ def chat_claude(username, room_name, model_name="anthropic.claude-3-sonnet-20240
 
             if "chunk" in event:
                 chunk_data = json.loads(event["chunk"]["bytes"].decode())
-                content = chunk_data["completion"]
+
+                if chunk_data["type"] == "content_block_delta":
+                    if chunk_data["delta"]["type"] == "text_delta":
+                        content = chunk_data["delta"]["text"]
 
             if content:
                 buffer += content  # Accumulate content

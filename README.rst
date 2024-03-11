@@ -95,7 +95,6 @@ To interact with the various language models, you can use the following commands
 - For GPT-3, send a message with ``gpt-3`` and include your prompt.
 - For GPT-4, send a message with ``gpt-4`` and include your prompt.
 - For Claude-sonnet, send a message with ``claude-sonnet`` and include your prompt.
-- For Claude-v2, send a message with ``claude-v2`` and include your prompt.
 - For Mistral-tiny, send a message with ``mistral-tiny`` and include your prompt.
 - For Mistral-small, send a message with ``mistral-small`` and include your prompt.
 - For Mistral-medium, send a message with ``mistral-medium`` and include your prompt.
