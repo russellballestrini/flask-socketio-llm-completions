@@ -27,7 +27,7 @@ socketio = SocketIO(app, async_mode="eventlet")
 cancellation_requests = {}
 
 system_users = [
-    "anthropic.claude-v2",
+    "anthropic.claude-3-haiku-20240307-v1:0",
     "anthropic.claude-3-sonnet-20240229-v1:0",
     "gpt-3.5-turbo",
     "gpt-4",
@@ -262,6 +262,13 @@ def handle_message(data):
             room=room.name,
         )
 
+        if "claude-haiku" in data["message"]:
+            eventlet.spawn(
+                chat_claude,
+                data["username"],
+                room.name,
+                model_name="anthropic.claude-3-haiku-20240307-v1:0",
+            )
         if "claude-sonnet" in data["message"]:
             eventlet.spawn(chat_claude, data["username"], room.name)
         if "gpt-3" in data["message"]:
