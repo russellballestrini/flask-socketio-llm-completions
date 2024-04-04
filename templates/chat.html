@@ -192,7 +192,6 @@
 // Connect to the server using socket.io with dynamic scheme (http or https)
 const socket = io.connect(window.location.protocol + "//" + document.domain + ":" + location.port);
 
-
 // Retrieve username and room name from the URL parameters
 const urlParams = new URLSearchParams(window.location.search);
 const username = urlParams.get("username");
@@ -207,6 +206,18 @@ const dompurify_config = {
     "alt", "class", "title", "style"
   ]
 };
+
+// keeping track of scrolling to prevent autoscrolling.
+let userHasScrolledUp = false;
+
+document.addEventListener('DOMContentLoaded', (event) => {
+    const chatContainer = document.getElementById("chat");
+
+    chatContainer.addEventListener('scroll', () => {
+        const distanceFromBottom = chatContainer.scrollHeight - chatContainer.scrollTop - chatContainer.clientHeight;
+        userHasScrolledUp = distanceFromBottom > 5;
+    });
+});
 
 // Function to handle sending the message
 function sendMessage() {
@@ -308,7 +319,7 @@ socket.on("message", (data) => {
         addLineNumbers(block);
     });
 
-    // Scroll to the bottom of the chat container
+    // Scroll to the bottom of the chat container to show the new message.
     if (data.id) {
         document.getElementById("chat").scrollTop = document.getElementById("chat").scrollHeight;
     }
@@ -441,8 +452,10 @@ socket.on("message_chunk", (data) => {
         addLineNumbers(block);
     });
 
-    // Scroll to the bottom of the chat container
-    document.getElementById("chat").scrollTop = document.getElementById("chat").scrollHeight;
+    // Scroll to the bottom of the chat container, but skip it if the user has scrolled up.
+    if (!userHasScrolledUp) {
+        document.getElementById("chat").scrollTop = document.getElementById("chat").scrollHeight;
+    }
 });
 
 
