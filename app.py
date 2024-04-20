@@ -1,8 +1,15 @@
+#import eventlet
+#eventlet.monkey_patch()
+
+import gevent
+from gevent import monkey
+monkey.patch_all()
+
+
 import json
 import os
 
 import boto3
-import eventlet
 import tiktoken
 import together
 from flask import Flask, render_template, request, send_from_directory
@@ -21,7 +28,8 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
 
-socketio = SocketIO(app, async_mode="eventlet")
+#socketio = SocketIO(app, async_mode="eventlet")
+socketio = SocketIO(app, async_mode="gevent")
 
 # Global dictionary to keep track of cancellation requests
 cancellation_requests = {}
@@ -218,31 +226,31 @@ def handle_message(data):
             # Extract the S3 file path pattern
             s3_file_path_pattern = command.split(" ", 2)[2].strip()
             # List files from S3 and emit their names
-            eventlet.spawn(
+            gevent.spawn(
                 list_s3_files, room.name, s3_file_path_pattern, data["username"]
             )
         if command.startswith("/s3 load"):
             # Extract the S3 file path
             s3_file_path = command.split(" ", 2)[2].strip()
             # Load the file from S3 and emit its content
-            eventlet.spawn(load_s3_file, room_name, s3_file_path, data["username"])
+            gevent.spawn(load_s3_file, room_name, s3_file_path, data["username"])
         if command.startswith("/s3 save"):
             # Extract the S3 key path
             s3_key_path = command.split(" ", 2)[2].strip()
             # Save the most recent code block to S3
-            eventlet.spawn(
+            gevent.spawn(
                 save_code_block_to_s3, room_name, s3_key_path, data["username"]
             )
         if command.startswith("/title new"):
-            eventlet.spawn(generate_new_title, room_name, data["username"])
+            gevent.spawn(generate_new_title, room_name, data["username"])
         if command.startswith("/cancel"):
             # Cancel the most recent generation request
-            eventlet.spawn(cancel_generation, room_name)
+            gevent.spawn(cancel_generation, room_name)
 
     if "dall-e-3" in data["message"]:
         # Use the entire message as the prompt for DALL-E 3
         # Generate the image and emit its URL
-        eventlet.spawn(
+        gevent.spawn(
             generate_dalle_image, data["room_name"], data["message"], data["username"]
         )
 
@@ -263,53 +271,53 @@ def handle_message(data):
         )
 
         if "claude-haiku" in data["message"]:
-            eventlet.spawn(
+            gevent.spawn(
                 chat_claude,
                 data["username"],
                 room.name,
                 model_name="anthropic.claude-3-haiku-20240307-v1:0",
             )
         if "claude-sonnet" in data["message"]:
-            eventlet.spawn(chat_claude, data["username"], room.name)
+            gevent.spawn(chat_claude, data["username"], room.name)
         if "gpt-3" in data["message"]:
-            eventlet.spawn(chat_gpt, data["username"], room.name)
+            gevent.spawn(chat_gpt, data["username"], room.name)
         if "gpt-4" in data["message"]:
-            eventlet.spawn(
+            gevent.spawn(
                 chat_gpt,
                 data["username"],
                 room.name,
                 model_name="gpt-4-turbo-preview",
             )
         if "mistral-tiny" in data["message"]:
-            eventlet.spawn(
+            gevent.spawn(
                 chat_mistral,
                 data["username"],
                 room.name,
                 model_name="mistral-tiny",
             )
         if "mistral-small" in data["message"]:
-            eventlet.spawn(
+            gevent.spawn(
                 chat_mistral,
                 data["username"],
                 room.name,
                 model_name="mistral-small",
             )
         if "mistral-medium" in data["message"]:
-            eventlet.spawn(
+            gevent.spawn(
                 chat_mistral,
                 data["username"],
                 room.name,
                 model_name="mistral-medium",
             )
         if "mistral-large" in data["message"]:
-            eventlet.spawn(
+            gevent.spawn(
                 chat_mistral,
                 data["username"],
                 room.name,
                 model_name="mistral-large-latest",
             )
         if "together/openchat" in data["message"]:
-            eventlet.spawn(
+            gevent.spawn(
                 chat_together,
                 data["username"],
                 room.name,
@@ -317,21 +325,21 @@ def handle_message(data):
                 stop=["<|end_of_turn|>", "</s>"],
             )
         if "together/mixtral" in data["message"]:
-            eventlet.spawn(
+            gevent.spawn(
                 chat_together,
                 data["username"],
                 room.name,
                 model_name="mistralai/Mixtral-8x7B-v0.1",
             )
         if "together/mistral" in data["message"]:
-            eventlet.spawn(
+            gevent.spawn(
                 chat_together,
                 data["username"],
                 room.name,
                 model_name="mistralai/Mistral-7B-Instruct-v0.1",
             )
         if "together/solar" in data["message"]:
-            eventlet.spawn(
+            gevent.spawn(
                 chat_together,
                 data["username"],
                 room.name,
@@ -339,49 +347,49 @@ def handle_message(data):
                 stop=["###", "</s>"],
             )
         if "groq/mixtral" in data["message"]:
-            eventlet.spawn(
+            gevent.spawn(
                 chat_groq,
                 data["username"],
                 room.name,
                 model_name="mixtral-8x7b-32768",
             )
         if "groq/llama2" in data["message"]:
-            eventlet.spawn(
+            gevent.spawn(
                 chat_groq,
                 data["username"],
                 room.name,
                 model_name="llama2-70b-4096",
             )
         if "vllm/openchat" in data["message"]:
-            eventlet.spawn(
+            gevent.spawn(
                 chat_gpt,
                 data["username"],
                 room.name,
                 model_name="openchat/openchat-3.5-0106",
             )
         if "vllm/openhermes" in data["message"]:
-            eventlet.spawn(
+            gevent.spawn(
                 chat_gpt,
                 data["username"],
                 room.name,
                 model_name="teknium/OpenHermes-2.5-Mistral-7B",
             )
         if "localhost/mistral" in data["message"]:
-            eventlet.spawn(
+            gevent.spawn(
                 chat_llama,
                 data["username"],
                 room.name,
                 model_name="mistral-7b-instruct-v0.2.Q3_K_L.gguf",
             )
         if "localhost/mistral-code" in data["message"]:
-            eventlet.spawn(
+            gevent.spawn(
                 chat_llama,
                 data["username"],
                 room.name,
                 model_name="mistral-7b-instruct-v0.2-code-ft.Q3_K_L.gguf",
             )
         if "localhost/openhermes" in data["message"]:
-            eventlet.spawn(
+            gevent.spawn(
                 chat_llama,
                 data["username"],
                 room.name,

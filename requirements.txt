@@ -1,9 +1,14 @@
 flask
 flask-socketio
-eventlet
+
+#eventlet
+gevent
+gevent-websocket
+
 mistralai
 together
 openai
+openai[datalib]
 groq
 tiktoken
 
