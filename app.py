@@ -41,6 +41,7 @@ system_users = [
     "gpt-4",
     "gpt-4-1106-preview",
     "gpt-4-turbo-preview",
+    "gpt-4-turbo",
     "mistral",
     "mistral-tiny",
     "mistral-small",
@@ -288,7 +289,7 @@ def handle_message(data):
                 chat_gpt,
                 data["username"],
                 room.name,
-                model_name="gpt-4-turbo-preview",
+                model_name="gpt-4-turbo",
             )
         if "mistral-tiny" in data["message"]:
             gevent.spawn(
@@ -592,8 +593,8 @@ def chat_gpt(username, room_name, model_name="gpt-3.5-turbo"):
     else:
         openai_client = OpenAI()
 
-    limit = 15
-    if model_name == "gpt-4-turbo-preview":
+    limit = 20
+    if "gpt-4" in model_name:
         limit = 1000
 
     with app.app_context():
