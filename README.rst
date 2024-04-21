@@ -106,6 +106,8 @@ To interact with the various language models, you can use the following commands
 - For Together Solar, send a message with ``together/solar`` and include your prompt.
 - For Groq Mixtral, send a message with ``groq/mixtral`` and include your prompt.
 - For Groq Llama-2, send a message with ``groq/llama2`` and include your prompt.
+- For Groq Llama-3, send a message with ``groq/llama3`` and include your prompt.
+- For Groq Gemma, send a message with ``groq/gemma`` and include your prompt.
 - For vLLM OpenChat, send a message with ``vllm/openchat`` and include your prompt.
 - For vLLM OpenHermes, send a message with ``vllm/openhermes`` and include your prompt.
 - For Dall-e-3, send a message with ``dall-e-3`` and include your prompt.

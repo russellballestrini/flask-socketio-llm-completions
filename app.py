@@ -50,6 +50,8 @@ system_users = [
     "mistralai/Mistral-7B-Instruct-v0.1",
     "mixtral-8x7b-32768",
     "llama2-70b-4096",
+    "llama3-70b-8192",
+    "gemma-7b-it",
     "openchat/openchat-3.5-1210",
     "openchat/openchat-3.5-0106",
     "upstage/SOLAR-10.7B-Instruct-v1.0",
@@ -359,6 +361,20 @@ def handle_message(data):
                 data["username"],
                 room.name,
                 model_name="llama2-70b-4096",
+            )
+        if "groq/llama3" in data["message"]:
+            gevent.spawn(
+                chat_groq,
+                data["username"],
+                room.name,
+                model_name="llama3-70b-8192",
+            )
+        if "groq/gemma" in data["message"]:
+            gevent.spawn(
+                chat_groq,
+                data["username"],
+                room.name,
+                model_name="gemma-7b-it",
             )
         if "vllm/openchat" in data["message"]:
             gevent.spawn(
@@ -908,6 +924,7 @@ def chat_together(
 
 
 def chat_groq(username, room_name, model_name="mixtral-8x7b-32768"):
+    # https://console.groq.com/docs/models
     _limit = 15
     if "mixtral" in model_name:
         _limit = 50
