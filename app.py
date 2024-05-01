@@ -704,18 +704,41 @@ def chat_mistral(username, room_name, model_name="mistral-tiny"):
         last_messages = (
             Message.query.filter_by(room_id=room.id)
             .order_by(Message.id.desc())
-            .limit(15)
+            .limit(50)
             .all()
         )
 
-        chat_history = [
-            ChatMessage(
-                role="assistant" if msg.username in system_users else "user",
-                content=f"{msg.username}: {msg.content}",
-            )
-            for msg in reversed(last_messages)
-            if not msg.is_base64_image()
-        ]
+        chat_history = []
+        combined_content = ""
+        last_role = None
+
+        # Function to add a ChatMessage to the history
+        def add_message(role, content):
+            if content:
+                chat_history.append(ChatMessage(role=role, content=content))
+
+        # Iterate over messages to combine consecutive assistant messages
+        for msg in reversed(last_messages):
+            if msg.is_base64_image():
+                continue
+            current_role = "assistant" if msg.username in system_users else "user"
+            formatted_content = f"{msg.username}: {msg.content}"
+
+            if current_role == last_role and current_role == "assistant":
+                # Combine messages if the current and last messages are from the assistant
+                combined_content += "\n" + formatted_content
+            else:
+                # Add the previous combined message to chat history if roles switch
+                add_message(last_role, combined_content)
+                combined_content = formatted_content  # Start new combination
+                last_role = current_role
+
+        # Add the last combined message to the chat history
+        add_message(last_role, combined_content)
+
+        # Remove trailing assistant messages until a user message is found.
+        while chat_history and chat_history[-1].role == "assistant":
+            chat_history.pop()
 
     # Initialize the Mistral client
     mistral_client = MistralClient(api_key=os.environ["MISTRAL_API_KEY"])
