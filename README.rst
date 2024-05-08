@@ -109,7 +109,7 @@ To interact with the various language models, you can use the following commands
 - For Groq Llama-3, send a message with ``groq/llama3`` and include your prompt.
 - For Groq Gemma, send a message with ``groq/gemma`` and include your prompt.
 - For vLLM OpenChat, send a message with ``vllm/openchat`` and include your prompt.
-- For vLLM OpenHermes, send a message with ``vllm/openhermes`` and include your prompt.
+- For vLLM Hermes, send a message with ``vllm/hermes-llama-3`` and include your prompt.
 - For Dall-e-3, send a message with ``dall-e-3`` and include your prompt.
 
 The system will process your message and provide a response from the selected language model.
