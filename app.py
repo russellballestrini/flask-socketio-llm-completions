@@ -39,6 +39,7 @@ system_users = [
     "anthropic.claude-3-sonnet-20240229-v1:0",
     "gpt-3.5-turbo",
     "gpt-4",
+    "gpt-4o",
     "gpt-4-1106-preview",
     "gpt-4-turbo-preview",
     "gpt-4-turbo",
@@ -290,7 +291,7 @@ def handle_message(data):
                 chat_gpt,
                 data["username"],
                 room.name,
-                model_name="gpt-4-turbo",
+                model_name="gpt-4o",
             )
         if "mistral-tiny" in data["message"]:
             gevent.spawn(
