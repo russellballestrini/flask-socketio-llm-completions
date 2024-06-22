@@ -37,6 +37,7 @@ cancellation_requests = {}
 system_users = [
     "anthropic.claude-3-haiku-20240307-v1:0",
     "anthropic.claude-3-sonnet-20240229-v1:0",
+    "anthropic.claude-3-5-sonnet-20240620-v1:0",
     "gpt-3.5-turbo",
     "gpt-4",
     "gpt-4o",
@@ -456,7 +457,36 @@ def handle_update_message(data):
         )
 
 
+def group_consecutive_roles(messages):
+    if not messages:
+        return []
+
+    grouped_messages = []
+    current_role = messages[0]['role']
+    current_content = []
+
+    for message in messages:
+        if message['role'] == current_role:
+            current_content.append(message['content'])
+        else:
+            grouped_messages.append({
+                'role': current_role,
+                'content': ' '.join(current_content)
+            })
+            current_role = message['role']
+            current_content = [message['content']]
+
+    # Append the last grouped message
+    grouped_messages.append({
+        'role': current_role,
+        'content': ' '.join(current_content)
+    })
+
+    return grouped_messages
+
+
 def chat_claude(
+    #username, room_name, model_name="anthropic.claude-3-5-sonnet-20240620-v1:0"
     username, room_name, model_name="anthropic.claude-3-sonnet-20240229-v1:0"
 ):
     with app.app_context():
@@ -472,6 +502,9 @@ def chat_claude(
             continue
         role = "assistant" if msg.username in system_users else "user"
         chat_history.append({"role": role, "content": msg.content})
+
+    # only claude cares about this constrant.
+    chat_history = group_consecutive_roles(chat_history)
 
     # Initialize the Bedrock client using boto3 and profile name.
     if app.config.get("PROFILE_NAME"):
