@@ -188,41 +188,14 @@ def search_messages(keywords):
                 message.content.lower().count(keyword) for keyword in keyword_list
             )
 
-            # Extract snippets with context around each occurrence of the keywords
-            snippets = []
-            content_lower = message.content.lower()
-
-            for keyword in keyword_list:
-                start_index = 0
-                while start_index < len(content_lower):
-                    start_index = content_lower.find(keyword, start_index)
-                    if start_index == -1:
-                        break
-
-                    # Calculate the snippet range
-                    snippet_start = max(0, start_index - 25)
-                    snippet_end = min(
-                        len(message.content), start_index + len(keyword) + 25
-                    )
-                    snippet = message.content[snippet_start:snippet_end]
-
-                    snippets.append(snippet)
-                    start_index += len(keyword)
-
-            # Join all snippets for this message
-            snippet_text = " ... ".join(snippets)
-
             if room.id not in search_results:
                 search_results[room.id] = {
                     "room_id": room.id,
                     "room_name": room.name,
                     "room_title": room.title,
-                    "snippets": [],
-                    "username": message.username,
                     "score": 0,
                 }
 
-            search_results[room.id]["snippets"].append(snippet_text)
             search_results[room.id]["score"] += score
 
     # Convert the dictionary to a list and sort results by score in descending order
