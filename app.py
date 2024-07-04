@@ -145,14 +145,22 @@ def search_page():
     username = request.args.get("username", "guest")
     if not keywords:
         return render_template(
-            "search.html", results=[], username=username, error="Keywords are required"
+            "search.html",
+            keywords=keywords,
+            results=[],
+            username=username,
+            error="Keywords are required",
         )
 
     # Call the function to search messages
     search_results = search_messages(keywords)
 
     return render_template(
-        "search.html", results=search_results, username=username, error=None
+        "search.html",
+        keywords=keywords,
+        results=search_results,
+        username=username,
+        error=None,
     )
 
 
