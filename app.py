@@ -1,8 +1,9 @@
-#import eventlet
-#eventlet.monkey_patch()
+# import eventlet
+# eventlet.monkey_patch()
 
 import gevent
 from gevent import monkey
+
 monkey.patch_all()
 
 
@@ -28,7 +29,7 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
 
-#socketio = SocketIO(app, async_mode="eventlet")
+# socketio = SocketIO(app, async_mode="eventlet")
 socketio = SocketIO(app, async_mode="gevent")
 
 # Global dictionary to keep track of cancellation requests
@@ -136,6 +137,72 @@ def chat(room_name):
     return render_template(
         "chat.html", room_name=room_name, rooms=rooms, username=username
     )
+
+
+@app.route("/search")
+def search_page():
+    # Query all rooms so that newest is first.
+    rooms = Room.query.order_by(Room.id.desc()).all()
+
+    keywords = request.args.get("keywords", "")
+    username = request.args.get("username", "guest")
+    if not keywords:
+        return render_template(
+            "search.html",
+            rooms=rooms,
+            keywords=keywords,
+            results=[],
+            username=username,
+            error="Keywords are required",
+        )
+
+    # Call the function to search messages
+    search_results = search_messages(keywords)
+
+    return render_template(
+        "search.html",
+        rooms=rooms,
+        keywords=keywords,
+        results=search_results,
+        username=username,
+        error=None,
+    )
+
+
+def search_messages(keywords):
+    search_results = {}
+
+    # Split the keywords by spaces
+    keyword_list = keywords.lower().split()
+
+    # Search for messages containing any of the keywords
+    messages = Message.query.filter(
+        db.or_(*[Message.content.ilike(f"%{keyword}%") for keyword in keyword_list])
+    ).all()
+
+    for message in messages:
+        room = Room.query.get(message.room_id)
+        if room:
+            # Calculate the score based on the number of occurrences of all keywords
+            score = sum(
+                message.content.lower().count(keyword) for keyword in keyword_list
+            )
+
+            if room.id not in search_results:
+                search_results[room.id] = {
+                    "room_id": room.id,
+                    "room_name": room.name,
+                    "room_title": room.title,
+                    "score": 0,
+                }
+
+            search_results[room.id]["score"] += score
+
+    # Convert the dictionary to a list and sort results by score in descending order
+    search_results_list = list(search_results.values())
+    search_results_list.sort(key=lambda x: x["score"], reverse=True)
+
+    return search_results_list
 
 
 @socketio.on("join")
@@ -462,32 +529,32 @@ def group_consecutive_roles(messages):
         return []
 
     grouped_messages = []
-    current_role = messages[0]['role']
+    current_role = messages[0]["role"]
     current_content = []
 
     for message in messages:
-        if message['role'] == current_role:
-            current_content.append(message['content'])
+        if message["role"] == current_role:
+            current_content.append(message["content"])
         else:
-            grouped_messages.append({
-                'role': current_role,
-                'content': ' '.join(current_content)
-            })
-            current_role = message['role']
-            current_content = [message['content']]
+            grouped_messages.append(
+                {"role": current_role, "content": " ".join(current_content)}
+            )
+            current_role = message["role"]
+            current_content = [message["content"]]
 
     # Append the last grouped message
-    grouped_messages.append({
-        'role': current_role,
-        'content': ' '.join(current_content)
-    })
+    grouped_messages.append(
+        {"role": current_role, "content": " ".join(current_content)}
+    )
 
     return grouped_messages
 
 
 def chat_claude(
-    #username, room_name, model_name="anthropic.claude-3-5-sonnet-20240620-v1:0"
-    username, room_name, model_name="anthropic.claude-3-sonnet-20240229-v1:0"
+    # username, room_name, model_name="anthropic.claude-3-5-sonnet-20240620-v1:0"
+    username,
+    room_name,
+    model_name="anthropic.claude-3-sonnet-20240229-v1:0",
 ):
     with app.app_context():
         room = get_room(room_name)

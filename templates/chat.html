@@ -1,182 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chatroom</title>
+{% extends "base.html" %}
 
-    <!-- Include highlight.js library for syntax highlighting -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/highlight.min.js"></script>
-    <!-- Include a highlight.js theme (replace 'default' with your preferred theme) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.6.0/styles/default.min.css">
+{% block title %}Chatroom{% endblock %}
 
-    <!-- Include socket.io for real-time bidirectional event-based communication -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
-    <!-- Include marked.js for markdown parsing -->
-    <script 
-      src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js" 
-      integrity="sha512-rfX4p3RNnxdwLT3wWP1K0NR3ztTobn+sISlT9WhxDDK00zNYbQ6MCHA5OHm0hqKAzEMXYCgFrp8iY/ER5MkXqA==" 
-      crossorigin="anonymous" 
-      referrerpolicy="no-referrer">
-    </script>
-
-    <!-- Include DOMPurify to sanitize HTML and prevent XSS attacks -->
-    <script src="https://cdn.jsdelivr.net/npm/dompurify@2/dist/purify.min.js"></script>
-
-    <!-- Link to the favicon -->
-    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
-
-    <style>
-    /* Basic styling for the chat application */
-    html, body {
-        height: 100%;
-        margin: 0;
-        padding: 0;
-        font-family: Arial, sans-serif;
-        background-color: #f7f7f7;
-        display: grid;
-        place-items: center;
-    }
-    
-    /* Styling for the chat container */
-    #chat-container {
-        display: grid;
-        grid-template-rows: 1fr auto;
-        width: 100%;
-        height: 90vh;
-        background-color: #ffffff;
-        border-radius: 5px;
-        padding: 15px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-        box-sizing: border-box;
-    }
-    
-    /* Styling for the chat area */
-    #chat {
-        overflow-y: auto;
-        border: 1px solid #e1e1e1;
-        border-radius: 5px;
-        padding: 10px;
-        margin-bottom: 10px;
-        min-width: 400px;
-    }
-    
-    /* Styling for the message input area */
-    #message, .message-edit {
-        width: 100%;
-        border: 1px solid #e1e1e1;
-        border-radius: 5px;
-        padding: 5px;
-        display: block;
-    }
-
-    /* Styling for the message div holding html/markdown content  */
-    .message-content {
-        width: 100%;
-    }
-
-    /* Styling for individual message wrappers */
-    .message-wrapper {
-        display: flex;
-        align-items: start;
-    }
-    
-    /* Styling for the delete and edit buttons next to messages */
-    .message-wrapper button {
-        margin-top: 16px;
-        margin-right: 8px;
-    }
-
-    /* Styling for paragraphs, used for messages */
-    p {
-        margin-top: 8px;
-        margin-bottom: 8px;
-    }
-
-    /* Styling for the main container that holds the rooms list and chat */
-    .main-container {
-        display: grid;
-        grid-template-columns: 20% 80%; /* Adjust the 20% as needed */
-        width: 100%;
-        height: 90vh;
-    }
-
-    /* Styling for the rooms list */
-    #rooms-list {
-        border-right: 1px solid #e1e1e1;
-        overflow-y: auto;
-    }
-
-    /* Styling for the unordered list in the rooms list */
-    #rooms-list ul {
-        list-style: none; /* Removes default list styling */
-        padding: 0; /* Resets default padding */
-        margin: 0; /* Resets default margin */
-    }
-
-    /* Styling for list items in the rooms list */
-    #rooms-list li {
-        margin-bottom: 10px; /* Adds space between items */
-        padding: 5px; /* Adds padding inside each item */
-        border: 1px solid #e1e1e1; /* Adds a border around each item */
-        border-radius: 5px; /* Optional: Rounds the corners of the border */
-    }
-
-    /* Styling for links in the rooms list */
-    #rooms-list a {
-        text-decoration: none; /* Optional: Removes underline from links */
-        color: inherit; /* Optional: Ensures link color matches the text color */
-    }
-
-    .hljs {
-        position: relative;
-        padding-left: 46px !important;
-        counter-reset: line;
-    }
- 
-    .hljs .line-numbers-rows {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 3em; /* Adjust the width as needed */
-        letter-spacing: -1px;
-        border-right: 1px solid #ccc; /* Optional: adds a line to separate numbers */
-        text-align: right;
-        margin-top: 14px; /* Align with the code block */
-        color: #999;
-        pointer-events: none;
-    }
-    
-    .hljs .line-numbers-rows span {
-        display: block;
-        counter-increment: line;
-    }
-    
-    .hljs .line-numbers-rows span::before {
-        content: counter(line);
-        display: block;
-        padding-right: 0.8em; /* Adjust the padding as needed */
-    }
-
-   </style>
-</head>
-<body>
-  <a href="https://github.com/russellballestrini/flask-socketio-llm-completions#interacting-with-language-models" target="_blank">🚀 docs for interacting with language models & other commands</a>
-  <div class="main-container">
-    <div id="rooms-list">
-        <ul>
-            <!-- Loop through rooms and create list items for each room -->
-            {% for room in rooms %}
-            <a href="{{ url_for('chat', room_name=room.name) }}?username={{ username }}">
-            <li data-room-id="{{ room.id }}">
-                <!-- Display the room title if available, otherwise the room name -->
-                <b>{{ room.name }}</b> {% if room.title %}<br />{{ room.title }} {% endif %}
-            </li>
-            </a>
-            {% endfor %}
-        </ul>
-    </div>
-
+{% block content %}
     <div id="chat-container">
         <!-- Chat area where messages will be displayed -->
         <div id="chat"></div>
@@ -186,12 +12,7 @@
         </form>
     </div>
 
-  </div>
-
 <script>
-// Connect to the server using socket.io with dynamic scheme (http or https)
-const socket = io.connect(window.location.protocol + "//" + document.domain + ":" + location.port);
-
 // Retrieve username and room name from the URL parameters
 const urlParams = new URLSearchParams(window.location.search);
 const username = urlParams.get("username");
@@ -657,7 +478,5 @@ function addLineNumbers(block) {
     }
     block.appendChild(lineNumbersWrapper);
 }
-
-   </script>
-</body>
-</html>
+</script>
+{% endblock %}
