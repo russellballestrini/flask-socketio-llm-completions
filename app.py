@@ -138,6 +138,77 @@ def chat(room_name):
     )
 
 
+@app.route("/search")
+def search_page():
+    keywords = request.args.get("keywords", "")
+    if not keywords:
+        return render_template("search_results.html", results=[], error="Keywords are required")
+
+    # Call the function to search messages
+    search_results = search_messages(keywords)
+
+    return render_template("search.html", results=search_results, error=None)
+
+
+def search_messages(keywords):
+    search_results = {}
+
+    # Split the keywords by spaces
+    keyword_list = keywords.lower().split()
+
+    # Search for messages containing any of the keywords
+    messages = Message.query.filter(
+        db.or_(*[Message.content.ilike(f"%{keyword}%") for keyword in keyword_list])
+    ).all()
+
+    for message in messages:
+        room = Room.query.get(message.room_id)
+        if room:
+            # Calculate the score based on the number of occurrences of all keywords
+            score = sum(message.content.lower().count(keyword) for keyword in keyword_list)
+
+            # Extract snippets with context around each occurrence of the keywords
+            snippets = []
+            content_lower = message.content.lower()
+
+            for keyword in keyword_list:
+                start_index = 0
+                while start_index < len(content_lower):
+                    start_index = content_lower.find(keyword, start_index)
+                    if start_index == -1:
+                        break
+
+                    # Calculate the snippet range
+                    snippet_start = max(0, start_index - 25)
+                    snippet_end = min(len(message.content), start_index + len(keyword) + 25)
+                    snippet = message.content[snippet_start:snippet_end]
+
+                    snippets.append(snippet)
+                    start_index += len(keyword)
+
+            # Join all snippets for this message
+            snippet_text = " ... ".join(snippets)
+
+            if room.id not in search_results:
+                search_results[room.id] = {
+                    "room_id": room.id,
+                    "room_name": room.name,
+                    "room_title": room.title,
+                    "snippets": [],
+                    "username": message.username,
+                    "score": 0
+                }
+
+            search_results[room.id]["snippets"].append(snippet_text)
+            search_results[room.id]["score"] += score
+
+    # Convert the dictionary to a list and sort results by score in descending order
+    search_results_list = list(search_results.values())
+    search_results_list.sort(key=lambda x: x["score"], reverse=True)
+
+    return search_results_list
+
+
 @socketio.on("join")
 def on_join(data):
     room_name = data["room_name"]
