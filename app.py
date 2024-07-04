@@ -1,8 +1,9 @@
-#import eventlet
-#eventlet.monkey_patch()
+# import eventlet
+# eventlet.monkey_patch()
 
 import gevent
 from gevent import monkey
+
 monkey.patch_all()
 
 
@@ -28,7 +29,7 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
 
-#socketio = SocketIO(app, async_mode="eventlet")
+# socketio = SocketIO(app, async_mode="eventlet")
 socketio = SocketIO(app, async_mode="gevent")
 
 # Global dictionary to keep track of cancellation requests
@@ -141,13 +142,18 @@ def chat(room_name):
 @app.route("/search")
 def search_page():
     keywords = request.args.get("keywords", "")
+    username = request.args.get("username", "guest")
     if not keywords:
-        return render_template("search_results.html", results=[], error="Keywords are required")
+        return render_template(
+            "search.html", results=[], username=username, error="Keywords are required"
+        )
 
     # Call the function to search messages
     search_results = search_messages(keywords)
 
-    return render_template("search.html", results=search_results, error=None)
+    return render_template(
+        "search.html", results=search_results, username=username, error=None
+    )
 
 
 def search_messages(keywords):
@@ -165,7 +171,9 @@ def search_messages(keywords):
         room = Room.query.get(message.room_id)
         if room:
             # Calculate the score based on the number of occurrences of all keywords
-            score = sum(message.content.lower().count(keyword) for keyword in keyword_list)
+            score = sum(
+                message.content.lower().count(keyword) for keyword in keyword_list
+            )
 
             # Extract snippets with context around each occurrence of the keywords
             snippets = []
@@ -180,7 +188,9 @@ def search_messages(keywords):
 
                     # Calculate the snippet range
                     snippet_start = max(0, start_index - 25)
-                    snippet_end = min(len(message.content), start_index + len(keyword) + 25)
+                    snippet_end = min(
+                        len(message.content), start_index + len(keyword) + 25
+                    )
                     snippet = message.content[snippet_start:snippet_end]
 
                     snippets.append(snippet)
@@ -196,7 +206,7 @@ def search_messages(keywords):
                     "room_title": room.title,
                     "snippets": [],
                     "username": message.username,
-                    "score": 0
+                    "score": 0,
                 }
 
             search_results[room.id]["snippets"].append(snippet_text)
@@ -533,32 +543,32 @@ def group_consecutive_roles(messages):
         return []
 
     grouped_messages = []
-    current_role = messages[0]['role']
+    current_role = messages[0]["role"]
     current_content = []
 
     for message in messages:
-        if message['role'] == current_role:
-            current_content.append(message['content'])
+        if message["role"] == current_role:
+            current_content.append(message["content"])
         else:
-            grouped_messages.append({
-                'role': current_role,
-                'content': ' '.join(current_content)
-            })
-            current_role = message['role']
-            current_content = [message['content']]
+            grouped_messages.append(
+                {"role": current_role, "content": " ".join(current_content)}
+            )
+            current_role = message["role"]
+            current_content = [message["content"]]
 
     # Append the last grouped message
-    grouped_messages.append({
-        'role': current_role,
-        'content': ' '.join(current_content)
-    })
+    grouped_messages.append(
+        {"role": current_role, "content": " ".join(current_content)}
+    )
 
     return grouped_messages
 
 
 def chat_claude(
-    #username, room_name, model_name="anthropic.claude-3-5-sonnet-20240620-v1:0"
-    username, room_name, model_name="anthropic.claude-3-sonnet-20240229-v1:0"
+    # username, room_name, model_name="anthropic.claude-3-5-sonnet-20240620-v1:0"
+    username,
+    room_name,
+    model_name="anthropic.claude-3-sonnet-20240229-v1:0",
 ):
     with app.app_context():
         room = get_room(room_name)

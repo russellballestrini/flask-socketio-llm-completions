@@ -3,6 +3,19 @@
 {% block title %}Search Results{% endblock %}
 
 {% block content %}
+<style>
+    /* Add styles for the search results */
+    #search-results {
+        margin-top: 20px;
+    }
+    .search-result {
+        border: 1px solid #e1e1e1;
+        border-radius: 5px;
+        padding: 10px;
+        margin-bottom: 10px;
+    }
+</style>
+
 <div id="search-results">
     {% if error %}
         <div class="search-result">{{ error }}</div>
@@ -22,3 +35,4 @@
     {% endif %}
 </div>
 {% endblock %}
+
