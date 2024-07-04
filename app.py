@@ -141,11 +141,15 @@ def chat(room_name):
 
 @app.route("/search")
 def search_page():
+    # Query all rooms so that newest is first.
+    rooms = Room.query.order_by(Room.id.desc()).all()
+
     keywords = request.args.get("keywords", "")
     username = request.args.get("username", "guest")
     if not keywords:
         return render_template(
             "search.html",
+            rooms=rooms,
             keywords=keywords,
             results=[],
             username=username,
@@ -157,6 +161,7 @@ def search_page():
 
     return render_template(
         "search.html",
+        rooms=rooms,
         keywords=keywords,
         results=search_results,
         username=username,

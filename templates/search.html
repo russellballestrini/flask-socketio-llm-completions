@@ -6,13 +6,15 @@
 <style>
     /* Add styles for the search results */
     #search-results {
-        margin-top: 20px;
+        margin: 20px;
+        width: 100%;
     }
     .search-result {
         border: 1px solid #e1e1e1;
         border-radius: 5px;
         padding: 10px;
         margin-bottom: 10px;
+        width: 100%;
     }
 </style>
 
@@ -23,8 +25,9 @@
         {% for result in results %}
             <div class="search-result">
                 <a href="/chat/{{ result.room_name }}?username={{ username }}">
-                    <b>{{ result.room_name }}</b> ({{ result.room_title or "No title" }})<br>
-                    <b>Snippets:</b> {{ result.snippets | join(' ... ') }}<br>
+                    <b>{{ result.room_name }}</b><br/>
+                    {{ result.room_title or "No title" }}</br>
+                    <!-- <b>Snippets:</b> {{ result.snippets | join(' ... ') }}<br> -->
                     <b>Score:</b> {{ result.score }}
                 </a>
             </div>
