@@ -39,6 +39,7 @@ system_users = [
     "anthropic.claude-3-haiku-20240307-v1:0",
     "anthropic.claude-3-sonnet-20240229-v1:0",
     "anthropic.claude-3-5-sonnet-20240620-v1:0",
+    "anthropic.claude-3-opus-20240229-v1:0",
     "gpt-3.5-turbo",
     "gpt-4",
     "gpt-4o",
@@ -242,7 +243,7 @@ def on_join(data):
 
     message_count = len(previous_messages)
     if room.title is None and message_count >= 6:
-        room.title = gpt_generate_room_title(previous_messages, "gpt-4-turbo-preview")
+        room.title = gpt_generate_room_title(previous_messages)
         db.session.add(room)
         db.session.commit()
         socketio.emit("update_room_title", {"title": room.title}, room=room.name)
@@ -352,6 +353,13 @@ def handle_message(data):
             )
         if "claude-sonnet" in data["message"]:
             gevent.spawn(chat_claude, data["username"], room.name)
+        if "claude-opus" in data["message"]:
+            gevent.spawn(
+                chat_claude,
+                data["username"],
+                room.name,
+                model_name="anthropic.claude-3-opus-20240229-v1:0",
+            )
         if "gpt-3" in data["message"]:
             gevent.spawn(chat_gpt, data["username"], room.name)
         if "gpt-4" in data["message"]:
@@ -1263,7 +1271,7 @@ def chat_llama(username, room_name, model_name="mistral-7b-instruct-v0.2.Q3_K_L.
     socketio.emit("delete_processing_message", msg_id, room=room.name)
 
 
-def gpt_generate_room_title(messages, model_name):
+def gpt_generate_room_title(messages, model_name="gpt-4o"):
     """
     Generate a title for the room based on a list of messages.
     """
@@ -1309,7 +1317,7 @@ def generate_new_title(room_name, username):
         )
 
         # Generate the title using the messages
-        new_title = gpt_generate_room_title(last_messages, "gpt-4-turbo-preview")
+        new_title = gpt_generate_room_title(last_messages)
 
         # Update the room title in the database
         room.title = new_title
