@@ -93,7 +93,8 @@ Interacting with Language Models
 To interact with the various language models, you can use the following commands within the chat:
 
 - For GPT-3, send a message with ``gpt-3`` and include your prompt.
-- For GPT-4, send a message with ``gpt-4`` and include your prompt.
+- For GPT-4o, send a message with ``gpt-4`` and include your prompt.
+- For GPT-4o-mini, send a message with ``gpt-mini`` and include your prompt.
 - For Claude-haiku, send a message with ``claude-haiku`` and include your prompt.
 - For Claude-sonnet, send a message with ``claude-sonnet`` and include your prompt.
 - For Claude-opus, send a message with ``claude-opus`` and include your prompt.
