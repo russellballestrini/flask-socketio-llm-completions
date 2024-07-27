@@ -1816,9 +1816,6 @@ def handle_activity_response(room_name, user_response, username):
                 category == "correct"
                 or activity_state.attempts >= activity_state.max_attempts
             ):
-                print(
-                    f"Transitioning to next step. Category: {category}, Attempts: {activity_state.attempts}"
-                )
                 # Move to the next step or section
                 next_section, next_step = get_next_step(
                     activity_content, section["section_id"], step["step_id"]
@@ -1972,6 +1969,7 @@ def display_activity_info(room_name, username):
                 - Engagement: Is the response engaging and interesting?
                 Provide a score out of 10 for each criterion and an overall grade for each user.
                 Finally order each user by who is winning. Number of correct answers and accuracy & include an enumeration of the feats!
+                Take into account how many attempts the user took to get a passing answer when ranking.
             """,
             )
 
@@ -2051,12 +2049,6 @@ def get_next_step(activity_content, current_section_id, current_step_id):
                             ]
                             return next_section, next_section["steps"][0]
     return None, None
-
-
-# Load the YAML activity file
-def load_yaml_activity(file_path):
-    with open(file_path, "r") as file:
-        return yaml.safe_load(file)
 
 
 # Categorize the user's response using gpt-4o-mini
