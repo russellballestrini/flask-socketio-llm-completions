@@ -1,0 +1,372 @@
+default_max_attempts_per_step: 3
+sections:
+  - section_id: "section_1"
+    title: "Introduction to Cooking"
+    steps:
+      - step_id: "step_1"
+        title: "What is Cooking?"
+        content_blocks:
+          - "Welcome to the Basic Cooking Skills course."
+          - "Cooking is the process of preparing food by combining, mixing, and heating ingredients."
+        tokens_for_ai: "Explain what cooking is and its importance in a friendly and engaging manner. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "What do you understand by cooking?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You have a good understanding of cooking."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of cooking. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on cooking."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of cooking in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_2"
+        title: "Importance of Cooking"
+        content_blocks:
+          - "Cooking is important because it allows you to control what goes into your food."
+          - "It helps you make healthier choices and can be a fun and creative activity."
+        tokens_for_ai: "Explain the importance of cooking in a friendly and engaging manner. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "Why is cooking important?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You understand the importance of cooking."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of the importance. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the importance of cooking."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of the importance of cooking in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+  - section_id: "section_2"
+    title: "Basic Cooking Techniques"
+    steps:
+      - step_id: "step_1"
+        title: "Chopping and Slicing"
+        content_blocks:
+          - "Chopping and slicing are fundamental cooking techniques."
+          - "Use a sharp knife and a cutting board. Keep your fingers tucked in to avoid cuts."
+        tokens_for_ai: "Explain how to chop and slice ingredients safely in a friendly and engaging manner. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "How do you chop and slice ingredients safely?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You know how to chop and slice ingredients safely."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of chopping and slicing. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on chopping and slicing."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of chopping and slicing in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_2"
+        title: "Boiling and Simmering"
+        content_blocks:
+          - "Boiling and simmering are techniques used to cook food in water or broth."
+          - "Boiling involves cooking at a high temperature, while simmering is done at a lower temperature."
+        tokens_for_ai: "Explain the difference between boiling and simmering and how to do them in a friendly and engaging manner. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "What is the difference between boiling and simmering, and how do you do them?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You understand the difference between boiling and simmering and how to do them."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of boiling and simmering. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on boiling and simmering."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of boiling and simmering in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+  - section_id: "section_3"
+    title: "Simple Recipes"
+    steps:
+      - step_id: "step_1"
+        title: "Scrambled Eggs"
+        content_blocks:
+          - "Scrambled eggs are a simple and nutritious breakfast option."
+          - "Ingredients: 2 eggs, salt, pepper, butter."
+          - "Instructions: Crack the eggs into a bowl, add a pinch of salt and pepper, and whisk. Melt butter in a pan over medium heat, pour in the eggs, and stir until cooked."
+        tokens_for_ai: "Explain how to make scrambled eggs in a friendly and engaging manner. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "How do you make scrambled eggs?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You know how to make scrambled eggs."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of making scrambled eggs. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on making scrambled eggs."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of making scrambled eggs in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_2"
+        title: "Pasta with Tomato Sauce"
+        content_blocks:
+          - "Pasta with tomato sauce is a simple and delicious meal."
+          - "Ingredients: 200g pasta, 1 can of tomato sauce, garlic, olive oil, salt, pepper, basil."
+          - "Instructions: Cook the pasta according to the package instructions. In a pan, heat olive oil, add minced garlic, and cook until fragrant. Add tomato sauce, salt, pepper, and basil. Simmer for 10 minutes. Mix with the cooked pasta."
+        tokens_for_ai: "Explain how to make pasta with tomato sauce in a friendly and engaging manner. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "How do you make pasta with tomato sauce?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You know how to make pasta with tomato sauce."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of making pasta with tomato sauce. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on making pasta with tomato sauce."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of making pasta with tomato sauce in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+  - section_id: "section_4"
+    title: "Baking Basics"
+    steps:
+      - step_id: "step_1"
+        title: "Baking Cookies"
+        content_blocks:
+          - "Baking cookies is a fun and rewarding activity."
+          - "Ingredients: 1 cup butter, 1 cup sugar, 2 cups flour, 1 egg, 1 tsp vanilla extract, 1 tsp baking soda, a pinch of salt."
+          - "Instructions: Preheat the oven to 350°F (175°C). Cream the butter and sugar together. Add the egg and vanilla extract. Mix in the flour, baking soda, and salt. Drop spoonfuls of dough onto a baking sheet and bake for 10-12 minutes."
+        tokens_for_ai: "Explain how to bake cookies in a friendly and engaging manner. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "How do you bake cookies?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You know how to bake cookies."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of baking cookies. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on baking cookies."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of baking cookies in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_2"
+        title: "Baking Bread"
+        content_blocks:
+          - "Baking bread is a rewarding and delicious skill to learn."
+          - "Ingredients: 3 cups flour, 1 packet yeast, 1 cup warm water, 1 tbsp sugar, 1 tsp salt."
+          - "Instructions: Dissolve the yeast and sugar in warm water and let it sit for 5 minutes. Mix in the flour and salt to form a dough. Knead the dough for 10 minutes, then let it rise for 1 hour. Preheat the oven to 375°F (190°C). Shape the dough into a loaf and bake for 25-30 minutes."
+        tokens_for_ai: "Explain how to bake bread in a friendly and engaging manner. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "How do you bake bread?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You know how to bake bread."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of baking bread. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on baking bread."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of baking bread in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+  - section_id: "section_5"
+    title: "Cooking Safety"
+    steps:
+      - step_id: "step_1"
+        title: "Kitchen Safety Tips"
+        content_blocks:
+          - "Safety in the kitchen is crucial to prevent accidents and injuries."
+          - "Always use oven mitts when handling hot items, keep knives sharp and handle them carefully, and clean up spills immediately to avoid slips."
+        tokens_for_ai: "Explain important kitchen safety tips in a friendly and engaging manner. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "What are some important kitchen safety tips?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You understand important kitchen safety tips."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of kitchen safety tips. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on kitchen safety tips."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of kitchen safety tips in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_2"
+        title: "Food Safety"
+        content_blocks:
+          - "Food safety is essential to prevent foodborne illnesses."
+          - "Always wash your hands before handling food, cook meat to the proper temperature, and store leftovers in the refrigerator promptly."
+        tokens_for_ai: "Explain important food safety practices in a friendly and engaging manner. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "What are some important food safety practices?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You understand important food safety practices."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of food safety practices. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on food safety practices."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of food safety practices in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+  - section_id: "section_6"
+    title: "Congratulations!"
+    steps:
+      - step_id: "step_1"
+        title: "Well Done!"
+        content_blocks:
+          - "Congratulations on completing the Basic Cooking Skills course!"
+          - "You have learned valuable skills and techniques that will help you in the kitchen."
+          - "Remember, cooking is a skill that improves with practice, so keep experimenting and trying new recipes."
+          - "We are proud of your dedication and hard work. Well done!"
+

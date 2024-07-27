@@ -1,0 +1,356 @@
+default_max_attempts_per_step: 3
+sections:
+  - section_id: "section_1"
+    title: "Introduction to Perimeter Security"
+    steps:
+      - step_id: "step_1"
+        title: "What is Perimeter Security?"
+        content_blocks:
+          - "Welcome to the perimeter security training for a presidential speech."
+          - "Perimeter security involves measures taken to protect the outer boundary of a location to prevent unauthorized access."
+        tokens_for_ai: "Explain what perimeter security is and its importance in a friendly and engaging manner suitable for a security professional. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "What do you understand by perimeter security?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You have a good understanding of perimeter security."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of perimeter security. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on perimeter security."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of perimeter security in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_2"
+        title: "Importance of Perimeter Security for a Presidential Speech"
+        content_blocks:
+          - "Perimeter security is crucial for a presidential speech to ensure the safety of the president and attendees."
+          - "It helps prevent unauthorized access, potential threats, and ensures a controlled environment."
+        tokens_for_ai: "Explain the importance of perimeter security for a presidential speech in a friendly and engaging manner suitable for a security professional. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "Why is perimeter security important for a presidential speech?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You understand the importance of perimeter security for a presidential speech."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of the importance. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the importance of perimeter security."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of the importance of perimeter security in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+  - section_id: "section_2"
+    title: "Planning and Preparation"
+    steps:
+      - step_id: "step_1"
+        title: "Site Assessment"
+        content_blocks:
+          - "The first step in hardening a perimeter is conducting a thorough site assessment."
+          - "Identify potential vulnerabilities, entry points, and areas that need reinforcement."
+        tokens_for_ai: "Explain the importance of site assessment and what it involves in a friendly and engaging manner suitable for a security professional. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "What is the purpose of a site assessment in perimeter security?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You understand the purpose of a site assessment."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of the site assessment. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the site assessment."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of the site assessment in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_2"
+        title: "Security Plan Development"
+        content_blocks:
+          - "Develop a comprehensive security plan based on the site assessment."
+          - "The plan should include security measures, personnel deployment, and emergency response protocols."
+        tokens_for_ai: "Explain how to develop a security plan and what it should include in a friendly and engaging manner suitable for a security professional. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "What should be included in a security plan for a presidential speech?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You know what should be included in a security plan."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of the security plan. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the security plan."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of the security plan in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+  - section_id: "section_3"
+    title: "Implementing Security Measures"
+    steps:
+      - step_id: "step_1"
+        title: "Physical Barriers"
+        content_blocks:
+          - "Physical barriers such as fences, bollards, and barricades are essential for perimeter security."
+          - "They help control access and prevent unauthorized entry."
+        tokens_for_ai: "Explain the role of physical barriers in perimeter security in a friendly and engaging manner suitable for a security professional. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "What is the role of physical barriers in perimeter security?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You understand the role of physical barriers."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of physical barriers. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on physical barriers."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of physical barriers in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_2"
+        title: "Access Control"
+        content_blocks:
+          - "Access control measures include security checkpoints, ID verification, and controlled entry points."
+          - "These measures help ensure that only authorized personnel can enter the secured area."
+        tokens_for_ai: "Explain the importance of access control in perimeter security in a friendly and engaging manner suitable for a security professional. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "Why is access control important in perimeter security?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You understand the importance of access control."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of access control. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on access control."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of access control in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+  - section_id: "section_4"
+    title: "Monitoring and Surveillance"
+    steps:
+      - step_id: "step_1"
+        title: "Surveillance Cameras"
+        content_blocks:
+          - "Surveillance cameras are essential for monitoring the perimeter and detecting potential threats."
+          - "They provide real-time video feeds to security personnel."
+        tokens_for_ai: "Explain the role of surveillance cameras in perimeter security in a friendly and engaging manner suitable for a security professional. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "What is the role of surveillance cameras in perimeter security?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You understand the role of surveillance cameras."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of surveillance cameras. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on surveillance cameras."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of surveillance cameras in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_2"
+        title: "Security Personnel"
+        content_blocks:
+          - "Security personnel play a crucial role in monitoring the perimeter and responding to incidents."
+          - "They should be strategically positioned and equipped with communication devices."
+        tokens_for_ai: "Explain the role of security personnel in perimeter security in a friendly and engaging manner suitable for a security professional. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "What is the role of security personnel in perimeter security?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You understand the role of security personnel."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of security personnel. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on security personnel."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of security personnel in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+  - section_id: "section_5"
+    title: "Emergency Response"
+    steps:
+      - step_id: "step_1"
+        title: "Emergency Protocols"
+        content_blocks:
+          - "Emergency protocols are essential for responding to incidents quickly and effectively."
+          - "They should include evacuation plans, communication procedures, and roles and responsibilities."
+        tokens_for_ai: "Explain the importance of emergency protocols in perimeter security in a friendly and engaging manner suitable for a security professional. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "Why are emergency protocols important in perimeter security?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You understand the importance of emergency protocols."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of emergency protocols. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on emergency protocols."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of emergency protocols in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_2"
+        title: "Communication During Emergencies"
+        content_blocks:
+          - "Effective communication is crucial during emergencies to coordinate response efforts."
+          - "Use radios, phones, and other communication devices to stay in contact with security personnel."
+        tokens_for_ai: "Explain the importance of communication during emergencies in a friendly and engaging manner suitable for a security professional. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "Why is communication important during emergencies?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You understand the importance of communication during emergencies."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of communication during emergencies. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on communication during emergencies."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of communication during emergencies in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."

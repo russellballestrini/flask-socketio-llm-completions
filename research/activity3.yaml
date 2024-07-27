@@ -1,0 +1,286 @@
+default_max_attempts_per_step: 3
+sections:
+  - section_id: "section_1"
+    title: "Introduction to Elephants"
+    steps:
+      - step_id: "step_1"
+        title: "What is an Elephant?"
+        content_blocks:
+          - "Welcome to the world of elephants!"
+          - "Elephants are the largest land animals on Earth. They are known for their big ears, long trunks, and tusks."
+        tokens_for_ai: "Explain what an elephant is and its key features in a friendly and engaging manner suitable for a 7-year-old. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "What do you know about elephants?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You know a lot about elephants."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the child to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You know a little about elephants. Let's learn more!"
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the child's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on elephants."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the child back to the topic of elephants in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's answer them."
+            ai_feedback:
+              tokens_for_ai: "Answer the child's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_2"
+        title: "Where Do Elephants Live?"
+        content_blocks:
+          - "Elephants live in different parts of the world."
+          - "There are two main types of elephants: African elephants and Asian elephants."
+          - "African elephants live in Africa, and Asian elephants live in Asia."
+        tokens_for_ai: "Explain where elephants live and the difference between African and Asian elephants in a friendly and engaging manner suitable for a 7-year-old. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "Can you name the two types of elephants and where they live?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You know where elephants live."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the child to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You know a little about where elephants live. Let's learn more!"
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the child's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on where elephants live."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the child back to the topic of where elephants live in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's answer them."
+            ai_feedback:
+              tokens_for_ai: "Answer the child's clarifying questions and provide additional information in a friendly and engaging manner."
+
+  - section_id: "section_2"
+    title: "Elephant Anatomy"
+    steps:
+      - step_id: "step_1"
+        title: "Elephant Trunks"
+        content_blocks:
+          - "Elephants have long trunks that they use for many things."
+          - "They use their trunks to drink water, pick up food, and even to greet other elephants."
+        tokens_for_ai: "Explain the uses of an elephant's trunk in a friendly and engaging manner suitable for a 7-year-old. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "What do elephants use their trunks for?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You know how elephants use their trunks."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the child to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You know a little about how elephants use their trunks. Let's learn more!"
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the child's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on elephant trunks."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the child back to the topic of elephant trunks in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's answer them."
+            ai_feedback:
+              tokens_for_ai: "Answer the child's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_2"
+        title: "Elephant Ears"
+        content_blocks:
+          - "Elephants have big ears that help them stay cool."
+          - "They flap their ears to fan themselves and keep their bodies cool."
+        tokens_for_ai: "Explain the purpose of an elephant's ears in a friendly and engaging manner suitable for a 7-year-old. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "Why do elephants have big ears?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You know why elephants have big ears."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the child to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You know a little about why elephants have big ears. Let's learn more!"
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the child's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on elephant ears."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the child back to the topic of elephant ears in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's answer them."
+            ai_feedback:
+              tokens_for_ai: "Answer the child's clarifying questions and provide additional information in a friendly and engaging manner."
+
+  - section_id: "section_3"
+    title: "Elephant Behavior"
+    steps:
+      - step_id: "step_1"
+        title: "Elephant Families"
+        content_blocks:
+          - "Elephants live in groups called herds."
+          - "A herd is usually led by the oldest female elephant, called the matriarch."
+        tokens_for_ai: "Explain the social structure of elephant herds in a friendly and engaging manner suitable for a 7-year-old. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "What is a group of elephants called and who leads it?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You know about elephant families."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the child to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You know a little about elephant families. Let's learn more!"
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the child's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on elephant families."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the child back to the topic of elephant families in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's answer them."
+            ai_feedback:
+              tokens_for_ai: "Answer the child's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_2"
+        title: "Elephant Communication"
+        content_blocks:
+          - "Elephants communicate with each other using sounds, touch, and even vibrations."
+          - "They can make loud trumpeting sounds and low rumbles that humans can't hear."
+        tokens_for_ai: "Explain how elephants communicate in a friendly and engaging manner suitable for a 7-year-old. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "How do elephants communicate with each other?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You know how elephants communicate."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the child to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You know a little about how elephants communicate. Let's learn more!"
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the child's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on elephant communication."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the child back to the topic of elephant communication in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's answer them."
+            ai_feedback:
+              tokens_for_ai: "Answer the child's clarifying questions and provide additional information in a friendly and engaging manner."
+
+  - section_id: "section_4"
+    title: "Elephant Conservation"
+    steps:
+      - step_id: "step_1"
+        title: "Why Elephants Need Our Help"
+        content_blocks:
+          - "Elephants are amazing animals, but they need our help to survive."
+          - "Many elephants are in danger because of habitat loss and poaching."
+        tokens_for_ai: "Explain why elephants need our help and the threats they face in a friendly and engaging manner suitable for a 7-year-old. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "Why do elephants need our help?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You understand why elephants need our help."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the child to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You know a little about why elephants need our help. Let's learn more!"
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the child's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on why elephants need our help."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the child back to the topic of why elephants need our help in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's answer them."
+            ai_feedback:
+              tokens_for_ai: "Answer the child's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_2"
+        title: "How We Can Help Elephants"
+        content_blocks:
+          - "There are many ways we can help elephants."
+          - "We can support organizations that protect elephants, learn more about them, and spread the word to others."
+        tokens_for_ai: "Explain how we can help elephants in a friendly and engaging manner suitable for a 7-year-old. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "Can you think of ways to help elephants?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You have great ideas to help elephants."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the child to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have some good ideas. Let's think of more ways to help elephants."
+            ai_feedback:
+              tokens_for_ai: "Provide additional suggestions to help the child think of more ways to help elephants in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on how we can help elephants."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the child back to the topic of how we can help elephants in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's answer them."
+            ai_feedback:
+              tokens_for_ai: "Answer the child's clarifying questions and provide additional information in a friendly and engaging manner."

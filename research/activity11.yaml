@@ -1,0 +1,580 @@
+default_max_attempts_per_step: 3
+sections:
+  - section_id: "section_1"
+    title: "Introduction to the Revolutionary War"
+    steps:
+      - step_id: "step_1"
+        title: "What is the Revolutionary War?"
+        content_blocks:
+          - "Welcome to the American Revolutionary War course!"
+          - "The American Revolutionary War, also known as the American War of Independence, was a conflict between Great Britain and its thirteen colonies in North America."
+        tokens_for_ai: "Explain what the American Revolutionary War is in a friendly and engaging manner suitable for a 13-year-old. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "What do you know about the American Revolutionary War?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You have a good understanding of the American Revolutionary War."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of the Revolutionary War. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the Revolutionary War."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of the Revolutionary War in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_2"
+        title: "Importance of the Revolutionary War"
+        content_blocks:
+          - "The Revolutionary War was important because it led to the independence of the United States from British rule."
+          - "It also established the principles of liberty, democracy, and self-governance."
+        tokens_for_ai: "Explain the importance of the American Revolutionary War in a friendly and engaging manner suitable for a 13-year-old. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "Why is the American Revolutionary War important?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You understand the importance of the American Revolutionary War."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of the importance. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the importance of the Revolutionary War."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of the importance of the Revolutionary War in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+  - section_id: "section_2"
+    title: "Causes of the Revolutionary War"
+    steps:
+      - step_id: "step_1"
+        title: "Taxation Without Representation"
+        content_blocks:
+          - "One of the main causes of the Revolutionary War was the issue of 'taxation without representation.'"
+          - "The British government imposed taxes on the American colonies without giving them representation in Parliament."
+        tokens_for_ai: "Explain the concept of 'taxation without representation' and its role in causing the Revolutionary War in a friendly and engaging manner suitable for a 13-year-old. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "What is 'taxation without representation' and how did it contribute to the Revolutionary War?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You understand the concept of 'taxation without representation' and its role in the Revolutionary War."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of 'taxation without representation.' Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on 'taxation without representation.'"
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of 'taxation without representation' in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_2"
+        title: "The Intolerable Acts"
+        content_blocks:
+          - "The Intolerable Acts were a series of punitive laws passed by the British Parliament in response to the Boston Tea Party."
+          - "These acts further angered the American colonists and contributed to the outbreak of the Revolutionary War."
+        tokens_for_ai: "Explain what the Intolerable Acts were and their role in causing the Revolutionary War in a friendly and engaging manner suitable for a 13-year-old. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "What were the Intolerable Acts and how did they contribute to the Revolutionary War?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You understand what the Intolerable Acts were and their role in the Revolutionary War."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of the Intolerable Acts. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the Intolerable Acts."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of the Intolerable Acts in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+  - section_id: "section_3"
+    title: "Key Events of the Revolutionary War"
+    steps:
+      - step_id: "step_1"
+        title: "The Boston Tea Party"
+        content_blocks:
+          - "The Boston Tea Party was a political protest by the Sons of Liberty in Boston, Massachusetts, on December 16, 1773."
+          - "American colonists, frustrated with British taxation, dumped 342 chests of British tea into the harbor."
+        tokens_for_ai: "Explain the Boston Tea Party and its significance in a friendly and engaging manner suitable for a 13-year-old. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "What was the Boston Tea Party and why was it significant?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You understand what the Boston Tea Party was and its significance."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of the Boston Tea Party. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the Boston Tea Party."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of the Boston Tea Party in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_2"
+        title: "The Battles of Lexington and Concord"
+        content_blocks:
+          - "The Battles of Lexington and Concord were the first military engagements of the American Revolutionary War."
+          - "They were fought on April 19, 1775, in Middlesex County, Province of Massachusetts Bay."
+        tokens_for_ai: "Explain the Battles of Lexington and Concord and their significance in a friendly and engaging manner suitable for a 13-year-old. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "What were the Battles of Lexington and Concord and why were they significant?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You understand what the Battles of Lexington and Concord were and their significance."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of the Battles of Lexington and Concord. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the Battles of Lexington and Concord."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of the Battles of Lexington and Concord in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+  - section_id: "section_4"
+    title: "Key Figures of the Revolutionary War"
+    steps:
+      - step_id: "step_1"
+        title: "George Washington"
+        content_blocks:
+          - "George Washington was the commander-in-chief of the Continental Army during the American Revolutionary War."
+          - "He later became the first President of the United States."
+        tokens_for_ai: "Explain who George Washington was and his role in the Revolutionary War in a friendly and engaging manner suitable for a 13-year-old. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "Who was George Washington and what was his role in the Revolutionary War?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You understand who George Washington was and his role in the Revolutionary War."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of George Washington. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on George Washington."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of George Washington in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_2"
+        title: "Thomas Jefferson"
+        content_blocks:
+          - "Thomas Jefferson was the principal author of the Declaration of Independence."
+          - "He later became the third President of the United States."
+        tokens_for_ai: "Explain who Thomas Jefferson was and his role in the Revolutionary War in a friendly and engaging manner suitable for a 13-year-old. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "Who was Thomas Jefferson and what was his role in the Revolutionary War?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You understand who Thomas Jefferson was and his role in the Revolutionary War."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of Thomas Jefferson. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on Thomas Jefferson."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of Thomas Jefferson in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+  - section_id: "section_5"
+    title: "Major Battles of the Revolutionary War"
+    steps:
+      - step_id: "step_1"
+        title: "The Battle of Bunker Hill"
+        content_blocks:
+          - "The Battle of Bunker Hill was fought on June 17, 1775, during the early stages of the American Revolutionary War."
+          - "Despite being a British victory, the battle demonstrated that the American forces could stand up to the British army."
+        tokens_for_ai: "Explain the Battle of Bunker Hill and its significance in a friendly and engaging manner suitable for a 13-year-old. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "What was the Battle of Bunker Hill and why was it significant?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You understand what the Battle of Bunker Hill was and its significance."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of the Battle of Bunker Hill. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the Battle of Bunker Hill."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of the Battle of Bunker Hill in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_2"
+        title: "The Battle of Saratoga"
+        content_blocks:
+          - "The Battle of Saratoga was a turning point in the American Revolutionary War."
+          - "Fought in 1777, it resulted in a decisive victory for the American forces and convinced France to join the war on the side of the Americans."
+        tokens_for_ai: "Explain the Battle of Saratoga and its significance in a friendly and engaging manner suitable for a 13-year-old. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "What was the Battle of Saratoga and why was it significant?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You understand what the Battle of Saratoga was and its significance."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of the Battle of Saratoga. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the Battle of Saratoga."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of the Battle of Saratoga in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+  - section_id: "section_6"
+    title: "The Declaration of Independence"
+    steps:
+      - step_id: "step_1"
+        title: "Drafting the Declaration"
+        content_blocks:
+          - "The Declaration of Independence was drafted by Thomas Jefferson and adopted by the Continental Congress on July 4, 1776."
+          - "It declared the thirteen American colonies as independent states, free from British rule."
+        tokens_for_ai: "Explain the drafting of the Declaration of Independence and its significance in a friendly and engaging manner suitable for a 13-year-old. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "What was the Declaration of Independence and why was it significant?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You understand what the Declaration of Independence was and its significance."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of the Declaration of Independence. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the Declaration of Independence."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of the Declaration of Independence in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_2"
+        title: "Key Principles of the Declaration"
+        content_blocks:
+          - "The Declaration of Independence outlined key principles such as equality, unalienable rights, and the right to alter or abolish government."
+          - "It emphasized that all men are created equal and have the right to life, liberty, and the pursuit of happiness."
+        tokens_for_ai: "Explain the key principles of the Declaration of Independence in a friendly and engaging manner suitable for a 13-year-old. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "What are the key principles of the Declaration of Independence?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You understand the key principles of the Declaration of Independence."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of the key principles. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the key principles of the Declaration of Independence."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of the key principles of the Declaration of Independence in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+  - section_id: "section_7"
+    title: "The End of the Revolutionary War"
+    steps:
+      - step_id: "step_1"
+        title: "The Siege of Yorktown"
+        content_blocks:
+          - "The Siege of Yorktown was the last major battle of the American Revolutionary War."
+          - "Fought in 1781, it resulted in the surrender of British General Cornwallis and effectively ended the war."
+        tokens_for_ai: "Explain the Siege of Yorktown and its significance in a friendly and engaging manner suitable for a 13-year-old. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "What was the Siege of Yorktown and why was it significant?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You understand what the Siege of Yorktown was and its significance."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of the Siege of Yorktown. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the Siege of Yorktown."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of the Siege of Yorktown in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_2"
+        title: "The Treaty of Paris"
+        content_blocks:
+          - "The Treaty of Paris was signed on September 3, 1783, and officially ended the American Revolutionary War."
+          - "The treaty recognized the independence of the United States and established its borders."
+        tokens_for_ai: "Explain the Treaty of Paris and its significance in a friendly and engaging manner suitable for a 13-year-old. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "What was the Treaty of Paris and why was it significant?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You understand what the Treaty of Paris was and its significance."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of the Treaty of Paris. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the Treaty of Paris."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of the Treaty of Paris in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+  - section_id: "section_8"
+    title: "Legacy of the Revolutionary War"
+    steps:
+      - step_id: "step_1"
+        title: "Impact on the United States"
+        content_blocks:
+          - "The American Revolutionary War had a profound impact on the United States."
+          - "It led to the establishment of a new nation based on principles of liberty, democracy, and self-governance."
+        tokens_for_ai: "Explain the impact of the Revolutionary War on the United States in a friendly and engaging manner suitable for a 13-year-old. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "What was the impact of the Revolutionary War on the United States?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You understand the impact of the Revolutionary War on the United States."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of the impact. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the impact of the Revolutionary War."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of the impact of the Revolutionary War in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_2"
+        title: "Influence on Other Nations"
+        content_blocks:
+          - "The American Revolutionary War inspired other nations to fight for their independence and adopt democratic principles."
+          - "It had a significant influence on the French Revolution and other independence movements around the world."
+        tokens_for_ai: "Explain the influence of the Revolutionary War on other nations in a friendly and engaging manner suitable for a 13-year-old. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "How did the Revolutionary War influence other nations?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You understand the influence of the Revolutionary War on other nations."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of the influence. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the influence of the Revolutionary War."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of the influence of the Revolutionary War in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+  - section_id: "section_9"
+    title: "Congratulations!"
+    steps:
+      - step_id: "step_1"
+        title: "Well Done!"
+        content_blocks:
+          - "Congratulations on completing the American Revolutionary War course!"
+          - "You have learned about the causes, key events, major battles, important figures, and the legacy of the Revolutionary War."
+          - "This knowledge will help you understand the foundations of the United States and the principles of liberty and democracy."
+          - "We are proud of your dedication and hard work. Well done!"

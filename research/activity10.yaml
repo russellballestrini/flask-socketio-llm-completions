@@ -1,0 +1,368 @@
+default_max_attempts_per_step: 3
+sections:
+  - section_id: "section_1"
+    title: "Introduction to the Miracles of Jesus"
+    steps:
+      - step_id: "step_1"
+        title: "Who is Jesus?"
+        content_blocks:
+          - "Welcome to the Miracles of Jesus course!"
+          - "Jesus is a central figure in Christianity, known for his teachings, compassion, and miraculous acts."
+        tokens_for_ai: "Explain who Jesus is in a friendly and engaging manner. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "What do you know about Jesus?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You have a good understanding of who Jesus is."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of who Jesus is. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on who Jesus is."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of who Jesus is in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_2"
+        title: "Importance of Miracles"
+        content_blocks:
+          - "Miracles are extraordinary events that demonstrate divine intervention in the world."
+          - "The miracles performed by Jesus are significant because they reveal his divine nature and compassion for humanity."
+        tokens_for_ai: "Explain the importance of miracles in a friendly and engaging manner. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "Why are the miracles of Jesus important?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You understand the importance of the miracles of Jesus."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of the importance. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the importance of the miracles of Jesus."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of the importance of the miracles of Jesus in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+  - section_id: "section_2"
+    title: "Miracles of Healing"
+    steps:
+      - step_id: "step_1"
+        title: "Healing the Blind Man"
+        content_blocks:
+          - "One of Jesus' miracles was healing a man who was born blind."
+          - "Jesus made mud with his saliva, put it on the man's eyes, and told him to wash in the Pool of Siloam. The man washed and was able to see."
+        tokens_for_ai: "Explain the miracle of healing the blind man in a friendly and engaging manner. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "Can you describe the miracle of healing the blind man?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You know about the miracle of healing the blind man."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of the miracle. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the miracle of healing the blind man."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of healing the blind man in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_2"
+        title: "Healing the Leper"
+        content_blocks:
+          - "Another miracle of Jesus was healing a man with leprosy."
+          - "Jesus touched the man and said, 'Be clean!' Immediately, the leprosy left him, and he was healed."
+        tokens_for_ai: "Explain the miracle of healing the leper in a friendly and engaging manner. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "Can you describe the miracle of healing the leper?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You know about the miracle of healing the leper."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of the miracle. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the miracle of healing the leper."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of healing the leper in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+  - section_id: "section_3"
+    title: "Miracles of Provision"
+    steps:
+      - step_id: "step_1"
+        title: "Feeding the 5,000"
+        content_blocks:
+          - "One of Jesus' most famous miracles is feeding 5,000 people with just five loaves of bread and two fish."
+          - "Jesus blessed the food, broke it, and distributed it to the crowd. Everyone ate and was satisfied, and there were twelve baskets of leftovers."
+        tokens_for_ai: "Explain the miracle of feeding the 5,000 in a friendly and engaging manner. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "Can you describe the miracle of feeding the 5,000?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You know about the miracle of feeding the 5,000."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of the miracle. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the miracle of feeding the 5,000."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of feeding the 5,000 in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_2"
+        title: "Turning Water into Wine"
+        content_blocks:
+          - "Jesus' first recorded miracle was turning water into wine at a wedding in Cana."
+          - "When the wine ran out, Jesus instructed the servants to fill six stone jars with water. He then turned the water into wine, which was of the highest quality."
+        tokens_for_ai: "Explain the miracle of turning water into wine in a friendly and engaging manner. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "Can you describe the miracle of turning water into wine?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You know about the miracle of turning water into wine."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of the miracle. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the miracle of turning water into wine."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of turning water into wine in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+  - section_id: "section_4"
+    title: "Miracles of Nature"
+    steps:
+      - step_id: "step_1"
+        title: "Calming the Storm"
+        content_blocks:
+          - "One of Jesus' miracles involved calming a storm while he and his disciples were on a boat."
+          - "Jesus rebuked the wind and said to the waves, 'Quiet! Be still!' The wind died down, and it was completely calm."
+        tokens_for_ai: "Explain the miracle of calming the storm in a friendly and engaging manner. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "Can you describe the miracle of calming the storm?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You know about the miracle of calming the storm."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of the miracle. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the miracle of calming the storm."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of calming the storm in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_2"
+        title: "Walking on Water"
+        content_blocks:
+          - "Another miracle of Jesus was walking on water."
+          - "Jesus walked on the Sea of Galilee to reach his disciples who were in a boat. When they saw him, they were terrified, but Jesus said, 'Take courage! It is I. Don't be afraid.'"
+        tokens_for_ai: "Explain the miracle of walking on water in a friendly and engaging manner. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "Can you describe the miracle of walking on water?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You know about the miracle of walking on water."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of the miracle. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the miracle of walking on water."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of walking on water in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+  - section_id: "section_5"
+    title: "Miracles of Resurrection"
+    steps:
+      - step_id: "step_1"
+        title: "Raising Lazarus"
+        content_blocks:
+          - "One of Jesus' most powerful miracles was raising Lazarus from the dead."
+          - "Lazarus had been dead for four days when Jesus arrived. Jesus called out, 'Lazarus, come out!' and Lazarus came out of the tomb, alive."
+        tokens_for_ai: "Explain the miracle of raising Lazarus in a friendly and engaging manner. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "Can you describe the miracle of raising Lazarus?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You know about the miracle of raising Lazarus."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of the miracle. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the miracle of raising Lazarus."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of raising Lazarus in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_2"
+        title: "Resurrection of Jesus"
+        content_blocks:
+          - "The most significant miracle in Christianity is the resurrection of Jesus."
+          - "After being crucified and buried, Jesus rose from the dead on the third day. His resurrection is celebrated as Easter and is the foundation of Christian faith."
+        tokens_for_ai: "Explain the miracle of the resurrection of Jesus in a friendly and engaging manner. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "Can you describe the miracle of the resurrection of Jesus?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You know about the miracle of the resurrection of Jesus."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of the miracle. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the miracle of the resurrection of Jesus."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of the resurrection of Jesus in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+  - section_id: "section_6"
+    title: "Congratulations!"
+    steps:
+      - step_id: "step_1"
+        title: "Well Done!"
+        content_blocks:
+          - "Congratulations on completing the Miracles of Jesus course!"
+          - "You have learned about the various miracles performed by Jesus, including healing, provision, nature, and resurrection."
+          - "These miracles demonstrate Jesus' divine power and compassion for humanity."
+          - "We are proud of your dedication and hard work. Well done!"
+

@@ -1,0 +1,725 @@
+default_max_attempts_per_step: 3
+sections:
+  - section_id: "section_1"
+    title: "Introduction to Financial Literacy"
+    steps:
+      - step_id: "step_1"
+        title: "What is Financial Literacy?"
+        content_blocks:
+          - "Welcome to the Financial Literacy for Teens course."
+          - "Financial literacy involves understanding how to manage money, including budgeting, saving, investing, and understanding credit."
+        tokens_for_ai: "Explain what financial literacy is and its importance in a friendly and engaging manner suitable for teens. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "What do you understand by financial literacy?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You have a good understanding of financial literacy."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of financial literacy. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on financial literacy."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of financial literacy in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_2"
+        title: "Importance of Financial Literacy"
+        content_blocks:
+          - "Financial literacy is crucial for making informed decisions about money."
+          - "It helps you manage your finances, avoid debt, and plan for the future."
+        tokens_for_ai: "Explain the importance of financial literacy in a friendly and engaging manner suitable for teens. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "Why is financial literacy important?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You understand the importance of financial literacy."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of the importance. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the importance of financial literacy."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of the importance of financial literacy in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+  - section_id: "section_2"
+    title: "Budgeting"
+    steps:
+      - step_id: "step_1"
+        title: "What is a Budget?"
+        content_blocks:
+          - "A budget is a plan for how you will spend and save your money."
+          - "It helps you track your income and expenses to ensure you are living within your means."
+        tokens_for_ai: "Explain what a budget is and its purpose in a friendly and engaging manner suitable for teens. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "What is a budget and why is it important?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You understand what a budget is and why it's important."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of a budget. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on what a budget is."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of what a budget is in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_2"
+        title: "Creating a Budget"
+        content_blocks:
+          - "To create a budget, start by listing your income and expenses."
+          - "Categorize your expenses into needs (e.g., food, rent) and wants (e.g., entertainment, dining out)."
+        tokens_for_ai: "Explain how to create a budget in a friendly and engaging manner suitable for teens. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "How do you create a budget?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You know how to create a budget."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of creating a budget. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on creating a budget."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of creating a budget in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+  - section_id: "section_3"
+    title: "Saving Money"
+    steps:
+      - step_id: "step_1"
+        title: "Why Save Money?"
+        content_blocks:
+          - "Saving money is important for achieving financial goals and being prepared for unexpected expenses."
+          - "It helps you build a financial cushion and avoid debt."
+        tokens_for_ai: "Explain the importance of saving money in a friendly and engaging manner suitable for teens. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "Why is it important to save money?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You understand the importance of saving money."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of saving money. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the importance of saving money."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of saving money in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_2"
+        title: "How to Save Money"
+        content_blocks:
+          - "To save money, set aside a portion of your income regularly."
+          - "Consider opening a savings account to keep your money safe and earn interest."
+        tokens_for_ai: "Explain how to save money in a friendly and engaging manner suitable for teens. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "How can you save money effectively?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You know how to save money effectively."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of saving money. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on how to save money."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of how to save money in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+  - section_id: "section_4"
+    title: "Investing"
+    steps:
+      - step_id: "step_1"
+        title: "What is Investing?"
+        content_blocks:
+          - "Investing involves putting your money into assets like stocks, bonds, or real estate to grow your wealth over time."
+          - "It carries some risk, but it can also offer higher returns than saving alone."
+        tokens_for_ai: "Explain what investing is and its purpose in a friendly and engaging manner suitable for teens. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "What is investing and why is it important?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You understand what investing is and why it's important."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of investing. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on what investing is."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of what investing is in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_2"
+        title: "Types of Investments"
+        content_blocks:
+          - "Common types of investments include stocks, bonds, mutual funds, and real estate."
+          - "Each type of investment has its own risk and return profile."
+        tokens_for_ai: "Explain the different types of investments in a friendly and engaging manner suitable for teens. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "What are some common types of investments?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You know the different types of investments."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of the types of investments. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the types of investments."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of the types of investments in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+  - section_id: "section_5"
+    title: "Understanding Credit"
+    steps:
+      - step_id: "step_1"
+        title: "What is Credit?"
+        content_blocks:
+          - "Credit is the ability to borrow money with the promise to repay it later."
+          - "It allows you to make purchases or access funds that you may not have immediately available."
+        tokens_for_ai: "Explain what credit is and its purpose in a friendly and engaging manner suitable for teens. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "What is credit and why is it important?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You understand what credit is and why it's important."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of credit. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on what credit is."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of what credit is in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_2"
+        title: "Credit Scores"
+        content_blocks:
+          - "A credit score is a numerical representation of your creditworthiness."
+          - "It is based on your credit history and helps lenders determine the risk of lending to you."
+        tokens_for_ai: "Explain what a credit score is and its importance in a friendly and engaging manner suitable for teens. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "What is a credit score and why is it important?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You understand what a credit score is and why it's important."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of credit scores. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on credit scores."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of credit scores in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+  - section_id: "section_6"
+    title: "Avoiding Debt"
+    steps:
+      - step_id: "step_1"
+        title: "What is Debt?"
+        content_blocks:
+          - "Debt is money that you owe to others, typically as a result of borrowing."
+          - "It can come from loans, credit cards, or other forms of borrowing."
+        tokens_for_ai: "Explain what debt is and its implications in a friendly and engaging manner suitable for teens. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "What is debt and why is it important to manage it?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You understand what debt is and why it's important to manage it."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of debt. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on what debt is."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of what debt is in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_2"
+        title: "Managing Debt"
+        content_blocks:
+          - "To manage debt, make sure to pay your bills on time and avoid taking on more debt than you can handle."
+          - "Create a plan to pay off existing debt and prioritize high-interest debt first."
+        tokens_for_ai: "Explain how to manage debt effectively in a friendly and engaging manner suitable for teens. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "How can you manage debt effectively?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You know how to manage debt effectively."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of managing debt. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on managing debt."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of managing debt in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+  - section_id: "section_7"
+    title: "Planning for the Future"
+    steps:
+      - step_id: "step_1"
+        title: "Setting Financial Goals"
+        content_blocks:
+          - "Setting financial goals helps you plan for the future and stay motivated to save and invest."
+          - "Your goals can be short-term (e.g., saving for a new phone) or long-term (e.g., saving for college)."
+        tokens_for_ai: "Explain the importance of setting financial goals and how to set them in a friendly and engaging manner suitable for teens. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "Why is it important to set financial goals and how can you set them?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You understand the importance of setting financial goals and how to set them."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of setting financial goals. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on setting financial goals."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of setting financial goals in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_2"
+        title: "Building an Emergency Fund"
+        content_blocks:
+          - "An emergency fund is money set aside to cover unexpected expenses, such as medical bills or car repairs."
+          - "Aim to save at least three to six months' worth of living expenses in your emergency fund."
+        tokens_for_ai: "Explain the importance of an emergency fund and how to build one in a friendly and engaging manner suitable for teens. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "What is an emergency fund and why is it important?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You understand what an emergency fund is and why it's important."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of an emergency fund. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the emergency fund."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of the emergency fund in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+  - section_id: "section_8"
+    title: "Understanding Taxes"
+    steps:
+      - step_id: "step_1"
+        title: "What are Taxes?"
+        content_blocks:
+          - "Taxes are mandatory contributions to government revenue, collected from individuals and businesses."
+          - "They fund public services such as education, healthcare, and infrastructure."
+        tokens_for_ai: "Explain what taxes are and their purpose in a friendly and engaging manner suitable for teens. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "What are taxes and why are they important?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You understand what taxes are and why they're important."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of taxes. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on taxes."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of taxes in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_2"
+        title: "Filing Taxes"
+        content_blocks:
+          - "Filing taxes involves submitting a tax return to report your income and calculate the taxes you owe."
+          - "It's important to file your taxes accurately and on time to avoid penalties."
+        tokens_for_ai: "Explain how to file taxes and the importance of doing so in a friendly and engaging manner suitable for teens. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "How do you file taxes and why is it important?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You understand how to file taxes and why it's important."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of filing taxes. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on filing taxes."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of filing taxes in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+  - section_id: "section_9"
+    title: "Smart Spending"
+    steps:
+      - step_id: "step_1"
+        title: "Needs vs. Wants"
+        content_blocks:
+          - "Understanding the difference between needs and wants is crucial for smart spending."
+          - "Needs are essential for living (e.g., food, shelter), while wants are things you desire but can live without (e.g., new gadgets, dining out)."
+        tokens_for_ai: "Explain the difference between needs and wants in a friendly and engaging manner suitable for teens. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "What is the difference between needs and wants?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You understand the difference between needs and wants."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of needs and wants. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on needs and wants."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of needs and wants in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_2"
+        title: "Making Smart Purchases"
+        content_blocks:
+          - "To make smart purchases, compare prices, read reviews, and consider the long-term value of the item."
+          - "Avoid impulse buying and stick to your budget."
+        tokens_for_ai: "Explain how to make smart purchases in a friendly and engaging manner suitable for teens. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "How can you make smart purchases?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You know how to make smart purchases."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of making smart purchases. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on making smart purchases."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of making smart purchases in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+  - section_id: "section_10"
+    title: "Protecting Your Finances"
+    steps:
+      - step_id: "step_1"
+        title: "Avoiding Scams"
+        content_blocks:
+          - "Scams are fraudulent schemes designed to steal your money or personal information."
+          - "Be cautious of unsolicited emails, phone calls, or messages asking for your financial information."
+        tokens_for_ai: "Explain how to recognize and avoid scams in a friendly and engaging manner suitable for teens. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "How can you recognize and avoid scams?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You know how to recognize and avoid scams."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of avoiding scams. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on avoiding scams."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of avoiding scams in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_2"
+        title: "Identity Theft"
+        content_blocks:
+          - "Identity theft occurs when someone steals your personal information to commit fraud."
+          - "Protect your personal information by using strong passwords and being cautious about sharing your details online."
+        tokens_for_ai: "Explain what identity theft is and how to protect against it in a friendly and engaging manner suitable for teens. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "What is identity theft and how can you protect against it?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You understand what identity theft is and how to protect against it."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of identity theft. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on identity theft."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of identity theft in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+  - section_id: "section_11"
+    title: "Congratulations!"
+    steps:
+      - step_id: "step_1"
+        title: "Well Done!"
+        content_blocks:
+          - "Congratulations on completing the Financial Literacy for Teens course!"
+          - "You have learned valuable skills and knowledge that will help you manage your finances effectively."
+          - "Remember, financial literacy is a lifelong journey, and the skills you've gained here will serve you well in the future."
+          - "Keep practicing what you've learned, stay curious, and continue to build your financial knowledge."
+          - "We are proud of your dedication and hard work. Well done!"
+
+
+

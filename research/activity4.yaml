@@ -1,0 +1,361 @@
+default_max_attempts_per_step: 3
+sections:
+  - section_id: "section_1"
+    title: "Introduction to Mario"
+    steps:
+      - step_id: "step_1"
+        title: "Who is Mario?"
+        content_blocks:
+          - "Welcome to the Mario trivia game!"
+          #- "Mario is a famous video game character created by Nintendo. He is known for his adventures in various games."
+        tokens_for_ai: "Explain who Mario is and his significance in video games in a friendly and engaging manner suitable for a 13-year-old. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "Who is Mario?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You know who Mario is."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You know a little about Mario. Let's learn more!"
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on Mario."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of Mario in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's answer them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_2"
+        title: "Mario's First Game"
+        content_blocks: []
+        #content_blocks:
+        #  - "Mario first appeared in the game Donkey Kong in 1981."
+        #  - "In this game, Mario had to rescue a damsel in distress from a giant ape named Donkey Kong."
+        tokens_for_ai: "Explain Mario's first appearance in video games in a friendly and engaging manner suitable for a 13-year-old. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "What was the first game Mario appeared in?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You know about Mario's first game."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You know a little about Mario's first game. Let's learn more!"
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on Mario's first game."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of Mario's first game in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's answer them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+  - section_id: "section_2"
+    title: "Mario's Friends and Foes"
+    steps:
+      - step_id: "step_1"
+        title: "Mario's Friends"
+        content_blocks:
+          - "Mario has many friends who help him on his adventures."
+          #- "Some of his friends include Luigi, Princess Peach, and Yoshi."
+        tokens_for_ai: "Explain who Mario's friends are in a friendly and engaging manner suitable for a 13-year-old. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "Can you name some of Mario's friends?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You know about Mario's friends."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You know a little about Mario's friends. Let's learn more!"
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on Mario's friends."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of Mario's friends in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's answer them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_2"
+        title: "Mario's Foes"
+        content_blocks:
+          - "Mario also has many enemies that he has to defeat."
+          #- "Some of his foes include Bowser, Goombas, and Koopa Troopas."
+        tokens_for_ai: "Explain who Mario's foes are in a friendly and engaging manner suitable for a 13-year-old. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "Can you name some of Mario's foes?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You know about Mario's foes."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You know a little about Mario's foes. Let's learn more!"
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on Mario's foes."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of Mario's foes in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's answer them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+  - section_id: "section_3"
+    title: "Mario's Adventures"
+    steps:
+      - step_id: "step_1"
+        title: "Super Mario Bros."
+        content_blocks:
+          - "One of the most famous Mario games is Super Mario Bros., released in 1985."
+          #- "In this game, Mario must rescue Princess Peach from Bowser."
+        tokens_for_ai: "Explain the game Super Mario Bros. in a friendly and engaging manner suitable for a 13-year-old. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "What is the main objective in Super Mario Bros.?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You know the main objective in Super Mario Bros."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You know a little about Super Mario Bros. Let's learn more!"
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on Super Mario Bros."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of Super Mario Bros. in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's answer them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_2"
+        title: "Mario Kart"
+        content_blocks:
+          - "Mario Kart is a popular racing game series featuring Mario and his friends."
+          #- "Players race against each other on various tracks and use items to gain an advantage."
+        tokens_for_ai: "Explain the game Mario Kart in a friendly and engaging manner suitable for a 13-year-old. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "What is the main objective in Mario Kart?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You know the main objective in Mario Kart."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You know a little about Mario Kart. Let's learn more!"
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on Mario Kart."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of Mario Kart in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's answer them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+  - section_id: "section_4"
+    title: "Mario's Power-Ups"
+    steps:
+      - step_id: "step_1"
+        title: "Super Mushroom"
+        content_blocks: []
+        #content_blocks:
+        #  - "The Super Mushroom is a power-up that makes Mario grow bigger."
+        #  - "It allows Mario to take an extra hit from enemies."
+        tokens_for_ai: "Explain the Super Mushroom power-up in a friendly and engaging manner suitable for a 13-year-old. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "What does the Super Mushroom do?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You know what the Super Mushroom does."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You know a little about the Super Mushroom. Let's learn more!"
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the Super Mushroom."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of the Super Mushroom in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's answer them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_2"
+        title: "Fire Flower"
+        content_blocks: []
+        #content_blocks:
+        #  - "The Fire Flower is a power-up that gives Mario the ability to throw fireballs."
+        #  - "It allows Mario to defeat enemies from a distance."
+        tokens_for_ai: "Explain the Fire Flower power-up in a friendly and engaging manner suitable for a 13-year-old. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "What does the Fire Flower do?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You know what the Fire Flower does."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You know a little about the Fire Flower. Let's learn more!"
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the Fire Flower."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of the Fire Flower in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's answer them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+  - section_id: "section_5"
+    title: "Mario's Worlds"
+    steps:
+      - step_id: "step_1"
+        title: "Mushroom Kingdom"
+        content_blocks: []
+        #content_blocks:
+        #  - "The Mushroom Kingdom is the main setting for many Mario games."
+        #  - "It is ruled by Princess Peach and is often threatened by Bowser."
+        tokens_for_ai: "Explain the Mushroom Kingdom in a friendly and engaging manner suitable for a 13-year-old. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "What is the Mushroom Kingdom?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You know about the Mushroom Kingdom."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You know a little about the Mushroom Kingdom. Let's learn more!"
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the Mushroom Kingdom."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of the Mushroom Kingdom in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's answer them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_2"
+        title: "Bowser's Castle"
+        content_blocks: []
+        #content_blocks:
+        #  - "Bowser's Castle is the home of Mario's arch-enemy, Bowser."
+        #  - "It is often the final level in many Mario games, where Mario must defeat Bowser to rescue Princess Peach."
+        tokens_for_ai: "Explain Bowser's Castle in a friendly and engaging manner suitable for a 13-year-old. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "What is Bowser's Castle?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You know about Bowser's Castle."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You know a little about Bowser's Castle. Let's learn more!"
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on Bowser's Castle."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of Bowser's Castle in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's answer them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
