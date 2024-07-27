@@ -16,7 +16,7 @@ def categorize_response(question, response, buckets, tokens_for_ai):
     messages = [
         {
             "role": "system",
-            "content": f"{tokens_for_ai} Categorize the following response into one of the following buckets: {bucket_list}.",
+            "content": f"{tokens_for_ai} Categorize the following response into one of the following buckets: {bucket_list}. Return ONLY a bucket label.",
         },
         {
             "role": "user",
@@ -28,7 +28,7 @@ def categorize_response(question, response, buckets, tokens_for_ai):
         completion = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=messages,
-            max_tokens=10,
+            max_tokens=5,
             temperature=0,
         )
         category = (
