@@ -8,6 +8,7 @@ monkey.patch_all()
 
 
 import json
+import yaml
 import os
 
 import boto3
@@ -96,6 +97,16 @@ class Message(db.Model):
 
     def is_base64_image(self):
         return self.content.startswith('<img src="data:image/jpeg;base64,')
+
+
+class ActivityState(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    room_id = db.Column(db.Integer, db.ForeignKey("room.id"), nullable=False)
+    section_id = db.Column(db.String(128), nullable=False)
+    step_id = db.Column(db.String(128), nullable=False)
+    attempts = db.Column(db.Integer, default=0)
+    max_attempts = db.Column(db.Integer, default=3)
+    s3_file_path = db.Column(db.String(256), nullable=False)
 
 
 def get_room(room_name):
@@ -297,6 +308,11 @@ def handle_message(data):
     commands = data["message"].splitlines()
 
     for command in commands:
+        if command.startswith("/activity"):
+            s3_file_path = command.split(" ", 1)[1].strip()
+            gevent.spawn(start_activity, room_name, s3_file_path, data["username"])
+            # Exit early since we're starting an activity
+            return
         if command.startswith("/s3 ls"):
             # Extract the S3 file path pattern
             s3_file_path_pattern = command.split(" ", 2)[2].strip()
@@ -321,6 +337,13 @@ def handle_message(data):
         if command.startswith("/cancel"):
             # Cancel the most recent generation request
             gevent.spawn(cancel_generation, room_name)
+
+    # Check if the user is in activity mode
+    activity_state = ActivityState.query.filter_by(room_id=room.id).first()
+    if activity_state:
+        gevent.spawn(
+            handle_activity_response, room_name, data["message"], data["username"]
+        )
 
     if "dall-e-3" in data["message"]:
         # Use the entire message as the prompt for DALL-E 3
@@ -1653,6 +1676,335 @@ def cancel_generation(room_name):
             },
             room=room_name,
         )
+
+
+def start_activity(room_name, s3_file_path, username):
+    s3_client = boto3.client("s3")
+    bucket_name = os.environ.get("S3_BUCKET_NAME")
+
+    response = s3_client.get_object(Bucket=bucket_name, Key=s3_file_path)
+    activity_yaml = response["Body"].read().decode("utf-8")
+    activity_content = yaml.safe_load(activity_yaml)
+
+    with app.app_context():
+        # Save the initial state to the database
+        room = get_room(room_name)
+        initial_section = activity_content["sections"][0]
+        initial_step = initial_section["steps"][0]
+
+        activity_state = ActivityState(
+            room_id=room.id,
+            section_id=initial_section["section_id"],
+            step_id=initial_step["step_id"],
+            max_attempts=activity_content.get("default_max_attempts_per_step", 3),
+            s3_file_path=s3_file_path,  # Save the S3 file path
+        )
+        db.session.add(activity_state)
+        db.session.commit()
+
+        # Store and emit the initial activity content
+        content = f"Starting Activity: {initial_section['title']}\n\n"
+        content += "\n\n".join(initial_step["content_blocks"])
+        new_message = Message(username="System", content=content, room_id=room.id)
+        db.session.add(new_message)
+        db.session.commit()
+
+        socketio.emit(
+            "message",
+            {
+                "id": new_message.id,
+                "username": "System",
+                "content": content,
+            },
+            room=room_name,
+        )
+
+        # Emit the initial question
+        question_content = f"Question: {initial_step['question']}"
+        new_message = Message(
+            username="System", content=question_content, room_id=room.id
+        )
+        db.session.add(new_message)
+        db.session.commit()
+
+        socketio.emit(
+            "message",
+            {
+                "id": new_message.id,
+                "username": "System",
+                "content": question_content,
+            },
+            room=room_name,
+        )
+
+
+def handle_activity_response(room_name, user_response, username):
+    with app.app_context():
+        room = get_room(room_name)
+        activity_state = ActivityState.query.filter_by(room_id=room.id).first()
+
+        if not activity_state:
+            return
+
+        # Load the activity YAML from S3
+        s3_client = boto3.client("s3")
+        bucket_name = os.environ.get("S3_BUCKET_NAME")
+        s3_file_path = activity_state.s3_file_path
+
+        try:
+            response = s3_client.get_object(Bucket=bucket_name, Key=s3_file_path)
+            activity_yaml = response["Body"].read().decode("utf-8")
+            activity_content = yaml.safe_load(activity_yaml)
+
+            # Find the current section and step
+            section = next(
+                s
+                for s in activity_content["sections"]
+                if s["section_id"] == activity_state.section_id
+            )
+            step = next(
+                s for s in section["steps"] if s["step_id"] == activity_state.step_id
+            )
+
+            # Categorize the user's response
+            category = categorize_response(
+                step["question"], user_response, step["buckets"], step["tokens_for_ai"]
+            )
+
+            # Emit the category to the frontend
+            socketio.emit(
+                "message",
+                {
+                    "id": None,
+                    "username": "System",
+                    "content": f"Category: {category}",
+                },
+                room=room_name,
+            )
+
+            # Provide feedback based on the category
+            feedback = provide_feedback(
+                activity_content,
+                section["section_id"],
+                step["step_id"],
+                category,
+                step["question"],
+                user_response,
+            )
+
+            # Store and emit the feedback
+            new_message = Message(username="System", content=feedback, room_id=room.id)
+            db.session.add(new_message)
+            db.session.commit()
+
+            socketio.emit(
+                "message",
+                {
+                    "id": new_message.id,
+                    "username": "System",
+                    "content": feedback,
+                },
+                room=room_name,
+            )
+
+            # Update the activity state
+            if (
+                category == "correct"
+                or activity_state.attempts >= activity_state.max_attempts
+            ):
+                print(
+                    f"Transitioning to next step. Category: {category}, Attempts: {activity_state.attempts}"
+                )
+                # Move to the next step or section
+                next_section, next_step = get_next_step(
+                    activity_content, section["section_id"], step["step_id"]
+                )
+                if next_step:
+                    activity_state.section_id = next_section["section_id"]
+                    activity_state.step_id = next_step["step_id"]
+                    activity_state.attempts = 0
+
+                    db.session.add(activity_state)
+                    db.session.commit()
+
+                    # Emit the new step content blocks
+                    content = "\n\n".join(next_step["content_blocks"])
+                    new_message = Message(
+                        username="System", content=content, room_id=room.id
+                    )
+                    db.session.add(new_message)
+                    db.session.commit()
+
+                    socketio.emit(
+                        "message",
+                        {
+                            "id": new_message.id,
+                            "username": "System",
+                            "content": content,
+                        },
+                        room=room_name,
+                    )
+
+                    # Emit the new question
+                    question_content = f"Question: {next_step['question']}"
+                    new_message = Message(
+                        username="System", content=question_content, room_id=room.id
+                    )
+                    db.session.add(new_message)
+                    db.session.commit()
+
+                    socketio.emit(
+                        "message",
+                        {
+                            "id": new_message.id,
+                            "username": "System",
+                            "content": question_content,
+                        },
+                        room=room_name,
+                    )
+                else:
+                    # Activity completed
+                    db.session.delete(activity_state)
+                    db.session.commit()
+                    socketio.emit(
+                        "message",
+                        {
+                            "id": None,
+                            "username": "System",
+                            "content": "Activity completed!",
+                        },
+                        room=room_name,
+                    )
+            else:
+                activity_state.attempts += 1
+                db.session.add(activity_state)
+                db.session.commit()
+
+        except Exception as e:
+            socketio.emit(
+                "message",
+                {
+                    "id": None,
+                    "username": "System",
+                    "content": f"Error processing activity response: {e}",
+                },
+                room=room_name,
+            )
+
+
+def get_next_step(activity_content, current_section_id, current_step_id):
+    for section in activity_content["sections"]:
+        if section["section_id"] == current_section_id:
+            for i, step in enumerate(section["steps"]):
+                if step["step_id"] == current_step_id:
+                    if i + 1 < len(section["steps"]):
+                        return section, section["steps"][i + 1]
+                    else:
+                        # Move to the next section
+                        next_section_index = (
+                            activity_content["sections"].index(section) + 1
+                        )
+                        if next_section_index < len(activity_content["sections"]):
+                            next_section = activity_content["sections"][
+                                next_section_index
+                            ]
+                            return next_section, next_section["steps"][0]
+    return None, None
+
+
+# Load the YAML activity file
+def load_yaml_activity(file_path):
+    with open(file_path, "r") as file:
+        return yaml.safe_load(file)
+
+
+# Categorize the user's response using gpt-4o-mini
+def categorize_response(question, response, buckets, tokens_for_ai):
+    openai_client = OpenAI()
+    bucket_list = ", ".join(buckets)
+    messages = [
+        {
+            "role": "system",
+            "content": f"{tokens_for_ai} Categorize the following response into one of the following buckets: {bucket_list}. Return ONLY a bucket label.",
+        },
+        {
+            "role": "user",
+            "content": f"Question: {question}\nResponse: {response}\n\nCategory:",
+        },
+    ]
+
+    try:
+        completion = openai_client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=messages,
+            max_tokens=5,
+            temperature=0,
+        )
+        category = (
+            completion.choices[0]
+            .message.content.strip()
+            .lower()
+            .replace(" ", "_")
+            .strip("_")
+        )
+        return category
+    except Exception as e:
+        return f"Error: {e}"
+
+
+# Generate AI feedback using gpt-4o-mini
+def generate_ai_feedback(category, question, user_response, tokens_for_ai):
+    openai_client = OpenAI()
+    messages = [
+        {
+            "role": "system",
+            "content": "{tokens_for_ai} Generate a human-readable feedback message based on the following:",
+        },
+        {
+            "role": "user",
+            "content": f"Question: {question}\nResponse: {user_response}\nCategory: {category}",
+        },
+    ]
+
+    try:
+        completion = openai_client.chat.completions.create(
+            model="gpt-4o-mini", messages=messages, max_tokens=250, temperature=0.7
+        )
+        feedback = completion.choices[0].message.content.strip()
+        return feedback
+    except Exception as e:
+        return f"Error: {e}"
+
+
+# Provide feedback based on the category
+def provide_feedback(
+    yaml_content, section_id, step_id, category, question, user_response
+):
+    section = next(
+        (s for s in yaml_content["sections"] if s["section_id"] == section_id), None
+    )
+    if not section:
+        return "Section not found."
+
+    step = next((s for s in section["steps"] if s["step_id"] == step_id), None)
+    if not step:
+        return "Step not found."
+
+    transition = step["transitions"].get(category, None)
+    if not transition:
+        return "Category not found."
+
+    feedback = "\n".join(transition["content_blocks"])
+    if "ai_feedback" in transition:
+        tokens_for_ai = (
+            step["tokens_for_ai"] + " " + transition["ai_feedback"]["tokens_for_ai"]
+        )
+        ai_feedback = generate_ai_feedback(
+            category, question, user_response, tokens_for_ai
+        )
+        feedback += f"\n\nAI Feedback: {ai_feedback}"
+
+    return feedback
 
 
 if __name__ == "__main__":
