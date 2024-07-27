@@ -1811,7 +1811,7 @@ def handle_activity_response(room_name, user_response, username):
                 room=room_name,
             )
 
-            # Update the activity state
+            # if correct or max_attempts reached.
             if (
                 category == "correct"
                 or activity_state.attempts >= activity_state.max_attempts
@@ -1884,9 +1884,28 @@ def handle_activity_response(room_name, user_response, username):
                     db.session.delete(activity_state)
                     db.session.commit()
             else:
+                # the user response is any bucket other than correct.
                 activity_state.attempts += 1
                 db.session.add(activity_state)
                 db.session.commit()
+
+                # Emit the question again
+                question_content = f"Question: {step['question']}"
+                new_message = Message(
+                    username="System", content=question_content, room_id=room.id
+                )
+                db.session.add(new_message)
+                db.session.commit()
+
+                socketio.emit(
+                    "message",
+                    {
+                        "id": new_message.id,
+                        "username": "System",
+                        "content": question_content,
+                    },
+                    room=room_name,
+                )
 
         except Exception as e:
             socketio.emit(
@@ -1928,7 +1947,11 @@ def display_activity_info(room_name, username):
             activity_content = yaml.safe_load(activity_yaml)
 
             # Fetch the entire room history
-            all_messages = Message.query.filter_by(room_id=room.id).order_by(Message.id.asc()).all()
+            all_messages = (
+                Message.query.filter_by(room_id=room.id)
+                .order_by(Message.id.asc())
+                .all()
+            )
             chat_history = [
                 {
                     "role": "system" if msg.username in system_users else "user",
@@ -1939,7 +1962,9 @@ def display_activity_info(room_name, username):
             ]
 
             # Prepare the rubric for grading
-            rubric = activity_content.get("tokens_for_ai_rubric", """
+            rubric = activity_content.get(
+                "tokens_for_ai_rubric",
+                """
                 Grade the responses of all users based on the following criteria:
                 - Accuracy: How correct is the response?
                 - Completeness: Does the response fully address the question?
@@ -1947,14 +1972,17 @@ def display_activity_info(room_name, username):
                 - Engagement: Is the response engaging and interesting?
                 Provide a score out of 10 for each criterion and an overall grade for each user.
                 Finally order each user by who is winning. Number of correct answers and accuracy & include an enumeration of the feats!
-            """)
+            """,
+            )
 
             # Generate the grading using the AI
             grading_message = generate_grading(chat_history, rubric)
 
             # Store and emit the activity info
             info_message = f"Activity Info:\nCurrent Section: {activity_state.section_id}\nCurrent Step: {activity_state.step_id}\nAttempts: {activity_state.attempts}\n\n{grading_message}"
-            new_message = Message(username="System", content=info_message, room_id=room.id)
+            new_message = Message(
+                username="System", content=info_message, room_id=room.id
+            )
             db.session.add(new_message)
             db.session.commit()
 
