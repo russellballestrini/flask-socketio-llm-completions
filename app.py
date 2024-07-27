@@ -308,6 +308,10 @@ def handle_message(data):
     commands = data["message"].splitlines()
 
     for command in commands:
+        if command.startswith("/activity info"):
+            gevent.spawn(display_activity_info, room_name, data["username"])
+            # Exit early since we're displaying activity info
+            return
         if command.startswith("/activity"):
             s3_file_path = command.split(" ", 1)[1].strip()
             gevent.spawn(start_activity, room_name, s3_file_path, data["username"])
@@ -1864,8 +1868,9 @@ def handle_activity_response(room_name, user_response, username):
                     )
                 else:
                     # Activity completed
-                    db.session.delete(activity_state)
-                    db.session.commit()
+                    # Display activity info before completing
+                    display_activity_info(room_name, username)
+
                     socketio.emit(
                         "message",
                         {
@@ -1875,6 +1880,9 @@ def handle_activity_response(room_name, user_response, username):
                         },
                         room=room_name,
                     )
+
+                    db.session.delete(activity_state)
+                    db.session.commit()
             else:
                 activity_state.attempts += 1
                 db.session.add(activity_state)
@@ -1890,6 +1898,111 @@ def handle_activity_response(room_name, user_response, username):
                 },
                 room=room_name,
             )
+
+
+def display_activity_info(room_name, username):
+    with app.app_context():
+        room = get_room(room_name)
+        activity_state = ActivityState.query.filter_by(room_id=room.id).first()
+
+        if not activity_state:
+            socketio.emit(
+                "message",
+                {
+                    "id": None,
+                    "username": "System",
+                    "content": "No active activity found.",
+                },
+                room=room_name,
+            )
+            return
+
+        # Load the activity YAML from S3
+        s3_client = boto3.client("s3")
+        bucket_name = os.environ.get("S3_BUCKET_NAME")
+        s3_file_path = activity_state.s3_file_path
+
+        try:
+            response = s3_client.get_object(Bucket=bucket_name, Key=s3_file_path)
+            activity_yaml = response["Body"].read().decode("utf-8")
+            activity_content = yaml.safe_load(activity_yaml)
+
+            # Fetch the entire room history
+            all_messages = Message.query.filter_by(room_id=room.id).order_by(Message.id.asc()).all()
+            chat_history = [
+                {
+                    "role": "system" if msg.username in system_users else "user",
+                    "username": msg.username,
+                    "content": msg.content,
+                }
+                for msg in all_messages
+            ]
+
+            # Prepare the rubric for grading
+            rubric = activity_content.get("tokens_for_ai_rubric", """
+                Grade the responses of all users based on the following criteria:
+                - Accuracy: How correct is the response?
+                - Completeness: Does the response fully address the question?
+                - Clarity: Is the response clear and easy to understand?
+                - Engagement: Is the response engaging and interesting?
+                Provide a score out of 10 for each criterion and an overall grade for each user.
+                Finally order each user by who is winning. Number of correct answers and accuracy & include an enumeration of the feats!
+            """)
+
+            # Generate the grading using the AI
+            grading_message = generate_grading(chat_history, rubric)
+
+            # Store and emit the activity info
+            info_message = f"Activity Info:\nCurrent Section: {activity_state.section_id}\nCurrent Step: {activity_state.step_id}\nAttempts: {activity_state.attempts}\n\n{grading_message}"
+            new_message = Message(username="System", content=info_message, room_id=room.id)
+            db.session.add(new_message)
+            db.session.commit()
+
+            socketio.emit(
+                "message",
+                {
+                    "id": new_message.id,
+                    "username": "System",
+                    "content": info_message,
+                },
+                room=room_name,
+            )
+
+        except Exception as e:
+            socketio.emit(
+                "message",
+                {
+                    "id": None,
+                    "username": "System",
+                    "content": f"Error displaying activity info: {e}",
+                },
+                room=room_name,
+            )
+            # Debugging: Log exception
+            print(f"Exception: {e}")
+
+
+def generate_grading(chat_history, rubric):
+    openai_client = OpenAI()
+    messages = [
+        {
+            "role": "system",
+            "content": f"Using the following rubric, grade the responses in the chat history:\n\n{rubric}",
+        },
+        {
+            "role": "user",
+            "content": f"Chat History:\n\n{json.dumps(chat_history, indent=2)}",
+        },
+    ]
+
+    try:
+        completion = openai_client.chat.completions.create(
+            model="gpt-4o-mini", messages=messages, max_tokens=1000, temperature=0.7
+        )
+        grading = completion.choices[0].message.content.strip()
+        return grading
+    except Exception as e:
+        return f"Error generating grading: {e}"
 
 
 def get_next_step(activity_content, current_section_id, current_step_id):
