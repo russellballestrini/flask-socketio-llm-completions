@@ -6,10 +6,10 @@ sections:
       - step_id: "step_1"
         title: "Who is Jesus?"
         content_blocks:
-          - "Welcome to the Miracles of Jesus course!"
+          - "Welcome to the **Miracles of Jesus** course!"
           - "Jesus is a central figure in Christianity, known for his teachings, compassion, and miraculous acts."
         tokens_for_ai: "Explain who Jesus is in a friendly and engaging manner. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
-        question: "What do you know about Jesus?"
+        question: "**What do you know about Jesus?**"
         buckets:
           - correct
           - partial_understanding
@@ -43,7 +43,7 @@ sections:
           - "Miracles are extraordinary events that demonstrate divine intervention in the world."
           - "The miracles performed by Jesus are significant because they reveal his divine nature and compassion for humanity."
         tokens_for_ai: "Explain the importance of miracles in a friendly and engaging manner. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
-        question: "Why are the miracles of Jesus important?"
+        question: "**Why are the miracles of Jesus important?**"
         buckets:
           - correct
           - partial_understanding
