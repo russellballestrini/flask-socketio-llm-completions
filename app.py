@@ -312,6 +312,10 @@ def handle_message(data):
             gevent.spawn(display_activity_info, room_name, data["username"])
             # Exit early since we're displaying activity info
             return
+        if command.startswith("/activity cancel"):
+            gevent.spawn(cancel_activity, room_name, data["username"])
+            # Exit early since we're canceling the activity
+            return
         if command.startswith("/activity"):
             s3_file_path = command.split(" ", 1)[1].strip()
             gevent.spawn(start_activity, room_name, s3_file_path, data["username"])
@@ -1741,6 +1745,40 @@ def start_activity(room_name, s3_file_path, username):
             room=room_name,
         )
 
+
+def cancel_activity(room_name, username):
+    with app.app_context():
+        room = get_room(room_name)
+        activity_state = ActivityState.query.filter_by(room_id=room.id).first()
+
+        if not activity_state:
+            socketio.emit(
+                "message",
+                {
+                    "id": None,
+                    "username": "System",
+                    "content": "No active activity found to cancel.",
+                },
+                room=room_name,
+            )
+            return
+
+        # Delete the activity state
+        db.session.delete(activity_state)
+        db.session.commit()
+
+        # Emit a message indicating the activity has been canceled
+        socketio.emit(
+            "message",
+            {
+                "id": None,
+                "username": "System",
+                "content": "Activity has been canceled.",
+            },
+            room=room_name,
+        )
+
+
 def handle_activity_response(room_name, user_response, username):
     with app.app_context():
         room = get_room(room_name)
@@ -1890,12 +1928,18 @@ def handle_activity_response(room_name, user_response, username):
                 or activity_state.attempts >= activity_state.max_attempts
             ):
                 if next_section_and_step:
-                    current_section_id, current_step_id = next_section_and_step.split(":")
+                    current_section_id, current_step_id = next_section_and_step.split(
+                        ":"
+                    )
                     next_section = next(
-                        s for s in activity_content["sections"] if s["section_id"] == current_section_id
+                        s
+                        for s in activity_content["sections"]
+                        if s["section_id"] == current_section_id
                     )
                     next_step = next(
-                        s for s in next_section["steps"] if s["step_id"] == current_step_id
+                        s
+                        for s in next_section["steps"]
+                        if s["step_id"] == current_step_id
                     )
                 else:
                     # Move to the next step or section

@@ -165,6 +165,11 @@ The server expects to load the YAML file out of the S3 bucket you specify in you
 
     ``/activity info``
 
+3. **Cancel an Activity**: Use the ``/activity cancel`` command to display cancel the current activity running in the room.
+
+    ``/activity cancel``
+
+
 
 Contributing
 ------------
