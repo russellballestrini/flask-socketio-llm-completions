@@ -1,0 +1,302 @@
+default_max_attempts_per_step: 3
+sections:
+  - section_id: "section_1"
+    title: "Introduction to The GNU Manifesto"
+    steps:
+      - step_id: "step_1"
+        title: "What is The GNU Manifesto?"
+        content_blocks:
+          - "<img src='https://www.gnu.org/graphics/heckert_gnu.transp.small.png'>"
+          - "Welcome to the GNU Manifesto course! 👋"
+          - "The GNU Manifesto was written by Richard Stallman in 1985 to ask for support in developing the GNU operating system."
+          - "Think about why someone might want to create a free operating system. Consider issues like software freedom, collaboration, and accessibility."
+        tokens_for_ai: "Guide the student to think about the reasons for creating a free operating system. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "Why do you think Richard Stallman wanted to create a free operating system? 🤔"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You have a good understanding of why Richard Stallman wanted to create a free operating system. 🎉"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the student to continue learning. Use emojis like 👍 and 🌟."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding. Let's clarify a few points. 🤔"
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the student's understanding in a friendly and supportive manner. Use emojis like 🤔 and 📚."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the reasons for creating a free operating system. 🔄"
+            ai_feedback:
+              tokens_for_ai: "Gently guide the student back to the topic of the reasons for creating a free operating system in a supportive manner. Use emojis like 🔄 and 🧭."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them. ❓"
+            ai_feedback:
+              tokens_for_ai: "Answer the student's clarifying questions and provide additional information in a friendly and engaging manner. Use emojis like ❓ and 💬."
+
+      - step_id: "step_2"
+        title: "Importance of The GNU Manifesto"
+        content_blocks:
+          - "The GNU Manifesto is important because it laid the foundation for the Free Software Movement."
+          - "It emphasizes the importance of software freedom, collaboration, and user rights."
+          - "Think about how having free software might benefit users and developers. Consider aspects like cost, accessibility, and innovation."
+        tokens_for_ai: "Guide the student to think about the benefits of free software. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "How do you think free software benefits users and developers? 🤔"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You understand the benefits of free software. 🎉"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the student to continue learning. Use emojis like 👍 and 🌟."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding. Let's clarify a few points. 🤔"
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the student's understanding in a friendly and supportive manner. Use emojis like 🤔 and 📚."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the benefits of free software. 🔄"
+            ai_feedback:
+              tokens_for_ai: "Gently guide the student back to the topic of the benefits of free software in a supportive manner. Use emojis like 🔄 and 🧭."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them. ❓"
+            ai_feedback:
+              tokens_for_ai: "Answer the student's clarifying questions and provide additional information in a friendly and engaging manner. Use emojis like ❓ and 💬."
+
+  - section_id: "section_2"
+    title: "Key Concepts of The GNU Manifesto"
+    steps:
+      - step_id: "step_1"
+        title: "What is GNU?"
+        content_blocks:
+          - "GNU stands for 'Gnu's Not Unix' and is a free Unix-compatible software system."
+          - "Richard Stallman and other volunteers are developing GNU to provide a free alternative to proprietary Unix systems."
+          - "Think about why it might be important for GNU to be compatible with Unix. Consider aspects like user familiarity, software compatibility, and ease of adoption."
+        tokens_for_ai: "Guide the student to think about the importance of GNU being compatible with Unix. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "Why do you think it is important for GNU to be compatible with Unix? 🤔"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You understand the importance of GNU being compatible with Unix. 🎉"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the student to continue learning. Use emojis like 👍 and 🌟."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding. Let's clarify a few points. 🤔"
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the student's understanding in a friendly and supportive manner. Use emojis like 🤔 and 📚."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the importance of GNU being compatible with Unix. 🔄"
+            ai_feedback:
+              tokens_for_ai: "Gently guide the student back to the topic of the importance of GNU being compatible with Unix in a supportive manner. Use emojis like 🔄 and 🧭."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them. ❓"
+            ai_feedback:
+              tokens_for_ai: "Answer the student's clarifying questions and provide additional information in a friendly and engaging manner. Use emojis like ❓ and 💬."
+
+      - step_id: "step_2"
+        title: "Why GNU Will Be Free"
+        content_blocks:
+          - "GNU is not in the public domain, but it will be free for everyone to use, modify, and redistribute."
+          - "No distributor will be allowed to restrict its further redistribution, ensuring that all versions of GNU remain free."
+          - "Think about why it might be important for GNU to remain free. Consider aspects like user rights, collaboration, and innovation."
+        tokens_for_ai: "Guide the student to think about the importance of GNU remaining free. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "Why do you think it is important for GNU to remain free? 🤔"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You understand the importance of GNU remaining free. 🎉"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the student to continue learning. Use emojis like 👍 and 🌟."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding. Let's clarify a few points. 🤔"
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the student's understanding in a friendly and supportive manner. Use emojis like 🤔 and 📚."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the importance of GNU remaining free. 🔄"
+            ai_feedback:
+              tokens_for_ai: "Gently guide the student back to the topic of the importance of GNU remaining free in a supportive manner. Use emojis like 🔄 and 🧭."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them. ❓"
+            ai_feedback:
+              tokens_for_ai: "Answer the student's clarifying questions and provide additional information in a friendly and engaging manner. Use emojis like ❓ and 💬."
+
+  - section_id: "section_3"
+    title: "Contributing to GNU"
+    steps:
+      - step_id: "step_1"
+        title: "How to Contribute"
+        content_blocks:
+          - "There are many ways to contribute to the GNU Project, including donating money, programs, and work."
+          - "Think about why it might be important for people to contribute to the GNU Project. Consider aspects like community, collaboration, and shared goals."
+        tokens_for_ai: "Guide the student to think about the importance of contributing to the GNU Project. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "Why do you think it is important for people to contribute to the GNU Project? 🤔"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You understand the importance of contributing to the GNU Project. 🎉"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the student to continue learning. Use emojis like 👍 and 🌟."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding. Let's clarify a few points. 🤔"
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the student's understanding in a friendly and supportive manner. Use emojis like 🤔 and 📚."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the importance of contributing to the GNU Project. 🔄"
+            ai_feedback:
+              tokens_for_ai: "Gently guide the student back to the topic of the importance of contributing to the GNU Project in a supportive manner. Use emojis like 🔄 and 🧭."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them. ❓"
+            ai_feedback:
+              tokens_for_ai: "Answer the student's clarifying questions and provide additional information in a friendly and engaging manner. Use emojis like ❓ and 💬."
+
+      - step_id: "step_2"
+        title: "Ways to Contribute"
+        content_blocks:
+          - "You can contribute to the GNU Project by writing code, fixing bugs, improving documentation, and more."
+          - "Think about how your skills and interests might align with the needs of the GNU Project. How can you make a meaningful contribution?"
+        tokens_for_ai: "Guide the student to think about how they can contribute to the GNU Project based on their skills and interests. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "How do you think you can contribute to the GNU Project based on your skills and interests? 🤔"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You have a good idea of how you can contribute to the GNU Project. 🎉"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the student to continue learning. Use emojis like 👍 and 🌟."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding. Let's clarify a few points. 🤔"
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the student's understanding in a friendly and supportive manner. Use emojis like 🤔 and 📚."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on how you can contribute to the GNU Project. 🔄"
+            ai_feedback:
+              tokens_for_ai: "Gently guide the student back to the topic of how they can contribute to the GNU Project in a supportive manner. Use emojis like 🔄 and 🧭."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them. ❓"
+            ai_feedback:
+              tokens_for_ai: "Answer the student's clarifying questions and provide additional information in a friendly and engaging manner. Use emojis like ❓ and 💬."
+
+  - section_id: "section_4"
+    title: "Legacy of The GNU Manifesto"
+    steps:
+      - step_id: "step_1"
+        title: "Impact on Software Development"
+        content_blocks:
+          - "The GNU Manifesto has had a profound impact on software development, promoting the principles of free software and user rights."
+          - "Think about how the principles of the GNU Manifesto might have influenced modern software development practices. Consider aspects like open source, collaboration, and innovation."
+        tokens_for_ai: "Guide the student to think about the impact of the GNU Manifesto on modern software development. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "How do you think the principles of the GNU Manifesto have influenced modern software development practices? 🤔"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You understand the impact of the GNU Manifesto on modern software development. 🎉"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the student to continue learning. Use emojis like 👍 and 🌟."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding. Let's clarify a few points. 🤔"
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the student's understanding in a friendly and supportive manner. Use emojis like 🤔 and 📚."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the impact of the GNU Manifesto. 🔄"
+            ai_feedback:
+              tokens_for_ai: "Gently guide the student back to the topic of the impact of the GNU Manifesto in a supportive manner. Use emojis like 🔄 and 🧭."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them. ❓"
+            ai_feedback:
+              tokens_for_ai: "Answer the student's clarifying questions and provide additional information in a friendly and engaging manner. Use emojis like ❓ and 💬."
+
+      - step_id: "step_2"
+        title: "Future of Free Software"
+        content_blocks:
+          - "The principles of the GNU Manifesto continue to inspire the Free Software Movement and the development of free software."
+          - "Think about how the principles of free software might shape the future of technology. Consider aspects like user rights, innovation, and collaboration."
+        tokens_for_ai: "Guide the student to think about the future of free software and its impact on technology. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "How do you think the principles of free software will shape the future of technology? 🤔"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You understand how the principles of free software might shape the future of technology. 🎉"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the student to continue learning. Use emojis like 👍 and 🌟."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding. Let's clarify a few points. 🤔"
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the student's understanding in a friendly and supportive manner. Use emojis like 🤔 and 📚."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the future of free software. 🔄"
+            ai_feedback:
+              tokens_for_ai: "Gently guide the student back to the topic of the future of free software in a supportive manner. Use emojis like 🔄 and 🧭."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them. ❓"
+            ai_feedback:
+              tokens_for_ai: "Answer the student's clarifying questions and provide additional information in a friendly and engaging manner. Use emojis like ❓ and 💬."
+
+  - section_id: "section_5"
+    title: "Congratulations!"
+    steps:
+      - step_id: "step_1"
+        title: "Well Done!"
+        content_blocks:
+          - "Congratulations on completing the GNU Manifesto course! 🎉"
+          - "You have learned about the key concepts, principles, and impact of the GNU Manifesto."
+          - "This knowledge will help you understand the importance of software freedom and the Free Software Movement."
+          - "We are proud of your dedication and hard work. Well done! 🌟"
+

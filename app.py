@@ -1741,7 +1741,6 @@ def start_activity(room_name, s3_file_path, username):
             room=room_name,
         )
 
-
 def handle_activity_response(room_name, user_response, username):
     with app.app_context():
         room = get_room(room_name)
@@ -1787,7 +1786,7 @@ def handle_activity_response(room_name, user_response, username):
             )
 
             # Provide feedback based on the category
-            feedback = provide_feedback(
+            feedback, next_section_and_step = provide_feedback(
                 activity_content,
                 section["section_id"],
                 step["step_id"],
@@ -1811,15 +1810,30 @@ def handle_activity_response(room_name, user_response, username):
                 room=room_name,
             )
 
-            # if correct or max_attempts reached.
+            # if "correct" or max_attempts reached.
             if (
-                category == "correct"
+                category
+                not in [
+                    "off_topic",
+                    "asking_clarifying_questions",
+                    "partial_understanding",
+                ]
                 or activity_state.attempts >= activity_state.max_attempts
             ):
-                # Move to the next step or section
-                next_section, next_step = get_next_step(
-                    activity_content, section["section_id"], step["step_id"]
-                )
+                if next_section_and_step:
+                    current_section_id, current_step_id = next_section_and_step.split(":")
+                    next_section = next(
+                        s for s in activity_content["sections"] if s["section_id"] == current_section_id
+                    )
+                    next_step = next(
+                        s for s in next_section["steps"] if s["step_id"] == current_step_id
+                    )
+                else:
+                    # Move to the next step or section
+                    next_section, next_step = get_next_step(
+                        activity_content, section["section_id"], step["step_id"]
+                    )
+
                 if next_step:
                     activity_state.section_id = next_section["section_id"]
                     activity_state.step_id = next_step["step_id"]
@@ -1864,8 +1878,8 @@ def handle_activity_response(room_name, user_response, username):
                         room=room_name,
                     )
                 else:
-                    # Activity completed
-                    # Display activity info before completing
+                    # Activity completed!
+                    # Display activity info before deleting.
                     display_activity_info(room_name, username)
 
                     socketio.emit(
@@ -1970,6 +1984,7 @@ def display_activity_info(room_name, username):
                 Provide a score out of 10 for each criterion and an overall grade for each user.
                 Finally order each user by who is winning. Number of correct answers and accuracy & include an enumeration of the feats!
                 Take into account how many attempts the user took to get a passing answer when ranking.
+                Don't just try to give the user a "B" or 35/40, really figure out a good placement considering some people don't know how to type.
             """,
             )
 
@@ -2109,7 +2124,6 @@ def generate_ai_feedback(category, question, user_response, tokens_for_ai):
         return f"Error: {e}"
 
 
-# Provide feedback based on the category
 def provide_feedback(
     yaml_content, section_id, step_id, category, question, user_response
 ):
@@ -2117,15 +2131,15 @@ def provide_feedback(
         (s for s in yaml_content["sections"] if s["section_id"] == section_id), None
     )
     if not section:
-        return "Section not found."
+        return "Section not found.", None
 
     step = next((s for s in section["steps"] if s["step_id"] == step_id), None)
     if not step:
-        return "Step not found."
+        return "Step not found.", None
 
     transition = step["transitions"].get(category, None)
     if not transition:
-        return "Category not found."
+        return "Category not found.", None
 
     feedback = "\n".join(transition["content_blocks"])
     if "ai_feedback" in transition:
@@ -2137,7 +2151,8 @@ def provide_feedback(
         )
         feedback += f"\n\nAI Feedback: {ai_feedback}"
 
-    return feedback
+    next_section_and_step = transition.get("next_section_and_step", None)
+    return feedback, next_section_and_step
 
 
 if __name__ == "__main__":

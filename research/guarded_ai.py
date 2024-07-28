@@ -90,7 +90,8 @@ def provide_feedback(
         )
         feedback += f"\n\nAI Feedback: {ai_feedback}"
 
-    return feedback
+    next_section_and_step = transition.get("next_section_and_step", None)
+    return feedback, next_section_and_step
 
 
 # Simulate the activity
@@ -98,49 +99,85 @@ def simulate_activity(yaml_file_path):
     yaml_content = load_yaml_activity(yaml_file_path)
     max_attempts = yaml_content.get("default_max_attempts_per_step", 3)
 
-    for section in yaml_content["sections"]:
-        print(f"\nSection: {section['title']}\n")
-        for step in section["steps"]:
-            # Print all content blocks once per step
-            if "content_blocks" in step:
-                for block in step["content_blocks"]:
-                    print(block)
+    current_section_index = 0
+    current_step_index = 0
+
+    while current_section_index < len(yaml_content["sections"]):
+        section = yaml_content["sections"][current_section_index]
+        if current_step_index >= len(section["steps"]):
+            current_section_index += 1
+            current_step_index = 0
+            continue
+
+        step = section["steps"][current_step_index]
+
+        # Print all content blocks once per step
+        if "content_blocks" in step:
+            for block in step["content_blocks"]:
+                print(block)
+        if "question" in step:
+            question = step["question"]
+        else:
+            # Skip classification and feedback if there's no question
+            current_step_index += 1
+            continue
+
+        attempts = 0
+        while attempts < max_attempts:
             if "question" in step:
-                question = step["question"]
-            else:
-                # Skip classification and feedback if there's no question
-                continue
+                print(f"\nQuestion: {question}")
 
-            attempts = 0
-            while attempts < max_attempts:
-                if "question" in step:
-                    print(f"\nQuestion: {question}")
+            user_response = input("\nYour Response: ")
 
-                user_response = input("\nYour Response: ")
+            category = categorize_response(
+                question, user_response, step["buckets"], step["tokens_for_ai"]
+            )
+            print(f"\nCategory: {category}")
 
-                category = categorize_response(
-                    question, user_response, step["buckets"], step["tokens_for_ai"]
-                )
-                print(f"\nCategory: {category}")
+            feedback, next_section_and_step = provide_feedback(
+                yaml_content,
+                section["section_id"],
+                step["step_id"],
+                category,
+                question,
+                user_response,
+            )
+            print(f"\nFeedback: {feedback}")
 
-                feedback = provide_feedback(
-                    yaml_content,
-                    section["section_id"],
-                    step["step_id"],
-                    category,
-                    question,
-                    user_response,
-                )
-                print(f"\nFeedback: {feedback}")
+            if category not in [
+                "off_topic",
+                "asking_clarifying_questions",
+                "partial_understanding",
+            ]:
+                break
 
-                if category == "correct":
-                    break
+            attempts += 1
 
-                attempts += 1
+        if attempts == max_attempts:
+            print("\nMaximum attempts reached. Moving to the next step.")
 
-            if attempts == max_attempts:
-                print("\nMaximum attempts reached. Moving to the next step.")
+        if next_section_and_step:
+            current_section_id, current_step_id = next_section_and_step.split(":")
+            current_section_index = next(
+                (
+                    index
+                    for index, s in enumerate(yaml_content["sections"])
+                    if s["section_id"] == current_section_id
+                ),
+                current_section_index,
+            )
+            current_step_index = next(
+                (
+                    index
+                    for index, s in enumerate(section["steps"])
+                    if s["step_id"] == current_step_id
+                ),
+                current_step_index,
+            )
+        else:
+            current_step_index += 1
 
 
 if __name__ == "__main__":
-    simulate_activity("activity12.yaml")
+    #simulate_activity("activity13-choose-adventure.yaml")
+    simulate_activity("activity0.yaml")
