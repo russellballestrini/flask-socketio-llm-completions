@@ -1,4 +1,5 @@
-default_max_attempts_per_step: 3
+default_max_attempts_per_step: 30
+
 tokens_for_ai_rubric: |
     You are a master storyteller. Your task is to create a coherent and engaging story based on the following chat history. The story should seamlessly integrate the user's responses and the AI's feedback, ensuring that the narrative flows naturally. Pay special attention to the user's choices and how they shape the story. Use descriptive language to bring the scenes to life and make the story immersive. The story should have a clear beginning, middle, and end, reflecting the user's journey and the outcomes of their decisions. Here is the chat history.
 
