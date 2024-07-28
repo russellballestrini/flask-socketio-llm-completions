@@ -94,14 +94,13 @@ def provide_feedback(
     return feedback, next_section_and_step
 
 
-# Get the next step in the activity
-def get_next_step(activity_content, current_section_id, current_step_id):
+def get_next_section_and_step(activity_content, current_section_id, current_step_id):
     for section in activity_content["sections"]:
         if section["section_id"] == current_section_id:
             for i, step in enumerate(section["steps"]):
                 if step["step_id"] == current_step_id:
                     if i + 1 < len(section["steps"]):
-                        return section, section["steps"][i + 1]
+                        return section["section_id"], section["steps"][i + 1]["step_id"]
                     else:
                         # Move to the next section
                         next_section_index = (
@@ -111,7 +110,10 @@ def get_next_step(activity_content, current_section_id, current_step_id):
                             next_section = activity_content["sections"][
                                 next_section_index
                             ]
-                            return next_section, next_section["steps"][0]
+                            return (
+                                next_section["section_id"],
+                                next_section["steps"][0]["step_id"],
+                            )
     return None, None
 
 
@@ -124,6 +126,7 @@ def simulate_activity(yaml_file_path):
     current_step_id = yaml_content["sections"][0]["steps"][0]["step_id"]
 
     while current_section_id and current_step_id:
+        print(f"Current section: {current_section_id}, Current step: {current_step_id}")
         section = next(
             (
                 s
@@ -193,7 +196,7 @@ def simulate_activity(yaml_file_path):
         if next_section_and_step:
             current_section_id, current_step_id = next_section_and_step.split(":")
         else:
-            current_section_id, current_step_id = get_next_step(
+            current_section_id, current_step_id = get_next_section_and_step(
                 yaml_content, current_section_id, current_step_id
             )
 
