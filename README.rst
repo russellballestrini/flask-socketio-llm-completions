@@ -143,6 +143,28 @@ Structure
 - ``chat.html``: The HTML template for the chatroom interface.
 - ``static/``: Directory for static files like CSS, JavaScript, and images.
 - ``templates/``: Directory for HTML templates.
+- ``research/``: Guarded AI activities or processes. Example YAMLs.
+
+
+Activity Mode
+--------------
+
+Activity mode is an interactive experience where users can engage with a guided AI to learn and answer questions.
+
+The AI provides feedback based on the user's responses and guides them through different sections and steps of an activity.
+
+This mode is designed to be on the "rails", educational, & engaging.
+
+The server expects to load the YAML file out of the S3 bucket you specify in your environment variables.
+
+1. **Start an Activity**: Use the ``/activity`` command followed by the object path to the activity YAML file to start a new activity.
+
+    ``/activity path-to-activity.yaml``
+
+2. **Display Activity Info**: Use the ``/activity info`` command to display information about the current activity, including grading and user performance.
+
+    ``/activity info``
+
 
 Contributing
 ------------
