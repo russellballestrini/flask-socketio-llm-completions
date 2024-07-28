@@ -94,38 +94,72 @@ def provide_feedback(
     return feedback, next_section_and_step
 
 
+# Get the next step in the activity
+def get_next_step(activity_content, current_section_id, current_step_id):
+    for section in activity_content["sections"]:
+        if section["section_id"] == current_section_id:
+            for i, step in enumerate(section["steps"]):
+                if step["step_id"] == current_step_id:
+                    if i + 1 < len(section["steps"]):
+                        return section, section["steps"][i + 1]
+                    else:
+                        # Move to the next section
+                        next_section_index = (
+                            activity_content["sections"].index(section) + 1
+                        )
+                        if next_section_index < len(activity_content["sections"]):
+                            next_section = activity_content["sections"][
+                                next_section_index
+                            ]
+                            return next_section, next_section["steps"][0]
+    return None, None
+
+
 # Simulate the activity
 def simulate_activity(yaml_file_path):
     yaml_content = load_yaml_activity(yaml_file_path)
     max_attempts = yaml_content.get("default_max_attempts_per_step", 3)
 
-    current_section_index = 0
-    current_step_index = 0
+    current_section_id = yaml_content["sections"][0]["section_id"]
+    current_step_id = yaml_content["sections"][0]["steps"][0]["step_id"]
 
-    while current_section_index < len(yaml_content["sections"]):
-        section = yaml_content["sections"][current_section_index]
-        if current_step_index >= len(section["steps"]):
-            current_section_index += 1
-            current_step_index = 0
-            continue
+    while current_section_id and current_step_id:
+        section = next(
+            (
+                s
+                for s in yaml_content["sections"]
+                if s["section_id"] == current_section_id
+            ),
+            None,
+        )
+        if not section:
+            print("Section not found.")
+            break
 
-        step = section["steps"][current_step_index]
+        step = next(
+            (s for s in section["steps"] if s["step_id"] == current_step_id), None
+        )
+        if not step:
+            print("Step not found.")
+            break
 
         # Print all content blocks once per step
         if "content_blocks" in step:
             for block in step["content_blocks"]:
                 print(block)
-        if "question" in step:
-            question = step["question"]
-        else:
-            # Skip classification and feedback if there's no question
-            current_step_index += 1
+
+        # Skip classification and feedback if there's no question
+        if "question" not in step:
+            current_section_id, current_step_id = get_next_step(
+                yaml_content, current_section_id, current_step_id
+            )
             continue
+
+        question = step["question"]
 
         attempts = 0
         while attempts < max_attempts:
-            if "question" in step:
-                print(f"\nQuestion: {question}")
+            print(f"\nQuestion: {question}")
 
             user_response = input("\nYour Response: ")
 
@@ -158,26 +192,12 @@ def simulate_activity(yaml_file_path):
 
         if next_section_and_step:
             current_section_id, current_step_id = next_section_and_step.split(":")
-            current_section_index = next(
-                (
-                    index
-                    for index, s in enumerate(yaml_content["sections"])
-                    if s["section_id"] == current_section_id
-                ),
-                current_section_index,
-            )
-            current_step_index = next(
-                (
-                    index
-                    for index, s in enumerate(section["steps"])
-                    if s["step_id"] == current_step_id
-                ),
-                current_step_index,
-            )
         else:
-            current_step_index += 1
+            current_section_id, current_step_id = get_next_step(
+                yaml_content, current_section_id, current_step_id
+            )
 
 
 if __name__ == "__main__":
-    #simulate_activity("activity13-choose-adventure.yaml")
+    # simulate_activity("activity13-choose-adventure.yaml")
     simulate_activity("activity0.yaml")
