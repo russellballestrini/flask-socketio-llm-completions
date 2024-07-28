@@ -63,6 +63,7 @@ sections:
         buckets:
           - take_boat
           - follow_riverbank
+          - go_back
           - off_topic
           - asking_clarifying_questions
         transitions:
@@ -80,6 +81,13 @@ sections:
               - "As you walk along the river, you find a hidden cave entrance. Inside, you discover ancient artifacts and a map to a secret location."
               - "Congratulations! You have discovered ancient artifacts and a secret map. 🎉"
             next_section_and_step: "section_5:step_1"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and guide the user to make the next choice. Use emojis like 👍 and 🌟."
+          go_back:
+            content_blocks:
+              - "You chose to go back to the fork in the path. 🔄"
+              - "You are now back at the fork. To the left, the path leads deeper into the forest, where you hear the sound of a flowing river. To the right, the path leads to a clearing with a mysterious glowing light."
+            next_section_and_step: "section_1:step_1"
             ai_feedback:
               tokens_for_ai: "Provide positive reinforcement and guide the user to make the next choice. Use emojis like 👍 and 🌟."
           off_topic:
@@ -107,6 +115,7 @@ sections:
         buckets:
           - step_through_portal
           - explore_clearing
+          - go_back
           - off_topic
           - asking_clarifying_questions
         transitions:
@@ -124,6 +133,13 @@ sections:
               - "You find a hidden garden filled with rare and beautiful plants. A friendly gardener offers to share their knowledge with you."
               - "Congratulations! You have discovered a hidden garden and gained valuable knowledge. 🎉"
             next_section_and_step: "section_7:step_1"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and guide the user to make the next choice. Use emojis like 👍 and 🌟."
+          go_back:
+            content_blocks:
+              - "You chose to go back to the fork in the path. 🔄"
+              - "You are now back at the fork. To the left, the path leads deeper into the forest, where you hear the sound of a flowing river. To the right, the path leads to a clearing with a mysterious glowing light."
+            next_section_and_step: "section_1:step_1"
             ai_feedback:
               tokens_for_ai: "Provide positive reinforcement and guide the user to make the next choice. Use emojis like 👍 and 🌟."
           off_topic:
@@ -151,6 +167,7 @@ sections:
         buckets:
           - open_treasure
           - leave_treasure
+          - go_back
           - off_topic
           - asking_clarifying_questions
         transitions:
@@ -170,6 +187,13 @@ sections:
             next_section_and_step: "section_8:step_1"
             ai_feedback:
               tokens_for_ai: "Provide positive reinforcement and guide the user to the final encounter. Use emojis like 👍 and 🌟."
+          go_back:
+            content_blocks:
+              - "You chose to go back to the river. 🔄"
+              - "You are now back at the river. Do you take the boat and explore the river, or do you follow the riverbank on foot?"
+            next_section_and_step: "section_2:step_1"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and guide the user to make the next choice. Use emojis like 👍 and 🌟."
           off_topic:
             content_blocks:
               - "It seems like your response is off-topic. Let's try to stay focused on the story. 🔄"
@@ -195,6 +219,7 @@ sections:
         buckets:
           - enter_cave
           - continue_walking
+          - go_back
           - off_topic
           - asking_clarifying_questions
         transitions:
@@ -214,6 +239,13 @@ sections:
             next_section_and_step: "section_8:step_1"
             ai_feedback:
               tokens_for_ai: "Provide positive reinforcement and guide the user to the final encounter. Use emojis like 👍 and 🌟."
+          go_back:
+            content_blocks:
+              - "You chose to go back to the river. 🔄"
+              - "You are now back at the river. Do you take the boat and explore the river, or do you follow the riverbank on foot?"
+            next_section_and_step: "section_2:step_1"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and guide the user to make the next choice. Use emojis like 👍 and 🌟."
           off_topic:
             content_blocks:
               - "It seems like your response is off-topic. Let's try to stay focused on the story. 🔄"
@@ -239,6 +271,7 @@ sections:
         buckets:
           - learn_spells
           - explore_realm
+          - go_back
           - off_topic
           - asking_clarifying_questions
         transitions:
@@ -258,6 +291,13 @@ sections:
             next_section_and_step: "section_8:step_1"
             ai_feedback:
               tokens_for_ai: "Provide positive reinforcement and guide the user to the final encounter. Use emojis like 👍 and 🌟."
+          go_back:
+            content_blocks:
+              - "You chose to go back to the clearing. 🔄"
+              - "You are now back at the clearing. Do you step through the portal to see where it leads, or do you stay and explore the clearing?"
+            next_section_and_step: "section_3:step_1"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and guide the user to make the next choice. Use emojis like 👍 and 🌟."
           off_topic:
             content_blocks:
               - "It seems like your response is off-topic. Let's try to stay focused on the story. 🔄"
@@ -283,6 +323,7 @@ sections:
         buckets:
           - talk_gardener
           - explore_garden
+          - go_back
           - off_topic
           - asking_clarifying_questions
         transitions:
@@ -302,6 +343,13 @@ sections:
             next_section_and_step: "section_8:step_1"
             ai_feedback:
               tokens_for_ai: "Provide positive reinforcement and guide the user to the final encounter. Use emojis like 👍 and 🌟."
+          go_back:
+            content_blocks:
+              - "You chose to go back to the clearing. 🔄"
+              - "You are now back at the clearing. Do you step through the portal to see where it leads, or do you stay and explore the clearing?"
+            next_section_and_step: "section_3:step_1"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and guide the user to make the next choice. Use emojis like 👍 and 🌟."
           off_topic:
             content_blocks:
               - "It seems like your response is off-topic. Let's try to stay focused on the story. 🔄"
@@ -327,6 +375,7 @@ sections:
         buckets:
           - accept_reward
           - decline_reward
+          - go_back
           - off_topic
           - asking_clarifying_questions
         transitions:
@@ -346,6 +395,13 @@ sections:
             next_section_and_step: "section_9:step_1"
             ai_feedback:
               tokens_for_ai: "Provide positive reinforcement and conclude the story. Use emojis like 👍 and 🌟."
+          go_back:
+            content_blocks:
+              - "You chose to go back to the previous step. 🔄"
+              - "You are now back at the previous step. Think about what you have learned and experienced. What will you choose?"
+            next_section_and_step: "section_8:step_1"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and guide the user to make the next choice. Use emojis like 👍 and 🌟."
           off_topic:
             content_blocks:
               - "It seems like your response is off-topic. Let's try to stay focused on the story. 🔄"
