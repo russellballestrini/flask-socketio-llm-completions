@@ -1,3 +1,4 @@
+import argparse
 import yaml
 from openai import OpenAI
 
@@ -200,5 +201,8 @@ def simulate_activity(yaml_file_path):
             )
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Simulate an activity.")
+    parser.add_argument("yaml_file_path", type=str, help="Path to the activity YAML file", default="activity0.yaml")
+    args = parser.parse_args()
+    simulate_activity(args.yaml_file_path)
     # simulate_activity("activity13-choose-adventure.yaml")
-    simulate_activity("activity0.yaml")

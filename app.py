@@ -110,19 +110,17 @@ class ActivityState(db.Model):
     json_metadata = db.Column(db.UnicodeText, default="{}")
 
     @property
-    def _json_metadata(self):
-        if self.json_metadata:
-            return json.loads(self.json_metadata)
-        return {}
+    def dict_metadata(self):
+        return json.loads(self.json_metadata) if self.json_metadata else {}
 
-    @_json_metadata.setter
-    def _json_metadata(self, value):
+    @dict_metadata.setter
+    def dict_metadata(self, value):
         self.json_metadata = json.dumps(value)
 
     def update_metadata(self, key, value):
-        metadata = self._json_metadata
+        metadata = self.dict_metadata
         metadata[key] = value
-        self._json_metadata = metadata
+        self.dict_metadata = metadata
 
 
 def get_room(room_name):
@@ -1847,7 +1845,7 @@ def handle_activity_response(room_name, user_response, username):
                 # Check metadata conditions for the current step
                 if "metadata_conditions" in step["transitions"][category]:
                     conditions_met = all(
-                        activity_state._json_metadata.get(key) == value
+                        activity_state.dict_metadata.get(key) == value
                         for key, value in step["transitions"][category][
                             "metadata_conditions"
                         ].items()
@@ -1916,11 +1914,9 @@ def handle_activity_response(room_name, user_response, username):
 
                 # Update metadata based on user actions
                 if "metadata_updates" in step["transitions"][category]:
-                    print(f"metadata_updates in step/category")
                     for key, value in step["transitions"][category][
                         "metadata_updates"
                     ].items():
-                        print(f"{key}: {value}")
                         activity_state.update_metadata(key, value)
 
                     # Commit the changes after the loop
@@ -1928,7 +1924,6 @@ def handle_activity_response(room_name, user_response, username):
                     db.session.commit()
 
                 # Log the updated metadata
-                print(f"Updated metadata: {activity_state._json_metadata}")
 
                 # if "correct" or max_attempts reached.
                 if (
