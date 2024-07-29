@@ -748,13 +748,21 @@ def chat_claude(
     socketio.emit("delete_processing_message", msg_id, room=room.name)
 
 
-def chat_gpt(username, room_name, model_name="gpt-3.5-turbo"):
-    if "gpt" not in model_name:
-        vllm_endpoint = os.environ.get("VLLM_ENDPOINT", "http://localhost:18888/v1")
-        vllm_api_key = os.environ.get("VLLM_API_KEY", "not-needed")
+def get_openai_client_and_model(model_name="gpt-4o-mini"):
+    vllm_endpoint = os.environ.get("VLLM_ENDPOINT")
+    vllm_api_key = os.environ.get("VLLM_API_KEY", "not-needed")
+
+    if vllm_endpoint:
         openai_client = OpenAI(base_url=vllm_endpoint, api_key=vllm_api_key)
+        model_name = "NousResearch/Hermes-2-Pro-Llama-3-8B"
     else:
         openai_client = OpenAI()
+
+    return openai_client, model_name
+
+
+def chat_gpt(username, room_name, model_name="gpt-4o-mini"):
+    openai_client, model_name = get_openai_client_and_model(model_name)
 
     limit = 20
     if "gpt-4" in model_name:
@@ -1324,11 +1332,11 @@ def chat_llama(username, room_name, model_name="mistral-7b-instruct-v0.2.Q3_K_L.
     socketio.emit("delete_processing_message", msg_id, room=room.name)
 
 
-def gpt_generate_room_title(messages, model_name="gpt-4o"):
+def gpt_generate_room_title(messages):
     """
     Generate a title for the room based on a list of messages.
     """
-    openai_client = OpenAI()
+    openai_client, model_name = get_openai_client_and_model()
 
     chat_history = [
         {
@@ -2102,7 +2110,6 @@ def handle_activity_response(room_name, user_response, username):
                 print(f"{next_step}")
 
                 if next_step:
-
                     activity_state.section_id = next_section["section_id"]
                     activity_state.step_id = next_step["step_id"]
                     activity_state.attempts = 0
@@ -2271,7 +2278,7 @@ def display_activity_info(room_name, username):
 
 
 def generate_grading(chat_history, rubric):
-    openai_client = OpenAI()
+    openai_client, model_name = get_openai_client_and_model()
     messages = [
         {
             "role": "system",
@@ -2285,7 +2292,7 @@ def generate_grading(chat_history, rubric):
 
     try:
         completion = openai_client.chat.completions.create(
-            model="gpt-4o-mini", messages=messages, max_tokens=1000, temperature=0.7
+            model=model_name, messages=messages, max_tokens=1000, temperature=0.7
         )
         grading = completion.choices[0].message.content.strip()
         return grading
@@ -2313,9 +2320,9 @@ def get_next_step(activity_content, current_section_id, current_step_id):
     return None, None
 
 
-# Categorize the user's response using gpt-4o-mini
+# Categorize the user's response.
 def categorize_response(question, response, buckets, tokens_for_ai):
-    openai_client = OpenAI()
+    openai_client, model_name = get_openai_client_and_model()
     bucket_list = ", ".join(buckets)
     messages = [
         {
@@ -2330,7 +2337,7 @@ def categorize_response(question, response, buckets, tokens_for_ai):
 
     try:
         completion = openai_client.chat.completions.create(
-            model="gpt-4o-mini",
+            model=model_name,
             messages=messages,
             max_tokens=5,
             temperature=0,
@@ -2347,9 +2354,9 @@ def categorize_response(question, response, buckets, tokens_for_ai):
         return f"Error: {e}"
 
 
-# Generate AI feedback using gpt-4o-mini
+# Generate AI feedback
 def generate_ai_feedback(category, question, user_response, tokens_for_ai):
-    openai_client = OpenAI()
+    openai_client, model_name = get_openai_client_and_model()
     messages = [
         {
             "role": "system",
@@ -2363,7 +2370,7 @@ def generate_ai_feedback(category, question, user_response, tokens_for_ai):
 
     try:
         completion = openai_client.chat.completions.create(
-            model="gpt-4o-mini", messages=messages, max_tokens=250, temperature=0.7
+            model=model_name, messages=messages, max_tokens=250, temperature=0.7
         )
         feedback = completion.choices[0].message.content.strip()
         return feedback
