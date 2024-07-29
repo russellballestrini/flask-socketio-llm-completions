@@ -80,7 +80,7 @@ def provide_feedback(
     if not transition:
         return "Category not found."
 
-    feedback = "\n".join(transition["content_blocks"])
+    feedback = ""
     if "ai_feedback" in transition:
         tokens_for_ai = (
             step["tokens_for_ai"] + " " + transition["ai_feedback"]["tokens_for_ai"]
@@ -126,7 +126,7 @@ def simulate_activity(yaml_file_path):
     current_step_id = yaml_content["sections"][0]["steps"][0]["step_id"]
 
     while current_section_id and current_step_id:
-        print(f"Current section: {current_section_id}, Current step: {current_step_id}")
+        print(f"\n\nCurrent section: {current_section_id}, Current step: {current_step_id}\n\n")
         section = next(
             (
                 s
@@ -148,8 +148,7 @@ def simulate_activity(yaml_file_path):
 
         # Print all content blocks once per step
         if "content_blocks" in step:
-            for block in step["content_blocks"]:
-                print(block)
+            print("\n\n".join(step["content_blocks"]))
 
         # Skip classification and feedback if there's no question
         if "question" not in step:
