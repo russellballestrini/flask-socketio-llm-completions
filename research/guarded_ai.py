@@ -152,7 +152,7 @@ def simulate_activity(yaml_file_path):
 
         # Skip classification and feedback if there's no question
         if "question" not in step:
-            current_section_id, current_step_id = get_next_step(
+            current_section_id, current_step_id = get_next_section_and_step(
                 yaml_content, current_section_id, current_step_id
             )
             continue
@@ -198,7 +198,6 @@ def simulate_activity(yaml_file_path):
             current_section_id, current_step_id = get_next_section_and_step(
                 yaml_content, current_section_id, current_step_id
             )
-
 
 if __name__ == "__main__":
     # simulate_activity("activity13-choose-adventure.yaml")
