@@ -1741,23 +1741,74 @@ def start_activity(room_name, s3_file_path, username):
             room=room_name,
         )
 
-        # Emit the initial question
-        question_content = f"Question: {initial_step['question']}"
-        new_message = Message(
-            username="System", content=question_content, room_id=room.id
-        )
-        db.session.add(new_message)
-        db.session.commit()
+        # Emit the initial question or move to the next step if no question
+        if "question" in initial_step:
+            question_content = f"Question: {initial_step['question']}"
+            new_message = Message(
+                username="System", content=question_content, room_id=room.id
+            )
+            db.session.add(new_message)
+            db.session.commit()
 
-        socketio.emit(
-            "message",
-            {
-                "id": new_message.id,
-                "username": "System",
-                "content": question_content,
-            },
-            room=room_name,
-        )
+            socketio.emit(
+                "message",
+                {
+                    "id": new_message.id,
+                    "username": "System",
+                    "content": question_content,
+                },
+                room=room_name,
+            )
+        else:
+            # Automatically move to the next step if no question
+            next_section, next_step = get_next_step(
+                activity_content, initial_section["section_id"], initial_step["step_id"]
+            )
+
+            if next_step:
+                activity_state.section_id = next_section["section_id"]
+                activity_state.step_id = next_step["step_id"]
+                activity_state.attempts = 0
+
+                db.session.add(activity_state)
+                db.session.commit()
+
+                # Emit the new step content blocks
+                content = "\n\n".join(next_step["content_blocks"])
+                new_message = Message(
+                    username="System", content=content, room_id=room.id
+                )
+                db.session.add(new_message)
+                db.session.commit()
+
+                socketio.emit(
+                    "message",
+                    {
+                        "id": new_message.id,
+                        "username": "System",
+                        "content": content,
+                    },
+                    room=room_name,
+                )
+
+                # Emit the new question if it exists
+                if "question" in next_step:
+                    question_content = f"Question: {next_step['question']}"
+                    new_message = Message(
+                        username="System", content=question_content, room_id=room.id
+                    )
+                    db.session.add(new_message)
+                    db.session.commit()
+
+                    socketio.emit(
+                        "message",
+                        {
+                            "id": new_message.id,
+                            "username": "System",
+                            "content": question_content,
+                        },
+                        room=room_name,
+                    )
 
 
 def cancel_activity(room_name, username):
@@ -2043,34 +2094,47 @@ def handle_activity_response(room_name, user_response, username):
                     )
             else:
                 # Handle steps without a question
-                next_section_and_step = step.get("next_section_and_step")
-                if next_section_and_step:
-                    current_section_id, current_step_id = next_section_and_step.split(
-                        ":"
+                next_section, next_step = get_next_step(
+                    activity_content, section["section_id"], step["step_id"]
+                )
+
+                print("handle steps without question")
+                print(f"{next_step}")
+
+                if next_step:
+
+                    activity_state.section_id = next_section["section_id"]
+                    activity_state.step_id = next_step["step_id"]
+                    activity_state.attempts = 0
+
+                    db.session.add(activity_state)
+                    db.session.commit()
+
+                    # Emit the new step content blocks
+                    content = "\n\n".join(next_step["content_blocks"])
+                    new_message = Message(
+                        username="System", content=content, room_id=room.id
                     )
-                    next_section = next(
-                        s
-                        for s in activity_content["sections"]
-                        if s["section_id"] == current_section_id
-                    )
-                    next_step = next(
-                        s
-                        for s in next_section["steps"]
-                        if s["step_id"] == current_step_id
+                    db.session.add(new_message)
+                    db.session.commit()
+
+                    socketio.emit(
+                        "message",
+                        {
+                            "id": new_message.id,
+                            "username": "System",
+                            "content": content,
+                        },
+                        room=room_name,
                     )
 
-                    if next_step:
-                        activity_state.section_id = next_section["section_id"]
-                        activity_state.step_id = next_step["step_id"]
-                        activity_state.attempts = 0
-
-                        db.session.add(activity_state)
-                        db.session.commit()
-
-                        # Emit the new step content blocks
-                        content = "\n\n".join(next_step["content_blocks"])
+                    # Emit the new question if it exists
+                    if "question" in next_step:
+                        question_content = f"Question: {next_step['question']}"
                         new_message = Message(
-                            username="System", content=content, room_id=room.id
+                            username="System",
+                            content=question_content,
+                            room_id=room.id,
                         )
                         db.session.add(new_message)
                         db.session.commit()
@@ -2080,44 +2144,7 @@ def handle_activity_response(room_name, user_response, username):
                             {
                                 "id": new_message.id,
                                 "username": "System",
-                                "content": content,
-                            },
-                            room=room_name,
-                        )
-
-                        # Emit the new question if it exists
-                        if "question" in next_step:
-                            question_content = f"Question: {next_step['question']}"
-                            new_message = Message(
-                                username="System",
-                                content=question_content,
-                                room_id=room.id,
-                            )
-                            db.session.add(new_message)
-                            db.session.commit()
-
-                            socketio.emit(
-                                "message",
-                                {
-                                    "id": new_message.id,
-                                    "username": "System",
-                                    "content": question_content,
-                                },
-                                room=room_name,
-                            )
-                    else:
-                        # Display activity info before completing
-                        display_activity_info(room_name, username)
-
-                        # Activity completed
-                        db.session.delete(activity_state)
-                        db.session.commit()
-                        socketio.emit(
-                            "message",
-                            {
-                                "id": None,
-                                "username": "System",
-                                "content": "Activity completed!",
+                                "content": question_content,
                             },
                             room=room_name,
                         )

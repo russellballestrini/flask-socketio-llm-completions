@@ -1,5 +1,13 @@
 default_max_attempts_per_step: 3
 sections:
+  - section_id: "section_0"
+    title: "Introduction"
+    steps:
+      - step_id: "step_1"
+        title: "Welcome"
+        content_blocks:
+          - "Welcome to the GNU Manifesto course! 👋"
+          - "You will learn about the GNU Manifesto and its significance."
   - section_id: "section_1"
     title: "Introduction to The GNU Manifesto"
     steps:
