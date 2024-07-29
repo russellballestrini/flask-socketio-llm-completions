@@ -1,0 +1,425 @@
+default_max_attempts_per_step: 30
+
+tokens_for_ai_rubric: |
+    You are a master storyteller. Your task is to create a coherent and engaging story based on the following chat history. The story should seamlessly integrate the user's responses and the AI's feedback, ensuring that the narrative flows naturally. Pay special attention to the user's choices and how they shape the story. Use descriptive language to bring the scenes to life and make the story immersive. The story should have a clear beginning, middle, and end, reflecting the user's journey and the outcomes of their decisions. Here is the chat history.
+
+sections:
+  - section_id: "section_1"
+    title: "The Adventure Begins"
+    steps:
+      - step_id: "step_1"
+        title: "Setting the Scene"
+        content_blocks:
+          - "Welcome to the Story Builder game! 🌟"
+          - "You are about to embark on an exciting adventure. Your choices will shape the story."
+          - "Let's begin by setting the scene. Imagine you are in a dense forest, and you come across a fork in the path."
+          - "To the left, the path leads deeper into the forest, where you hear the sound of a flowing river. To the right, the path leads to a clearing with a mysterious glowing light."
+        tokens_for_ai: "Guide the user to make a choice between the two paths. Provide feedback based on their choice."
+        question: "Which path do you choose? Left (forest) or Right (clearing)? 🤔"
+        buckets:
+          - left_forest
+          - right_clearing
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          left_forest:
+            content_blocks:
+              - "You chose to go left, deeper into the forest. 🌲"
+              - "As you walk, the sound of the river grows louder. You soon find yourself at the edge of a beautiful, sparkling river."
+              - "You notice a small boat tied to a tree. Do you take the boat and explore the river, or do you follow the riverbank on foot?"
+            next_section_and_step: "section_2:step_1"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and guide the user to make the next choice. Use emojis like 👍 and 🌟."
+          right_clearing:
+            content_blocks:
+              - "You chose to go right, towards the clearing. 🌟"
+              - "As you approach the clearing, the glowing light becomes brighter. You find a magical portal shimmering in the air."
+              - "Do you step through the portal to see where it leads, or do you stay and explore the clearing?"
+            next_section_and_step: "section_3:step_1"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and guide the user to make the next choice. Use emojis like 👍 and 🌟."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the story. 🔄"
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the story in a supportive manner. Use emojis like 🔄 and 🧭."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them. ❓"
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner. Use emojis like ❓ and 💬."
+
+  - section_id: "section_2"
+    title: "The Forest Path"
+    steps:
+      - step_id: "step_1"
+        title: "Encounter at the River"
+        content_blocks:
+          - "You chose to go left, deeper into the forest. 🌲"
+          - "As you walk, the sound of the river grows louder. You soon find yourself at the edge of a beautiful, sparkling river."
+          - "You notice a small boat tied to a tree. Do you take the boat and explore the river, or do you follow the riverbank on foot?"
+        tokens_for_ai: "Guide the user to make a choice between taking the boat or following the riverbank. Provide feedback based on their choice."
+        question: "What do you choose? Take the boat or Follow the riverbank? 🤔"
+        buckets:
+          - take_boat
+          - follow_riverbank
+          - go_back
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          take_boat:
+            content_blocks:
+              - "You chose to take the boat and explore the river. 🚣"
+              - "As you paddle down the river, you encounter a group of friendly forest creatures who offer to guide you to a hidden treasure."
+              - "Congratulations! You have discovered a hidden treasure with the help of your new friends. 🎉"
+            next_section_and_step: "section_4:step_1"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and guide the user to make the next choice. Use emojis like 👍 and 🌟."
+          follow_riverbank:
+            content_blocks:
+              - "You chose to follow the riverbank on foot. 🌲"
+              - "As you walk along the river, you find a hidden cave entrance. Inside, you discover ancient artifacts and a map to a secret location."
+              - "Congratulations! You have discovered ancient artifacts and a secret map. 🎉"
+            next_section_and_step: "section_5:step_1"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and guide the user to make the next choice. Use emojis like 👍 and 🌟."
+          go_back:
+            content_blocks:
+              - "You chose to go back to the fork in the path. 🔄"
+              - "You are now back at the fork. To the left, the path leads deeper into the forest, where you hear the sound of a flowing river. To the right, the path leads to a clearing with a mysterious glowing light."
+            next_section_and_step: "section_1:step_1"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and guide the user to make the next choice. Use emojis like 👍 and 🌟."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the story. 🔄"
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the story in a supportive manner. Use emojis like 🔄 and 🧭."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them. ❓"
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner. Use emojis like ❓ and 💬."
+
+  - section_id: "section_3"
+    title: "The Clearing Path"
+    steps:
+      - step_id: "step_1"
+        title: "The Magical Portal"
+        content_blocks:
+          - "You chose to go right, towards the clearing. 🌟"
+          - "As you approach the clearing, the glowing light becomes brighter. You find a magical portal shimmering in the air."
+          - "Do you step through the portal to see where it leads, or do you stay and explore the clearing?"
+        tokens_for_ai: "Guide the user to make a choice between stepping through the portal or exploring the clearing. Provide feedback based on their choice."
+        question: "What do you choose? Step through the portal or Explore the clearing? 🤔"
+        buckets:
+          - step_through_portal
+          - explore_clearing
+          - go_back
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          step_through_portal:
+            content_blocks:
+              - "You chose to step through the portal. 🌟"
+              - "You find yourself in a magical realm filled with wonders and mysteries. A wise old wizard offers to teach you powerful spells."
+              - "Congratulations! You have entered a magical realm and begun your training as a wizard. 🎉"
+            next_section_and_step: "section_6:step_1"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and guide the user to make the next choice. Use emojis like 👍 and 🌟."
+          explore_clearing:
+            content_blocks:
+              - "You chose to explore the clearing. 🌲"
+              - "You find a hidden garden filled with rare and beautiful plants. A friendly gardener offers to share their knowledge with you."
+              - "Congratulations! You have discovered a hidden garden and gained valuable knowledge. 🎉"
+            next_section_and_step: "section_7:step_1"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and guide the user to make the next choice. Use emojis like 👍 and 🌟."
+          go_back:
+            content_blocks:
+              - "You chose to go back to the fork in the path. 🔄"
+              - "You are now back at the fork. To the left, the path leads deeper into the forest, where you hear the sound of a flowing river. To the right, the path leads to a clearing with a mysterious glowing light."
+            next_section_and_step: "section_1:step_1"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and guide the user to make the next choice. Use emojis like 👍 and 🌟."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the story. 🔄"
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the story in a supportive manner. Use emojis like 🔄 and 🧭."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them. ❓"
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner. Use emojis like ❓ and 💬."
+
+  - section_id: "section_4"
+    title: "The Boat Adventure"
+    steps:
+      - step_id: "step_1"
+        title: "The Hidden Treasure"
+        content_blocks:
+          - "You chose to take the boat and explore the river. 🚣"
+          - "As you paddle down the river, you encounter a group of friendly forest creatures who offer to guide you to a hidden treasure."
+          - "You find the hidden treasure chest. Do you open the treasure or leave it?"
+        tokens_for_ai: "Guide the user to make a choice between opening the treasure or leaving it. Provide feedback based on their choice."
+        question: "What do you choose? Open the treasure or Leave it? 🤔"
+        buckets:
+          - open_treasure
+          - leave_treasure
+          - go_back
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          open_treasure:
+            content_blocks:
+              - "You chose to open the treasure. 🎉"
+              - "Inside, you find gold coins, precious gems, and a magical artifact that grants you a special power."
+              - "Congratulations! You have discovered a hidden treasure and gained a special power. 🎉"
+            next_section_and_step: "section_8:step_1"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and guide the user to the final encounter. Use emojis like 👍 and 🌟."
+          leave_treasure:
+            content_blocks:
+              - "You chose to leave the treasure. 🌲"
+              - "You decide that the adventure itself is the real treasure and continue your journey with a sense of fulfillment."
+              - "Congratulations! You have completed the adventure with a sense of fulfillment. 🎉"
+            next_section_and_step: "section_8:step_1"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and guide the user to the final encounter. Use emojis like 👍 and 🌟."
+          go_back:
+            content_blocks:
+              - "You chose to go back to the river. 🔄"
+              - "You are now back at the river. Do you take the boat and explore the river, or do you follow the riverbank on foot?"
+            next_section_and_step: "section_2:step_1"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and guide the user to make the next choice. Use emojis like 👍 and 🌟."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the story. 🔄"
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the story in a supportive manner. Use emojis like 🔄 and 🧭."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them. ❓"
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner. Use emojis like ❓ and 💬."
+
+  - section_id: "section_5"
+    title: "The Riverbank Adventure"
+    steps:
+      - step_id: "step_1"
+        title: "The Hidden Cave"
+        content_blocks:
+          - "You chose to follow the riverbank on foot. 🌲"
+          - "As you walk along the river, you find a hidden cave entrance. Inside, you discover ancient artifacts and a map to a secret location."
+          - "Do you enter the cave or continue walking along the riverbank?"
+        tokens_for_ai: "Guide the user to make a choice between entering the cave or continuing to walk. Provide feedback based on their choice."
+        question: "What do you choose? Enter the cave or Continue walking? 🤔"
+        buckets:
+          - enter_cave
+          - continue_walking
+          - go_back
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          enter_cave:
+            content_blocks:
+              - "You chose to enter the cave. 🌲"
+              - "Inside, you find ancient artifacts and a map to a secret location. You feel a sense of discovery and excitement."
+              - "Congratulations! You have discovered ancient artifacts and a secret map. 🎉"
+            next_section_and_step: "section_8:step_1"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and guide the user to the final encounter. Use emojis like 👍 and 🌟."
+          continue_walking:
+            content_blocks:
+              - "You chose to continue walking along the riverbank. 🌲"
+              - "As you walk, you find a beautiful waterfall and a hidden path leading to a secret garden."
+              - "Congratulations! You have discovered a hidden garden and gained valuable knowledge. 🎉"
+            next_section_and_step: "section_8:step_1"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and guide the user to the final encounter. Use emojis like 👍 and 🌟."
+          go_back:
+            content_blocks:
+              - "You chose to go back to the river. 🔄"
+              - "You are now back at the river. Do you take the boat and explore the river, or do you follow the riverbank on foot?"
+            next_section_and_step: "section_2:step_1"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and guide the user to make the next choice. Use emojis like 👍 and 🌟."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the story. 🔄"
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the story in a supportive manner. Use emojis like 🔄 and 🧭."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them. ❓"
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner. Use emojis like ❓ and 💬."
+
+  - section_id: "section_6"
+    title: "The Portal Adventure"
+    steps:
+      - step_id: "step_1"
+        title: "The Magical Realm"
+        content_blocks:
+          - "You chose to step through the portal. 🌟"
+          - "You find yourself in a magical realm filled with wonders and mysteries. A wise old wizard offers to teach you powerful spells."
+          - "Do you learn spells from the wizard or explore the magical realm on your own?"
+        tokens_for_ai: "Guide the user to make a choice between learning spells or exploring the realm. Provide feedback based on their choice."
+        question: "What do you choose? Learn spells or Explore the realm? 🤔"
+        buckets:
+          - learn_spells
+          - explore_realm
+          - go_back
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          learn_spells:
+            content_blocks:
+              - "You chose to learn spells from the wizard. 🌟"
+              - "The wizard teaches you powerful spells that grant you special abilities. You feel a sense of empowerment and wonder."
+              - "Congratulations! You have learned powerful spells and gained special abilities. 🎉"
+            next_section_and_step: "section_8:step_1"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and guide the user to the final encounter. Use emojis like 👍 and 🌟."
+          explore_realm:
+            content_blocks:
+              - "You chose to explore the magical realm on your own. 🌟"
+              - "As you explore, you discover hidden treasures and magical creatures. You feel a sense of adventure and excitement."
+              - "Congratulations! You have discovered hidden treasures and magical creatures. 🎉"
+            next_section_and_step: "section_8:step_1"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and guide the user to the final encounter. Use emojis like 👍 and 🌟."
+          go_back:
+            content_blocks:
+              - "You chose to go back to the clearing. 🔄"
+              - "You are now back at the clearing. Do you step through the portal to see where it leads, or do you stay and explore the clearing?"
+            next_section_and_step: "section_3:step_1"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and guide the user to make the next choice. Use emojis like 👍 and 🌟."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the story. 🔄"
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the story in a supportive manner. Use emojis like 🔄 and 🧭."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them. ❓"
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner. Use emojis like ❓ and 💬."
+
+  - section_id: "section_7"
+    title: "The Clearing Adventure"
+    steps:
+      - step_id: "step_1"
+        title: "The Hidden Garden"
+        content_blocks:
+          - "You chose to explore the clearing. 🌲"
+          - "You find a hidden garden filled with rare and beautiful plants. A friendly gardener offers to share their knowledge with you."
+          - "Do you talk to the gardener or explore the garden on your own?"
+        tokens_for_ai: "Guide the user to make a choice between talking to the gardener or exploring the garden. Provide feedback based on their choice."
+        question: "What do you choose? Talk to the gardener or Explore the garden? 🤔"
+        buckets:
+          - talk_gardener
+          - explore_garden
+          - go_back
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          talk_gardener:
+            content_blocks:
+              - "You chose to talk to the gardener. 🌲"
+              - "The gardener shares their knowledge of rare plants and their magical properties. You feel a sense of wonder and curiosity."
+              - "Congratulations! You have gained valuable knowledge about rare plants and their magical properties. 🎉"
+            next_section_and_step: "section_8:step_1"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and guide the user to the final encounter. Use emojis like 👍 and 🌟."
+          explore_garden:
+            content_blocks:
+              - "You chose to explore the garden on your own. 🌲"
+              - "As you explore, you discover hidden paths and secret areas filled with rare plants and magical creatures. You feel a sense of adventure and excitement."
+              - "Congratulations! You have discovered hidden paths and secret areas in the garden. 🎉"
+            next_section_and_step: "section_8:step_1"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and guide the user to the final encounter. Use emojis like 👍 and 🌟."
+          go_back:
+            content_blocks:
+              - "You chose to go back to the clearing. 🔄"
+              - "You are now back at the clearing. Do you step through the portal to see where it leads, or do you stay and explore the clearing?"
+            next_section_and_step: "section_3:step_1"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and guide the user to make the next choice. Use emojis like 👍 and 🌟."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the story. 🔄"
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the story in a supportive manner. Use emojis like 🔄 and 🧭."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them. ❓"
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner. Use emojis like ❓ and 💬."
+
+  - section_id: "section_8"
+    title: "The Final Choices"
+    steps:
+      - step_id: "step_1"
+        title: "The Final Encounter"
+        content_blocks:
+          - "You have reached the final part of your adventure. Your choices have led you to this moment."
+          - "You are presented with a final choice: accept a reward for your journey or decline it and continue your adventure."
+          - "Think about what you have learned and experienced. What will you choose?"
+        tokens_for_ai: "Guide the user to make a final choice between accepting the reward or declining it. Provide feedback based on their choice."
+        question: "What do you choose? Accept the reward or Decline the reward? 🤔"
+        buckets:
+          - accept_reward
+          - decline_reward
+          - go_back
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          accept_reward:
+            content_blocks:
+              - "You chose to accept the reward. 🎉"
+              - "You are given a magical artifact that grants you special powers and a sense of accomplishment."
+              - "Congratulations! You have completed your adventure and received a magical reward. 🎉"
+            next_section_and_step: "section_9:step_1"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and conclude the story. Use emojis like 👍 and 🌟."
+          decline_reward:
+            content_blocks:
+              - "You chose to decline the reward. 🌲"
+              - "You decide that the journey itself was the true reward and continue your adventure with a sense of fulfillment."
+              - "Congratulations! You have completed your adventure with a sense of fulfillment. 🎉"
+            next_section_and_step: "section_9:step_1"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and conclude the story. Use emojis like 👍 and 🌟."
+          go_back:
+            content_blocks:
+              - "You chose to go back to the previous step. 🔄"
+              - "You are now back at the previous step. Think about what you have learned and experienced. What will you choose?"
+            next_section_and_step: "section_8:step_1"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and guide the user to make the next choice. Use emojis like 👍 and 🌟."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the story. 🔄"
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the story in a supportive manner. Use emojis like 🔄 and 🧭."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them. ❓"
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner. Use emojis like ❓ and 💬."
+
+  - section_id: "section_9"
+    title: "Congratulations!"
+    steps:
+      - step_id: "step_1"
+        title: "Well Done!"
+        content_blocks:
+          - "Congratulations on completing the Story Builder game! 🎉"
+          - "You have made choices that shaped an exciting adventure."
+          - "We hope you enjoyed the journey and the story you helped create."
+          - "We are proud of your creativity and imagination. Well done! 🌟"

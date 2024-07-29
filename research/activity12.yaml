@@ -1,0 +1,596 @@
+default_max_attempts_per_step: 3
+sections:
+  - section_id: "section_1"
+    title: "Introduction to the Revolutionary War"
+    steps:
+      - step_id: "step_1"
+        title: "What is the Revolutionary War?"
+        content_blocks:
+          - "Welcome to the American Revolutionary War course!"
+          - "The American Revolutionary War, also known as the American War of Independence, was a conflict between Great Britain and its thirteen colonies in North America."
+          - "Think about why the colonies might have wanted to break away from British rule. Consider issues like governance, taxes, and representation."
+        tokens_for_ai: "Guide the student to think about the reasons for the colonies wanting independence. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "Why do you think the American colonies wanted to break away from British rule?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You have a good understanding of why the colonies wanted independence."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the student to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the student's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the reasons for independence."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the student back to the topic of the reasons for independence in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the student's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_2"
+        title: "Importance of the Revolutionary War"
+        content_blocks:
+          - "The Revolutionary War was important because it led to the independence of the United States from British rule."
+          - "It also established the principles of liberty, democracy, and self-governance."
+          - "Think about how gaining independence might have changed the lives of the colonists. Consider aspects like freedom, governance, and rights."
+        tokens_for_ai: "Guide the student to think about the impact of independence on the colonists' lives. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "How do you think gaining independence changed the lives of the colonists?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You understand the impact of gaining independence."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the student to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the student's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the impact of independence."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the student back to the topic of the impact of independence in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the student's clarifying questions and provide additional information in a friendly and engaging manner."
+
+  - section_id: "section_2"
+    title: "Causes of the Revolutionary War"
+    steps:
+      - step_id: "step_1"
+        title: "Taxation Without Representation"
+        content_blocks:
+          - "One of the main causes of the Revolutionary War was the issue of 'taxation without representation.'"
+          - "The British government imposed taxes on the American colonies without giving them representation in Parliament."
+          - "Think about how you would feel if you had to pay taxes but had no say in how the money was spent. How might this lead to frustration and anger?"
+        tokens_for_ai: "Guide the student to think about the feelings of the colonists regarding taxation without representation. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "How do you think the colonists felt about 'taxation without representation' and why?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You understand the colonists' feelings about 'taxation without representation.'"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the student to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the student's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on 'taxation without representation.'"
+            ai_feedback:
+              tokens_for_ai: "Gently guide the student back to the topic of 'taxation without representation' in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the student's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_2"
+        title: "The Intolerable Acts"
+        content_blocks:
+          - "The Intolerable Acts were a series of punitive laws passed by the British Parliament in response to the Boston Tea Party."
+          - "These acts further angered the American colonists and contributed to the outbreak of the Revolutionary War."
+          - "Think about how you would feel if you were punished for protesting against something you believed was unfair. How might this lead to a desire for change?"
+        tokens_for_ai: "Guide the student to think about the feelings of the colonists regarding the Intolerable Acts. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "How do you think the colonists felt about the Intolerable Acts and why?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You understand the colonists' feelings about the Intolerable Acts."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the student to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the student's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the Intolerable Acts."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the student back to the topic of the Intolerable Acts in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the student's clarifying questions and provide additional information in a friendly and engaging manner."
+
+  - section_id: "section_3"
+    title: "Key Events of the Revolutionary War"
+    steps:
+      - step_id: "step_1"
+        title: "The Boston Tea Party"
+        content_blocks:
+          - "The Boston Tea Party was a political protest by the Sons of Liberty in Boston, Massachusetts, on December 16, 1773."
+          - "American colonists, frustrated with British taxation, dumped 342 chests of British tea into the harbor."
+          - "Think about why the colonists chose to protest in this way. What message were they trying to send to the British government?"
+        tokens_for_ai: "Guide the student to think about the reasons behind the Boston Tea Party. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "Why do you think the colonists chose to protest by dumping tea into the harbor?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You understand the reasons behind the Boston Tea Party."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the student to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the student's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the Boston Tea Party."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the student back to the topic of the Boston Tea Party in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the student's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_2"
+        title: "The Battles of Lexington and Concord"
+        content_blocks:
+          - "The Battles of Lexington and Concord were the first military engagements of the American Revolutionary War."
+          - "They were fought on April 19, 1775, in Middlesex County, Province of Massachusetts Bay."
+          - "Think about why these battles were significant. How did they change the relationship between the colonies and Great Britain?"
+        tokens_for_ai: "Guide the student to think about the significance of the Battles of Lexington and Concord. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "Why do you think the Battles of Lexington and Concord were significant?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You understand the significance of the Battles of Lexington and Concord."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the student to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the student's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the Battles of Lexington and Concord."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the student back to the topic of the Battles of Lexington and Concord in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the student's clarifying questions and provide additional information in a friendly and engaging manner."
+
+  - section_id: "section_4"
+    title: "Key Figures of the Revolutionary War"
+    steps:
+      - step_id: "step_1"
+        title: "George Washington"
+        content_blocks:
+          - "George Washington was the commander-in-chief of the Continental Army during the American Revolutionary War."
+          - "He later became the first President of the United States."
+          - "Think about the qualities that made George Washington a good leader. How did his leadership contribute to the success of the American forces?"
+        tokens_for_ai: "Guide the student to think about the qualities of George Washington's leadership. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "What qualities do you think made George Washington a good leader and how did his leadership contribute to the success of the American forces?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You understand the qualities that made George Washington a good leader."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the student to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the student's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on George Washington's leadership qualities."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the student back to the topic of George Washington's leadership qualities in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the student's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_2"
+        title: "Thomas Jefferson"
+        content_blocks:
+          - "Thomas Jefferson was the principal author of the Declaration of Independence."
+          - "He later became the third President of the United States."
+          - "Think about the impact of the Declaration of Independence. How did Thomas Jefferson's words inspire the colonists and shape the new nation?"
+        tokens_for_ai: "Guide the student to think about the impact of the Declaration of Independence and Thomas Jefferson's role. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "How do you think Thomas Jefferson's words in the Declaration of Independence inspired the colonists and shaped the new nation?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You understand the impact of Thomas Jefferson's words in the Declaration of Independence."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the student to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the student's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on Thomas Jefferson's role."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the student back to the topic of Thomas Jefferson's role in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the student's clarifying questions and provide additional information in a friendly and engaging manner."
+
+  - section_id: "section_5"
+    title: "Major Battles of the Revolutionary War"
+    steps:
+      - step_id: "step_1"
+        title: "The Battle of Bunker Hill"
+        content_blocks:
+          - "The Battle of Bunker Hill was fought on June 17, 1775, during the early stages of the American Revolutionary War."
+          - "Despite being a British victory, the battle demonstrated that the American forces could stand up to the British army."
+          - "Think about the significance of this battle. How might it have affected the morale and determination of the American forces?"
+        tokens_for_ai: "Guide the student to think about the significance of the Battle of Bunker Hill. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "Why do you think the Battle of Bunker Hill was significant for the American forces?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You understand the significance of the Battle of Bunker Hill for the American forces."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the student to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the student's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the Battle of Bunker Hill."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the student back to the topic of the Battle of Bunker Hill in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the student's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_2"
+        title: "The Battle of Saratoga"
+        content_blocks:
+          - "The Battle of Saratoga was a turning point in the American Revolutionary War."
+          - "Fought in 1777, it resulted in a decisive victory for the American forces and convinced France to join the war on the side of the Americans."
+          - "Think about why this battle was a turning point. How did the involvement of France change the course of the war?"
+        tokens_for_ai: "Guide the student to think about the significance of the Battle of Saratoga. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "Why do you think the Battle of Saratoga was a turning point in the Revolutionary War?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You understand the significance of the Battle of Saratoga."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the student to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the student's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the Battle of Saratoga."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the student back to the topic of the Battle of Saratoga in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the student's clarifying questions and provide additional information in a friendly and engaging manner."
+
+  - section_id: "section_6"
+    title: "The Declaration of Independence"
+    steps:
+      - step_id: "step_1"
+        title: "Drafting the Declaration"
+        content_blocks:
+          - "The Declaration of Independence was drafted by Thomas Jefferson and adopted by the Continental Congress on July 4, 1776."
+          - "It declared the thirteen American colonies as independent states, free from British rule."
+          - "Think about the significance of declaring independence. How might this document have inspired the colonists and affected their resolve to fight for freedom?"
+        tokens_for_ai: "Guide the student to think about the significance of the Declaration of Independence. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "Why do you think the Declaration of Independence was significant for the colonists?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You understand the significance of the Declaration of Independence for the colonists."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the student to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the student's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the Declaration of Independence."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the student back to the topic of the Declaration of Independence in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the student's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_2"
+        title: "Key Principles of the Declaration"
+        content_blocks:
+          - "The Declaration of Independence outlined key principles such as equality, unalienable rights, and the right to alter or abolish government."
+          - "It emphasized that all men are created equal and have the right to life, liberty, and the pursuit of happiness."
+          - "Think about how these principles might have influenced the new nation. How do you think they shaped the values and government of the United States?"
+        tokens_for_ai: "Guide the student to think about the key principles of the Declaration of Independence and their influence. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "How do you think the key principles of the Declaration of Independence influenced the new nation?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You understand the influence of the key principles of the Declaration of Independence."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the student to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the student's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the key principles of the Declaration of Independence."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the student back to the topic of the key principles of the Declaration of Independence in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the student's clarifying questions and provide additional information in a friendly and engaging manner."
+
+  - section_id: "section_7"
+    title: "The End of the Revolutionary War"
+    steps:
+      - step_id: "step_1"
+        title: "The Siege of Yorktown"
+        content_blocks:
+          - "The Siege of Yorktown was the last major battle of the American Revolutionary War."
+          - "Fought in 1781, it resulted in the surrender of British General Cornwallis and effectively ended the war."
+          - "Think about why this battle was significant. How did the surrender of Cornwallis impact the outcome of the war?"
+        tokens_for_ai: "Guide the student to think about the significance of the Siege of Yorktown. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "Why do you think the Siege of Yorktown was significant in ending the Revolutionary War?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You understand the significance of the Siege of Yorktown in ending the Revolutionary War."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the student to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the student's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the Siege of Yorktown."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the student back to the topic of the Siege of Yorktown in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the student's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_2"
+        title: "The Treaty of Paris"
+        content_blocks:
+          - "The Treaty of Paris was signed on September 3, 1783, and officially ended the American Revolutionary War."
+          - "The treaty recognized the independence of the United States and established its borders."
+          - "Think about the significance of this treaty. How did it solidify the United States' status as an independent nation?"
+        tokens_for_ai: "Guide the student to think about the significance of the Treaty of Paris. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "Why do you think the Treaty of Paris was significant in solidifying the United States' independence?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You understand the significance of the Treaty of Paris in solidifying the United States' independence."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the student to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the student's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the Treaty of Paris."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the student back to the topic of the Treaty of Paris in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the student's clarifying questions and provide additional information in a friendly and engaging manner."
+
+  - section_id: "section_8"
+    title: "Legacy of the Revolutionary War"
+    steps:
+      - step_id: "step_1"
+        title: "Impact on the United States"
+        content_blocks:
+          - "The American Revolutionary War had a profound impact on the United States."
+          - "It led to the establishment of a new nation based on principles of liberty, democracy, and self-governance."
+          - "Think about how these principles have shaped the United States. How do you see the influence of the Revolutionary War in the country's values and government today?"
+        tokens_for_ai: "Guide the student to think about the impact of the Revolutionary War on the United States. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "How do you think the principles established during the Revolutionary War have shaped the United States today?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You understand the impact of the Revolutionary War on the United States today."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the student to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the student's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the impact of the Revolutionary War."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the student back to the topic of the impact of the Revolutionary War in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the student's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_2"
+        title: "Influence on Other Nations"
+        content_blocks:
+          - "The American Revolutionary War inspired other nations to fight for their independence and adopt democratic principles."
+          - "It had a significant influence on the French Revolution and other independence movements around the world."
+          - "Think about how the success of the American Revolution might have inspired other countries. How do you think it influenced global movements for independence and democracy?"
+        tokens_for_ai: "Guide the student to think about the influence of the American Revolutionary War on other nations. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "How do you think the success of the American Revolution influenced other countries' movements for independence and democracy?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You understand the influence of the American Revolution on other countries."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the student to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the student's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the influence of the American Revolution."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the student back to the topic of the influence of the American Revolution in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the student's clarifying questions and provide additional information in a friendly and engaging manner."
+
+  - section_id: "section_9"
+    title: "Congratulations!"
+    steps:
+      - step_id: "step_1"
+        title: "Well Done!"
+        content_blocks:
+          - "Congratulations on completing the American Revolutionary War course!"
+          - "You have learned about the causes, key events, major battles, important figures, and the legacy of the Revolutionary War."
+          - "This knowledge will help you understand the foundations of the United States and the principles of liberty and democracy."
+          - "We are proud of your dedication and hard work. Well done!"

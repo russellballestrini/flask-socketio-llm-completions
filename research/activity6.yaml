@@ -1,0 +1,285 @@
+default_max_attempts_per_step: 3
+sections:
+  - section_id: "section_1"
+    title: "Introduction to Cybersecurity"
+    steps:
+      - step_id: "step_1"
+        title: "What is Cybersecurity?"
+        content_blocks:
+          - "Welcome to the Cybersecurity Awareness Training."
+          - "Cybersecurity involves protecting computer systems, networks, and data from digital attacks."
+        tokens_for_ai: "Explain what cybersecurity is and its importance in a friendly and engaging manner. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "What do you understand by cybersecurity?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You have a good understanding of cybersecurity."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of cybersecurity. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on cybersecurity."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of cybersecurity in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_2"
+        title: "Importance of Cybersecurity"
+        content_blocks:
+          - "Cybersecurity is crucial to protect sensitive information and maintain privacy."
+          - "It helps prevent data breaches, identity theft, and other cyber threats."
+        tokens_for_ai: "Explain the importance of cybersecurity in a friendly and engaging manner. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "Why is cybersecurity important?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You understand the importance of cybersecurity."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of the importance. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the importance of cybersecurity."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of the importance of cybersecurity in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+  - section_id: "section_2"
+    title: "Common Cybersecurity Threats"
+    steps:
+      - step_id: "step_1"
+        title: "Phishing Attacks"
+        content_blocks:
+          - "Phishing attacks involve tricking individuals into providing sensitive information by pretending to be a trustworthy entity."
+          - "These attacks often come in the form of emails or messages that appear legitimate."
+        tokens_for_ai: "Explain what phishing attacks are and how to recognize them in a friendly and engaging manner. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "What is a phishing attack and how can you recognize it?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You understand what phishing attacks are and how to recognize them."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of phishing attacks. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on phishing attacks."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of phishing attacks in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_2"
+        title: "Malware"
+        content_blocks:
+          - "Malware is malicious software designed to harm or exploit computer systems."
+          - "Common types of malware include viruses, worms, and ransomware."
+        tokens_for_ai: "Explain what malware is and the different types in a friendly and engaging manner. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "What is malware and what are some common types?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You understand what malware is and the different types."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of malware. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on malware."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of malware in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+  - section_id: "section_3"
+    title: "Best Practices for Cybersecurity"
+    steps:
+      - step_id: "step_1"
+        title: "Strong Passwords"
+        content_blocks:
+          - "Using strong passwords is one of the simplest and most effective ways to protect your accounts."
+          - "A strong password should be at least 12 characters long and include a mix of letters, numbers, and special characters."
+        tokens_for_ai: "Explain the importance of strong passwords and how to create them in a friendly and engaging manner. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "Why are strong passwords important and how can you create one?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You understand the importance of strong passwords and how to create them."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of strong passwords. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on strong passwords."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of strong passwords in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_2"
+        title: "Two-Factor Authentication"
+        content_blocks:
+          - "Two-factor authentication (2FA) adds an extra layer of security to your accounts."
+          - "It requires you to provide two forms of identification before accessing your account."
+        tokens_for_ai: "Explain what two-factor authentication is and its benefits in a friendly and engaging manner. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "What is two-factor authentication and why is it beneficial?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You understand what two-factor authentication is and its benefits."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of two-factor authentication. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on two-factor authentication."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of two-factor authentication in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+  - section_id: "section_4"
+    title: "Recognizing and Responding to Threats"
+    steps:
+      - step_id: "step_1"
+        title: "Recognizing Phishing Emails"
+        content_blocks:
+          - "Phishing emails often have telltale signs such as poor grammar, urgent language, and suspicious links."
+          - "Always verify the sender's email address and avoid clicking on links or downloading attachments from unknown sources."
+        tokens_for_ai: "Explain how to recognize phishing emails in a friendly and engaging manner. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "How can you recognize a phishing email?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You know how to recognize phishing emails."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of recognizing phishing emails. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on recognizing phishing emails."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of recognizing phishing emails in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_2"
+        title: "Responding to a Cyber Attack"
+        content_blocks:
+          - "If you suspect a cyber attack, disconnect from the internet and report the incident to your IT department or a cybersecurity professional."
+          - "Do not attempt to fix the issue yourself as it may cause further damage."
+        tokens_for_ai: "Explain how to respond to a suspected cyber attack in a friendly and engaging manner. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
+        question: "What should you do if you suspect a cyber attack?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You know how to respond to a suspected cyber attack."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of responding to a cyber attack. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on responding to a cyber attack."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of responding to a cyber attack in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."

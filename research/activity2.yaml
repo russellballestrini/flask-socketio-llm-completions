@@ -1,0 +1,287 @@
+default_max_attempts_per_step: 3
+sections:
+  - section_id: "section_1"
+    title: "Introduction to Python"
+    steps:
+      - step_id: "step_1"
+        title: "What is Python?"
+        content_blocks:
+          - "Welcome to the Python programming course."
+          - "Python is a high-level, interpreted programming language known for its readability and versatility."
+        tokens_for_ai: "Explain what Python is and its key features in a friendly and engaging manner."
+        question: "What do you know about Python?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You have a good understanding of Python."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of Python. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on Python."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of Python in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_2"
+        title: "Installing Python"
+        content_blocks:
+          - "To start coding in Python, you need to install it on your computer."
+          - "You can download Python from the official website: https://www.python.org/downloads/"
+        tokens_for_ai: "Explain how to install Python on different operating systems in a friendly and engaging manner."
+        question: "Have you installed Python on your computer?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You are ready to start coding in Python."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "It seems like you have some issues with the installation. Let's go over the steps again."
+            ai_feedback:
+              tokens_for_ai: "Provide detailed installation steps to help the user in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on installing Python."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of installing Python in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+  - section_id: "section_2"
+    title: "Basic Python Syntax"
+    steps:
+      - step_id: "step_1"
+        title: "Writing Your First Python Program"
+        content_blocks:
+          - "Let's write your first Python program."
+          - "Open a text editor and type the following code:\n```python\nprint('Hello, World!')\n```"
+          - "Save the file with a `.py` extension and run it using the Python interpreter."
+        tokens_for_ai: "Explain how to write and run a simple Python program in a friendly and engaging manner."
+        question: "Were you able to run the 'Hello, World!' program?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You've written and run your first Python program."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "It seems like you had some issues. Let's go over the steps again."
+            ai_feedback:
+              tokens_for_ai: "Provide detailed steps to help the user run the program successfully in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on writing and running the Python program."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of writing and running the Python program in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_2"
+        title: "Variables and Data Types"
+        content_blocks:
+          - "In Python, you can store data in variables."
+          - "Python supports various data types such as integers, floats, strings, and booleans."
+          - "Here's an example:\n```python\nx = 5\npi = 3.14\nname = 'Alice'\nis_student = True\n```"
+        tokens_for_ai: "Explain variables and data types in Python with examples in a friendly and engaging manner."
+        question: "Can you create a variable and assign a value to it?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You have successfully created a variable."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "It seems like you have a partial understanding. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional examples and explanations to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on variables and data types."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of variables and data types in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+  - section_id: "section_3"
+    title: "Control Flow"
+    steps:
+      - step_id: "step_1"
+        title: "If Statements"
+        content_blocks:
+          - "If statements allow you to execute code based on certain conditions."
+          - "Here's an example:\n```python\nx = 10\nif x > 5:\n    print('x is greater than 5')\nelse:\n    print('x is 5 or less')\n```"
+        tokens_for_ai: "Explain if statements in Python with examples in a friendly and engaging manner."
+        question: "Can you write an if statement to check if a number is positive?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You've written a correct if statement."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "It seems like you have a partial understanding. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional examples and explanations to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on if statements."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of if statements in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_2"
+        title: "For Loops"
+        content_blocks:
+          - "For loops allow you to iterate over a sequence of elements."
+          - "Here's an example:\n```python\nfor i in range(5):\n    print(i)\n```"
+        tokens_for_ai: "Explain for loops in Python with examples in a friendly and engaging manner."
+        question: "Can you write a for loop to print the numbers from 1 to 10?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You've written a correct for loop."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "It seems like you have a partial understanding. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional examples and explanations to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on for loops."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of for loops in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+  - section_id: "section_4"
+    title: "Functions"
+    steps:
+      - step_id: "step_1"
+        title: "Defining Functions"
+        content_blocks:
+          - "Functions allow you to encapsulate code into reusable blocks."
+          - "Here's an example:\n```python\ndef greet(name):\n    print(f'Hello, {name}!')\n\ngreet('Alice')\n```"
+        tokens_for_ai: "Explain how to define and use functions in Python with examples in a friendly and engaging manner."
+        question: "Can you define a function that takes two numbers and returns their sum?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You've defined a correct function."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "It seems like you have a partial understanding. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional examples and explanations to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on defining functions."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of defining functions in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_2"
+        title: "Calling Functions"
+        content_blocks:
+          - "Once you've defined a function, you can call it to execute the code inside it."
+          - "Here's an example:\n```python\ndef add(a, b):\n    return a + b\n\nresult = add(3, 4)\nprint(result)\n```"
+        tokens_for_ai: "Explain how to call functions in Python with examples in a friendly and engaging manner."
+        question: "Can you call a function that you've defined and print the result?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You've called the function correctly."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "It seems like you have a partial understanding. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional examples and explanations to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on calling functions."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of calling functions in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."

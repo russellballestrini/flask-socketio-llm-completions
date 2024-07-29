@@ -1,0 +1,73 @@
+default_max_attempts_per_step: 3
+sections:
+  - section_id: "section_1"
+    title: "Introduction to AI"
+    steps:
+      - step_id: "step_1"
+        title: "Understanding AI"
+        content_blocks:
+          - "Welcome to the introduction to AI."
+          - "In this section, we will cover the basics of AI."
+        tokens_for_ai: "Explain the basics of AI to the user in a friendly and engaging manner."
+        question: "What do you understand by Artificial Intelligence?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Great! You have a good understanding of AI."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of AI. Let's clarify a few points."
+            ai_feedback:
+              tokens_for_ai: "Provide additional information to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on AI."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of AI in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_2"
+        title: "Applications of AI"
+        content_blocks:
+          - "Now that you understand the basics of AI, let's explore its applications."
+          - "AI is used in various fields such as healthcare, finance, and transportation."
+        tokens_for_ai: "Explain the applications of AI in different fields in a friendly and engaging manner."
+        question: "Can you name a few applications of AI?"
+        buckets:
+          - correct
+          - partial_understanding
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          correct:
+            content_blocks:
+              - "Excellent! You have identified some key applications of AI."
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and encourage the user to continue learning."
+          partial_understanding:
+            content_blocks:
+              - "You have a partial understanding of AI applications. Let's explore more."
+            ai_feedback:
+              tokens_for_ai: "Provide additional examples to clarify the user's understanding in a friendly and supportive manner."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on AI applications."
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the topic of AI applications in a supportive manner."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them."
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
