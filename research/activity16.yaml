@@ -1,0 +1,314 @@
+default_max_attempts_per_step: 3
+
+tokens_for_ai_rubric: |
+    You are a master storyteller. Your task is to create a coherent and engaging story based on the following chat history. The story should seamlessly integrate the user's responses and the AI's feedback, ensuring that the narrative flows naturally. Pay special attention to the user's choices and how they shape the story. Use descriptive language to bring the scenes to life and make the story immersive. The story should have a clear beginning, middle, and end, reflecting the user's journey and the outcomes of their decisions. Here is the chat history.
+
+sections:
+  - section_id: "introduction"
+    title: "Introduction"
+    steps:
+      - step_id: "intro_step_1"
+        title: "Welcome"
+        content_blocks:
+          - "Welcome to the Learning Activity! 📚"
+          - "In this activity, you will go through three lessons."
+          - "After completing all lessons, you will be able to exit."
+
+      - step_id: "intro_step_2"
+        title: "Choose a Lesson"
+        content_blocks:
+          - "You can choose to review any of the lessons or exit if you have completed all lessons."
+          - "Lesson 1: Topic 1 - Introduction to fundamental principles."
+          - "Lesson 2: Topic 2 - Understanding data structures."
+          - "Lesson 3: Topic 3 - Learning about algorithms."
+        question: "Which lesson would you like to review or would you like to exit? 🤔"
+        tokens_for_ai: "Guide the user to choose a lesson or exit. Provide positive reinforcement. Use emojis like 👍 and 🌟."
+        buckets:
+          - lesson_1
+          - lesson_2
+          - lesson_3
+          - exit
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          lesson_1:
+            next_section_and_step: "lesson_1:lesson1_step_1"
+            ai_feedback:
+              tokens_for_ai: "Guide the user to Lesson 1 about fundamental principles. Use emojis like 🔄 and 🌟."
+          lesson_2:
+            next_section_and_step: "lesson_2:lesson2_step_1"
+            ai_feedback:
+              tokens_for_ai: "Guide the user to Lesson 2 about data structures. Use emojis like 🔄 and 🌟."
+          lesson_3:
+            next_section_and_step: "lesson_3:lesson3_step_1"
+            ai_feedback:
+              tokens_for_ai: "Guide the user to Lesson 3 about algorithms. Use emojis like 🔄 and 🌟."
+          exit:
+            metadata_conditions:
+              lesson_1_completed: true
+              lesson_2_completed: true
+              lesson_3_completed: true
+            next_section_and_step: "exit:exit_step_1"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and guide the user to the exit. Use emojis like 👍 and 🌟."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the activity. 🔄"
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the activity in a supportive manner. Use emojis like 🔄 and 🧭."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them. ❓"
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner. Use emojis like ❓ and 💬."
+
+  - section_id: "lesson_1"
+    title: "Lesson 1: Topic 1"
+    steps:
+      - step_id: "lesson1_step_1"
+        title: "Introduction to Topic 1"
+        content_blocks:
+          - "Welcome to Lesson 1! 📝"
+          - "In this lesson, you will learn about Topic 1."
+          - "Topic 1 is important because it lays the foundation for understanding more complex concepts."
+
+      - step_id: "lesson1_step_2"
+        title: "Basics of Topic 1"
+        content_blocks:
+          - "Let's start with the basics of Topic 1. 📝"
+          - "Topic 1 involves understanding the fundamental principles that will be built upon in later lessons."
+          - "For example, if Topic 1 is about programming, you might learn about variables, data types, and control structures."
+        question: "Do you understand the basics of Topic 1? 🤔"
+        tokens_for_ai: "Guide the user to confirm their understanding of the basics of Topic 1, which includes variables, data types, and control structures. Provide positive reinforcement. Use emojis like 👍 and 🌟."
+        buckets:
+          - understand
+          - not_understand
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          understand:
+            next_section_and_step: "lesson_1:lesson1_step_3"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and guide the user to the next step. Use emojis like 👍 and 🌟."
+          not_understand:
+            content_blocks:
+              - "Let's review the basics of Topic 1 again. 📝"
+            ai_feedback:
+              tokens_for_ai: "Provide supportive feedback and review the basics of Topic 1. Use emojis like 📝 and 🌟."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the lesson. 🔄"
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the lesson in a supportive manner. Use emojis like 🔄 and 🧭."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them. ❓"
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner. Use emojis like ❓ and 💬."
+
+      - step_id: "lesson1_step_3"
+        title: "Advanced Concepts in Topic 1"
+        content_blocks:
+          - "Now that you understand the basics, let's move on to some advanced concepts in Topic 1. 📝"
+          - "These concepts will help you gain a deeper understanding and apply what you've learned in more complex scenarios."
+          - "For example, if Topic 1 is about programming, you might learn about functions, classes, and modules."
+        question: "Do you understand the advanced concepts of Topic 1? 🤔"
+        tokens_for_ai: "Guide the user to confirm their understanding of the advanced concepts of Topic 1, which includes functions, classes, and modules. Provide positive reinforcement. Use emojis like 👍 and 🌟."
+        buckets:
+          - understand
+          - not_understand
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          understand:
+            next_section_and_step: "introduction:intro_step_2"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and guide the user back to the introduction. Use emojis like 👍 and 🌟."
+            metadata_updates:
+              lesson_1_completed: true
+          not_understand:
+            content_blocks:
+              - "Let's review the advanced concepts of Topic 1 again. 📝"
+            ai_feedback:
+              tokens_for_ai: "Provide supportive feedback and review the advanced concepts of Topic 1. Use emojis like 📝 and 🌟."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the lesson. 🔄"
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the lesson in a supportive manner. Use emojis like 🔄 and 🧭."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them. ❓"
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner. Use emojis like ❓ and 💬."
+
+  - section_id: "lesson_2"
+    title: "Lesson 2: Topic 2"
+    steps:
+      - step_id: "lesson2_step_1"
+        title: "Introduction to Topic 2"
+        content_blocks:
+          - "Welcome to Lesson 2! 📝"
+          - "In this lesson, you will learn about Topic 2."
+          - "Topic 2 builds on what you learned in Topic 1 and introduces new concepts."
+
+      - step_id: "lesson2_step_2"
+        title: "Basics of Topic 2"
+        content_blocks:
+          - "Let's start with the basics of Topic 2. 📝"
+          - "Topic 2 involves understanding the fundamental principles that will be built upon in later lessons."
+          - "For example, if Topic 2 is about data structures, you might learn about arrays, linked lists, and stacks."
+        question: "Do you understand the basics of Topic 2? 🤔"
+        tokens_for_ai: "Guide the user to confirm their understanding of the basics of Topic 2, which includes arrays, linked lists, and stacks. Provide positive reinforcement. Use emojis like 👍 and 🌟."
+        buckets:
+          - understand
+          - not_understand
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          understand:
+            next_section_and_step: "lesson_2:lesson2_step_3"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and guide the user to the next step. Use emojis like 👍 and 🌟."
+          not_understand:
+            content_blocks:
+              - "Let's review the basics of Topic 2 again. 📝"
+            ai_feedback:
+              tokens_for_ai: "Provide supportive feedback and review the basics of Topic 2. Use emojis like 📝 and 🌟."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the lesson. 🔄"
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the lesson in a supportive manner. Use emojis like 🔄 and 🧭."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them. ❓"
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner. Use emojis like ❓ and 💬."
+
+      - step_id: "lesson2_step_3"
+        title: "Advanced Concepts in Topic 2"
+        content_blocks:
+          - "Now that you understand the basics, let's move on to some advanced concepts in Topic 2. 📝"
+          - "These concepts will help you gain a deeper understanding and apply what you've learned in more complex scenarios."
+          - "For example, if Topic 2 is about data structures, you might learn about trees, graphs, and hash tables."
+        question: "Do you understand the advanced concepts of Topic 2? 🤔"
+        tokens_for_ai: "Guide the user to confirm their understanding of the advanced concepts of Topic 2, which includes trees, graphs, and hash tables. Provide positive reinforcement. Use emojis like 👍 and 🌟."
+        buckets:
+          - understand
+          - not_understand
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          understand:
+            next_section_and_step: "introduction:intro_step_2"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and guide the user back to the introduction. Use emojis like 👍 and 🌟."
+            metadata_updates:
+              lesson_2_completed: true
+          not_understand:
+            content_blocks:
+              - "Let's review the advanced concepts of Topic 2 again. 📝"
+            ai_feedback:
+              tokens_for_ai: "Provide supportive feedback and review the advanced concepts of Topic 2. Use emojis like 📝 and 🌟."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the lesson. 🔄"
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the lesson in a supportive manner. Use emojis like 🔄 and 🧭."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them. ❓"
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner. Use emojis like ❓ and 💬."
+
+  - section_id: "lesson_3"
+    title: "Lesson 3: Topic 3"
+    steps:
+      - step_id: "lesson3_step_1"
+        title: "Introduction to Topic 3"
+        content_blocks:
+          - "Welcome to Lesson 3! 📝"
+          - "In this lesson, you will learn about Topic 3."
+          - "Topic 3 builds on what you learned in Topics 1 and 2 and introduces new concepts."
+
+      - step_id: "lesson3_step_2"
+        title: "Basics of Topic 3"
+        content_blocks:
+          - "Let's start with the basics of Topic 3. 📝"
+          - "Topic 3 involves understanding the fundamental principles that will be built upon in later lessons."
+          - "For example, if Topic 3 is about algorithms, you might learn about sorting, searching, and recursion."
+        question: "Do you understand the basics of Topic 3? 🤔"
+        tokens_for_ai: "Guide the user to confirm their understanding of the basics of Topic 3, which includes sorting, searching, and recursion. Provide positive reinforcement. Use emojis like 👍 and 🌟."
+        buckets:
+          - understand
+          - not_understand
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          understand:
+            next_section_and_step: "lesson_3:lesson3_step_3"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and guide the user to the next step. Use emojis like 👍 and 🌟."
+          not_understand:
+            content_blocks:
+              - "Let's review the basics of Topic 3 again. 📝"
+            ai_feedback:
+              tokens_for_ai: "Provide supportive feedback and review the basics of Topic 3. Use emojis like 📝 and 🌟."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the lesson. 🔄"
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the lesson in a supportive manner. Use emojis like 🔄 and 🧭."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them. ❓"
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner. Use emojis like ❓ and 💬."
+
+      - step_id: "lesson3_step_3"
+        title: "Advanced Concepts in Topic 3"
+        content_blocks:
+          - "Now that you understand the basics, let's move on to some advanced concepts in Topic 3. 📝"
+          - "These concepts will help you gain a deeper understanding and apply what you've learned in more complex scenarios."
+          - "For example, if Topic 3 is about algorithms, you might learn about dynamic programming, graph algorithms, and optimization techniques."
+        question: "Do you understand the advanced concepts of Topic 3? 🤔"
+        tokens_for_ai: "Guide the user to confirm their understanding of the advanced concepts of Topic 3, which includes dynamic programming, graph algorithms, and optimization techniques. Provide positive reinforcement. Use emojis like 👍 and 🌟."
+        buckets:
+          - understand
+          - not_understand
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          understand:
+            next_section_and_step: "introduction:intro_step_2"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and guide the user back to the introduction. Use emojis like 👍 and 🌟."
+            metadata_updates:
+              lesson_3_completed: true
+          not_understand:
+            content_blocks:
+              - "Let's review the advanced concepts of Topic 3 again. 📝"
+            ai_feedback:
+              tokens_for_ai: "Provide supportive feedback and review the advanced concepts of Topic 3. Use emojis like 📝 and 🌟."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the lesson. 🔄"
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the lesson in a supportive manner. Use emojis like 🔄 and 🧭."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them. ❓"
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner. Use emojis like ❓ and 💬."
+
+  - section_id: "exit"
+    title: "Exit"
+    steps:
+      - step_id: "exit_step_1"
+        title: "Congratulations!"
+        content_blocks:
+          - "Congratulations on completing all the lessons! 🎉"
+          - "You have successfully completed the activity."
+          - "We hope you enjoyed the learning experience. 🌟"
+          - "Thank you for participating! Goodbye! 👋"
