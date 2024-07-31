@@ -1708,6 +1708,90 @@ def cancel_generation(room_name):
         )
 
 
+def loop_through_steps_until_question(activity_content, activity_state, room_name):
+    room = get_room(room_name)
+
+    current_section_id = activity_state.section_id
+    current_step_id = activity_state.step_id
+
+    while True:
+        section = next(
+            (s for s in activity_content["sections"] if s["section_id"] == current_section_id), None
+        )
+        if not section:
+            break
+
+        step = next((s for s in section["steps"] if s["step_id"] == current_step_id), None)
+        if not step:
+            break
+
+        # Emit the current step content blocks
+        content = "\n\n".join(step["content_blocks"])
+        new_message = Message(username="System", content=content, room_id=room.id)
+        db.session.add(new_message)
+        db.session.commit()
+
+        socketio.emit(
+            "message",
+            {
+                "id": new_message.id,
+                "username": "System",
+                "content": content,
+            },
+            room=room_name,
+        )
+
+        # Check if the current step has a question
+        if "question" in step:
+            question_content = f"Question: {step['question']}"
+            new_message = Message(
+                username="System", content=question_content, room_id=room.id
+            )
+            db.session.add(new_message)
+            db.session.commit()
+
+            socketio.emit(
+                "message",
+                {
+                    "id": new_message.id,
+                    "username": "System",
+                    "content": question_content,
+                },
+                room=room_name,
+            )
+            break
+
+        # Move to the next step
+        next_section, next_step = get_next_step(
+            activity_content, current_section_id, current_step_id
+        )
+
+        if next_step:
+            activity_state.section_id = next_section["section_id"]
+            activity_state.step_id = next_step["step_id"]
+            activity_state.attempts = 0
+
+            db.session.add(activity_state)
+            db.session.commit()
+
+            current_section_id = next_section["section_id"]
+            current_step_id = next_step["step_id"]
+        else:
+            # Activity completed
+            db.session.delete(activity_state)
+            db.session.commit()
+            socketio.emit(
+                "message",
+                {
+                    "id": None,
+                    "username": "System",
+                    "content": "Activity completed!",
+                },
+                room=room_name,
+            )
+            break
+
+
 def start_activity(room_name, s3_file_path, username):
     s3_client = boto3.client("s3")
     bucket_name = os.environ.get("S3_BUCKET_NAME")
@@ -1732,91 +1816,8 @@ def start_activity(room_name, s3_file_path, username):
         db.session.add(activity_state)
         db.session.commit()
 
-        # Store and emit the initial activity content
-        content = f"Starting Activity: {initial_section['title']}\n\n"
-        content += "\n\n".join(initial_step["content_blocks"])
-        new_message = Message(username="System", content=content, room_id=room.id)
-        db.session.add(new_message)
-        db.session.commit()
-
-        socketio.emit(
-            "message",
-            {
-                "id": new_message.id,
-                "username": "System",
-                "content": content,
-            },
-            room=room_name,
-        )
-
-        # Emit the initial question or move to the next step if no question
-        if "question" in initial_step:
-            question_content = f"Question: {initial_step['question']}"
-            new_message = Message(
-                username="System", content=question_content, room_id=room.id
-            )
-            db.session.add(new_message)
-            db.session.commit()
-
-            socketio.emit(
-                "message",
-                {
-                    "id": new_message.id,
-                    "username": "System",
-                    "content": question_content,
-                },
-                room=room_name,
-            )
-        else:
-            # Automatically move to the next step if no question
-            next_section, next_step = get_next_step(
-                activity_content, initial_section["section_id"], initial_step["step_id"]
-            )
-
-            if next_step:
-                activity_state.section_id = next_section["section_id"]
-                activity_state.step_id = next_step["step_id"]
-                activity_state.attempts = 0
-
-                db.session.add(activity_state)
-                db.session.commit()
-
-                # Emit the new step content blocks
-                content = "\n\n".join(next_step["content_blocks"])
-                new_message = Message(
-                    username="System", content=content, room_id=room.id
-                )
-                db.session.add(new_message)
-                db.session.commit()
-
-                socketio.emit(
-                    "message",
-                    {
-                        "id": new_message.id,
-                        "username": "System",
-                        "content": content,
-                    },
-                    room=room_name,
-                )
-
-                # Emit the new question if it exists
-                if "question" in next_step:
-                    question_content = f"Question: {next_step['question']}"
-                    new_message = Message(
-                        username="System", content=question_content, room_id=room.id
-                    )
-                    db.session.add(new_message)
-                    db.session.commit()
-
-                    socketio.emit(
-                        "message",
-                        {
-                            "id": new_message.id,
-                            "username": "System",
-                            "content": question_content,
-                        },
-                        room=room_name,
-                    )
+        # Loop through steps until a question is found or the end is reached
+        loop_through_steps_until_question(activity_content, activity_state, room_name)
 
 
 def cancel_activity(room_name, username):
@@ -2042,60 +2043,8 @@ def handle_activity_response(room_name, user_response, username):
                         db.session.add(activity_state)
                         db.session.commit()
 
-                        # Emit the new step content blocks
-                        content = "\n\n".join(next_step["content_blocks"])
-                        new_message = Message(
-                            username="System", content=content, room_id=room.id
-                        )
-                        db.session.add(new_message)
-                        db.session.commit()
-
-                        socketio.emit(
-                            "message",
-                            {
-                                "id": new_message.id,
-                                "username": "System",
-                                "content": content,
-                            },
-                            room=room_name,
-                        )
-
-                        # Emit the new question if it exists
-                        if "question" in next_step:
-                            question_content = f"Question: {next_step['question']}"
-                            new_message = Message(
-                                username="System",
-                                content=question_content,
-                                room_id=room.id,
-                            )
-                            db.session.add(new_message)
-                            db.session.commit()
-
-                            socketio.emit(
-                                "message",
-                                {
-                                    "id": new_message.id,
-                                    "username": "System",
-                                    "content": question_content,
-                                },
-                                room=room_name,
-                            )
-                    else:
-                        # Display activity info before completing
-                        display_activity_info(room_name, username)
-
-                        # Activity completed
-                        db.session.delete(activity_state)
-                        db.session.commit()
-                        socketio.emit(
-                            "message",
-                            {
-                                "id": None,
-                                "username": "System",
-                                "content": "Activity completed!",
-                            },
-                            room=room_name,
-                        )
+                        # Loop through steps until a question is found or the end is reached
+                        loop_through_steps_until_question(activity_content, activity_state, room_name)
                 else:
                     # the user response is any bucket other than correct.
                     activity_state.attempts += 1
@@ -2121,75 +2070,7 @@ def handle_activity_response(room_name, user_response, username):
                     )
             else:
                 # Handle steps without a question
-                next_section, next_step = get_next_step(
-                    activity_content, section["section_id"], step["step_id"]
-                )
-
-                print("handle steps without question")
-                print(f"{next_step}")
-
-                if next_step:
-                    activity_state.section_id = next_section["section_id"]
-                    activity_state.step_id = next_step["step_id"]
-                    activity_state.attempts = 0
-
-                    db.session.add(activity_state)
-                    db.session.commit()
-
-                    # Emit the new step content blocks
-                    content = "\n\n".join(next_step["content_blocks"])
-                    new_message = Message(
-                        username="System", content=content, room_id=room.id
-                    )
-                    db.session.add(new_message)
-                    db.session.commit()
-
-                    socketio.emit(
-                        "message",
-                        {
-                            "id": new_message.id,
-                            "username": "System",
-                            "content": content,
-                        },
-                        room=room_name,
-                    )
-
-                    # Emit the new question if it exists
-                    if "question" in next_step:
-                        question_content = f"Question: {next_step['question']}"
-                        new_message = Message(
-                            username="System",
-                            content=question_content,
-                            room_id=room.id,
-                        )
-                        db.session.add(new_message)
-                        db.session.commit()
-
-                        socketio.emit(
-                            "message",
-                            {
-                                "id": new_message.id,
-                                "username": "System",
-                                "content": question_content,
-                            },
-                            room=room_name,
-                        )
-                else:
-                    # Display activity info before completing
-                    display_activity_info(room_name, username)
-
-                    # Activity completed
-                    db.session.delete(activity_state)
-                    db.session.commit()
-                    socketio.emit(
-                        "message",
-                        {
-                            "id": None,
-                            "username": "System",
-                            "content": "Activity completed!",
-                        },
-                        room=room_name,
-                    )
+                loop_through_steps_until_question(activity_content, activity_state, room_name)
 
         except Exception as e:
             socketio.emit(
