@@ -28,7 +28,6 @@ sections:
             content_blocks:
               - "You chose to look under the rug. 🧺"
               - "You find something hidden under the rug."
-              - "Do you take it or continue exploring the room?"
             next_section_and_step: "section_2:step_1"
             ai_feedback:
               tokens_for_ai: "Provide positive reinforcement and guide the user to make the next choice. Be flexible to classify actions that lead to finding hidden items. Use emojis like 👍 and 🌟."
@@ -36,7 +35,6 @@ sections:
             content_blocks:
               - "You chose to examine the book. 📖"
               - "The book contains something interesting."
-              - "Do you take note of it or continue exploring the room?"
             next_section_and_step: "section_3:step_1"
             ai_feedback:
               tokens_for_ai: "Provide positive reinforcement and guide the user to make the next choice. Be flexible to classify actions that lead to finding hidden items. Use emojis like 👍 and 🌟."
@@ -44,7 +42,6 @@ sections:
             content_blocks:
               - "You chose to try to open the safe. 🔒"
               - "The safe is locked and requires both a key and a password to open."
-              - "Do you look under the rug, examine the book, or continue exploring the room?"
             next_section_and_step: "section_4:step_1"
             ai_feedback:
               tokens_for_ai: "Provide positive reinforcement and guide the user to make the next choice. Be flexible to classify actions that lead to finding hidden items. Use emojis like 👍 and 🌟."
@@ -91,17 +88,12 @@ sections:
           take_key:
             content_blocks:
               - "You chose to take the key. 🔑"
-              - "You now have the key. Do you examine the book or try to open the safe?"
-            next_section_and_step: "section_2:step_1"
+            next_section_and_step: "section_1:step_1"
             ai_feedback:
               tokens_for_ai: "Provide positive reinforcement and guide the user to make the next choice. Be flexible to classify actions that lead to finding hidden items. Use emojis like 👍 and 🌟."
             metadata_updates:
               key: true
           continue_exploring:
-            content_blocks:
-              - "You chose to continue exploring the room. 🕵️"
-              - "You see a rug on the floor, a bookshelf with a book, and a safe on the wall."
-              - "What do you do next? Examine the book or try to open the safe?"
             next_section_and_step: "section_1:step_1"
             ai_feedback:
               tokens_for_ai: "Provide positive reinforcement and guide the user to make the next choice. Be flexible to classify actions that lead to finding hidden items. Use emojis like 👍 and 🌟."
@@ -109,16 +101,12 @@ sections:
             content_blocks:
               - "You chose to take a closer look under the rug. 🧺"
               - "You find a small, mysterious coin with strange engravings."
-              - "You now have the coin. Do you examine the book or try to open the safe?"
             next_section_and_step: "section_1:step_1"
             ai_feedback:
               tokens_for_ai: "Provide positive reinforcement and guide the user to make the next choice. Be flexible to classify actions that lead to finding hidden items. Use emojis like 👍 and 🌟."
             metadata_updates:
               coin: true
           go_back:
-            content_blocks:
-              - "You chose to go back to the previous step. 🔄"
-              - "You are now back at the previous step. What do you choose? Look under the rug, Examine the book, or Try to open the safe?"
             next_section_and_step: "section_1:step_1"
             ai_feedback:
               tokens_for_ai: "Provide positive reinforcement and guide the user to make the next choice. Be flexible to classify actions that lead to finding hidden items. Use emojis like 👍 and 🌟."
@@ -155,17 +143,12 @@ sections:
           take_password:
             content_blocks:
               - "You chose to take note of the password. 🔑"
-              - "You now have the password. Do you look under the rug or try to open the safe?"
-            next_section_and_step: "section_3:step_1"
+            next_section_and_step: "section_1:step_1"
             ai_feedback:
               tokens_for_ai: "Provide positive reinforcement and guide the user to make the next choice. Be flexible to classify actions that lead to finding hidden items. Use emojis like 👍 and 🌟."
             metadata_updates:
               password: true
           continue_exploring:
-            content_blocks:
-              - "You chose to continue exploring the room. 🕵️"
-              - "You see a rug on the floor, a bookshelf with a book, and a safe on the wall."
-              - "What do you do next? Look under the rug or try to open the safe?"
             next_section_and_step: "section_1:step_1"
             ai_feedback:
               tokens_for_ai: "Provide positive reinforcement and guide the user to make the next choice. Be flexible to classify actions that lead to finding hidden items. Use emojis like 👍 and 🌟."
@@ -173,16 +156,12 @@ sections:
             content_blocks:
               - "You chose to take a closer look at the book. 📖"
               - "You find a small, folded piece of paper with a cryptic message."
-              - "You now have the paper. Do you look under the rug or try to open the safe?"
             next_section_and_step: "section_1:step_1"
             ai_feedback:
               tokens_for_ai: "Provide positive reinforcement and guide the user to make the next choice. Be flexible to classify actions that lead to finding hidden items. Use emojis like 👍 and 🌟."
             metadata_updates:
               paper: true
           go_back:
-            content_blocks:
-              - "You chose to go back to the previous step. 🔄"
-              - "You are now back at the previous step. What do you choose? Look under the rug, Examine the book, or Try to open the safe?"
             next_section_and_step: "section_1:step_1"
             ai_feedback:
               tokens_for_ai: "Provide positive reinforcement and guide the user to make the next choice. Be flexible to classify actions that lead to finding hidden items. Use emojis like 👍 and 🌟."
@@ -222,8 +201,7 @@ sections:
               password: true
             content_blocks:
               - "You chose to use the key and enter the password to open the safe. 🔑"
-              - "The safe opens, revealing a hidden treasure."
-              - "Congratulations! You have found the hidden treasure and the exit key. 🎉"
+              - "The safe opens, revealing a hidden treasure and the exit key. 🎉"
               - "There is also a slot for a coin, but that is likely not important..."
             next_section_and_step: "section_4:step_1"
             ai_feedback:
@@ -232,17 +210,10 @@ sections:
               second_safe: true
               exit_key: true
           continue_exploring:
-            content_blocks:
-              - "You chose to continue exploring the room. 🕵️"
-              - "You see a rug on the floor, a bookshelf with a book, and a safe on the wall."
-              - "What do you do next? Look under the rug or examine the book?"
             next_section_and_step: "section_1:step_1"
             ai_feedback:
               tokens_for_ai: "Provide positive reinforcement and guide the user to make the next choice. Be flexible to classify actions that lead to finding hidden items. Use emojis like 👍 and 🌟."
           go_back:
-            content_blocks:
-              - "You chose to go back to the previous step. 🔄"
-              - "You are now back at the previous step. Do you take note of the password or continue exploring the room?"
             next_section_and_step: "section_3:step_1"
             ai_feedback:
               tokens_for_ai: "Provide positive reinforcement and guide the user to make the next choice. Be flexible to classify actions that lead to finding hidden items. Use emojis like 👍 and 🌟."
@@ -250,11 +221,6 @@ sections:
             metadata_conditions:
               coin: true
               second_safe: true
-            content_blocks:
-              - "You chose to use the coin to open the compartment. 🪙"
-              - "The compartment opens, revealing a second, smaller safe."
-              - "This safe requires a combination to open."
-              - "Do you try to solve the combination or leave it alone?"
             next_section_and_step: "section_5:step_1"
             ai_feedback:
               tokens_for_ai: "Provide positive reinforcement and guide the user to the final encounter. Be flexible to classify actions that lead to finding hidden items. Use emojis like 👍 and 🌟."
@@ -300,19 +266,10 @@ sections:
             ai_feedback:
               tokens_for_ai: "Provide positive reinforcement and guide the user to the final encounter. Be flexible to classify actions that lead to finding hidden items. Use emojis like 👍 and 🌟."
           leave_it_alone:
-            content_blocks:
-              - "You chose to leave the second safe alone. 🚪"
-              - "You decide to take the treasure and leave the room."
-              - "Congratulations on finding the hidden treasure! 🎉"
-              - "You have successfully completed the escape room."
-              - "We hope you enjoyed the adventure. 🌟"
-            next_section_and_step: "section_5:step_1"
+            next_section_and_step: "section_1:step_1"
             ai_feedback:
               tokens_for_ai: "Provide positive reinforcement and guide the user to the final encounter. Be flexible to classify actions that lead to finding hidden items. Use emojis like 👍 and 🌟."
           go_back:
-            content_blocks:
-              - "You chose to go back to the previous step. 🔄"
-              - "You are now back at the previous step. Do you use the key and enter the password to open the safe or continue exploring the room?"
             next_section_and_step: "section_4:step_1"
             ai_feedback:
               tokens_for_ai: "Provide positive reinforcement and guide the user to make the next choice. Be flexible to classify actions that lead to finding hidden items. Use emojis like 👍 and 🌟."
@@ -336,4 +293,3 @@ sections:
           - "Congratulations on finding the hidden treasure! 🎉"
           - "You have successfully completed the escape room."
           - "We hope you enjoyed the adventure. 🌟"
-
