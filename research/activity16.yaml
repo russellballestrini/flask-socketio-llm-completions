@@ -60,7 +60,7 @@ sections:
             content_blocks:
               - "I see you have some questions. Let's address them. ❓"
             ai_feedback:
-              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner. Use emojis like ❓ and 💬."
+              tokens_for_ai: "Answer the user's clarifying questions with detailed explanations and examples. Provide comprehensive and helpful feedback. Use emojis like ❓ and 💬."
 
   - section_id: "lesson_1"
     title: "Lesson 1: Topic 1"
@@ -79,7 +79,7 @@ sections:
           - "Topic 1 involves understanding the fundamental principles that will be built upon in later lessons."
           - "For example, if Topic 1 is about programming, you might learn about variables, data types, and control structures."
         question: "Do you understand the basics of Topic 1? 🤔"
-        tokens_for_ai: "Guide the user to confirm their understanding of the basics of Topic 1, which includes variables, data types, and control structures. Provide positive reinforcement. Use emojis like 👍 and 🌟."
+        tokens_for_ai: "Guide the user to confirm their understanding of the basics of Topic 1, which includes variables, data types, and control structures. Provide positive reinforcement. If the user asks clarifying questions, provide detailed explanations and examples. Use emojis like 👍 and 🌟."
         buckets:
           - understand
           - not_understand
@@ -104,7 +104,7 @@ sections:
             content_blocks:
               - "I see you have some questions. Let's address them. ❓"
             ai_feedback:
-              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner. Use emojis like ❓ and 💬."
+              tokens_for_ai: "Answer the user's clarifying questions with detailed explanations and examples. Provide comprehensive and helpful feedback. Use emojis like ❓ and 💬."
 
       - step_id: "lesson1_step_3"
         title: "Advanced Concepts in Topic 1"
@@ -113,7 +113,7 @@ sections:
           - "These concepts will help you gain a deeper understanding and apply what you've learned in more complex scenarios."
           - "For example, if Topic 1 is about programming, you might learn about functions, classes, and modules."
         question: "Do you understand the advanced concepts of Topic 1? 🤔"
-        tokens_for_ai: "Guide the user to confirm their understanding of the advanced concepts of Topic 1, which includes functions, classes, and modules. Provide positive reinforcement. Use emojis like 👍 and 🌟."
+        tokens_for_ai: "Guide the user to confirm their understanding of the advanced concepts of Topic 1, which includes functions, classes, and modules. Provide positive reinforcement. If the user asks clarifying questions, provide detailed explanations and examples. Use emojis like 👍 and 🌟."
         buckets:
           - understand
           - not_understand
@@ -140,7 +140,7 @@ sections:
             content_blocks:
               - "I see you have some questions. Let's address them. ❓"
             ai_feedback:
-              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner. Use emojis like ❓ and 💬."
+              tokens_for_ai: "Answer the user's clarifying questions with detailed explanations and examples. Provide comprehensive and helpful feedback. Use emojis like ❓ and 💬."
 
   - section_id: "lesson_2"
     title: "Lesson 2: Topic 2"
@@ -159,7 +159,7 @@ sections:
           - "Topic 2 involves understanding the fundamental principles that will be built upon in later lessons."
           - "For example, if Topic 2 is about data structures, you might learn about arrays, linked lists, and stacks."
         question: "Do you understand the basics of Topic 2? 🤔"
-        tokens_for_ai: "Guide the user to confirm their understanding of the basics of Topic 2, which includes arrays, linked lists, and stacks. Provide positive reinforcement. Use emojis like 👍 and 🌟."
+        tokens_for_ai: "Guide the user to confirm their understanding of the basics of Topic 2, which includes arrays, linked lists, and stacks. Provide positive reinforcement. If the user asks clarifying questions, provide detailed explanations and examples. Use emojis like 👍 and 🌟."
         buckets:
           - understand
           - not_understand
@@ -184,7 +184,7 @@ sections:
             content_blocks:
               - "I see you have some questions. Let's address them. ❓"
             ai_feedback:
-              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner. Use emojis like ❓ and 💬."
+              tokens_for_ai: "Answer the user's clarifying questions with detailed explanations and examples. Provide comprehensive and helpful feedback. Use emojis like ❓ and 💬."
 
       - step_id: "lesson2_step_3"
         title: "Advanced Concepts in Topic 2"
@@ -193,7 +193,7 @@ sections:
           - "These concepts will help you gain a deeper understanding and apply what you've learned in more complex scenarios."
           - "For example, if Topic 2 is about data structures, you might learn about trees, graphs, and hash tables."
         question: "Do you understand the advanced concepts of Topic 2? 🤔"
-        tokens_for_ai: "Guide the user to confirm their understanding of the advanced concepts of Topic 2, which includes trees, graphs, and hash tables. Provide positive reinforcement. Use emojis like 👍 and 🌟."
+        tokens_for_ai: "Guide the user to confirm their understanding of the advanced concepts of Topic 2, which includes trees, graphs, and hash tables. Provide positive reinforcement. If the user asks clarifying questions, provide detailed explanations and examples. Use emojis like 👍 and 🌟."
         buckets:
           - understand
           - not_understand
@@ -220,7 +220,7 @@ sections:
             content_blocks:
               - "I see you have some questions. Let's address them. ❓"
             ai_feedback:
-              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner. Use emojis like ❓ and 💬."
+              tokens_for_ai: "Answer the user's clarifying questions with detailed explanations and examples. Provide comprehensive and helpful feedback. Use emojis like ❓ and 💬."
 
   - section_id: "lesson_3"
     title: "Lesson 3: Topic 3"
@@ -239,7 +239,7 @@ sections:
           - "Topic 3 involves understanding the fundamental principles that will be built upon in later lessons."
           - "For example, if Topic 3 is about algorithms, you might learn about sorting, searching, and recursion."
         question: "Do you understand the basics of Topic 3? 🤔"
-        tokens_for_ai: "Guide the user to confirm their understanding of the basics of Topic 3, which includes sorting, searching, and recursion. Provide positive reinforcement. Use emojis like 👍 and 🌟."
+        tokens_for_ai: "Guide the user to confirm their understanding of the basics of Topic 3, which includes sorting, searching, and recursion. Provide positive reinforcement. If the user asks clarifying questions, provide detailed explanations and examples. Use emojis like 👍 and 🌟."
         buckets:
           - understand
           - not_understand
@@ -264,7 +264,7 @@ sections:
             content_blocks:
               - "I see you have some questions. Let's address them. ❓"
             ai_feedback:
-              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner. Use emojis like ❓ and 💬."
+              tokens_for_ai: "Answer the user's clarifying questions with detailed explanations and examples. Provide comprehensive and helpful feedback. Use emojis like ❓ and 💬."
 
       - step_id: "lesson3_step_3"
         title: "Advanced Concepts in Topic 3"
@@ -273,7 +273,7 @@ sections:
           - "These concepts will help you gain a deeper understanding and apply what you've learned in more complex scenarios."
           - "For example, if Topic 3 is about algorithms, you might learn about dynamic programming, graph algorithms, and optimization techniques."
         question: "Do you understand the advanced concepts of Topic 3? 🤔"
-        tokens_for_ai: "Guide the user to confirm their understanding of the advanced concepts of Topic 3, which includes dynamic programming, graph algorithms, and optimization techniques. Provide positive reinforcement. Use emojis like 👍 and 🌟."
+        tokens_for_ai: "Guide the user to confirm their understanding of the advanced concepts of Topic 3, which includes dynamic programming, graph algorithms, and optimization techniques. Provide positive reinforcement. If the user asks clarifying questions, provide detailed explanations and examples. Use emojis like 👍 and 🌟."
         buckets:
           - understand
           - not_understand
@@ -300,7 +300,7 @@ sections:
             content_blocks:
               - "I see you have some questions. Let's address them. ❓"
             ai_feedback:
-              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner. Use emojis like ❓ and 💬."
+              tokens_for_ai: "Answer the user's clarifying questions with detailed explanations and examples. Provide comprehensive and helpful feedback. Use emojis like ❓ and 💬."
 
   - section_id: "exit"
     title: "Exit"

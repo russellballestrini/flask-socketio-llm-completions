@@ -2281,7 +2281,7 @@ def generate_ai_feedback(category, question, user_response, tokens_for_ai):
     messages = [
         {
             "role": "system",
-            "content": "{tokens_for_ai} Generate a human-readable feedback message based on the following:",
+            "content": f"{tokens_for_ai} Generate a human-readable feedback message based on the following:",
         },
         {
             "role": "user",
@@ -2290,8 +2290,9 @@ def generate_ai_feedback(category, question, user_response, tokens_for_ai):
     ]
 
     try:
+        print(messages)
         completion = openai_client.chat.completions.create(
-            model=model_name, messages=messages, max_tokens=250, temperature=0.7
+            model=model_name, messages=messages, max_tokens=2000, temperature=0.7
         )
         feedback = completion.choices[0].message.content.strip()
         return feedback
