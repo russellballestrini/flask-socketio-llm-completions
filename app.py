@@ -1708,7 +1708,9 @@ def cancel_generation(room_name):
         )
 
 
-def loop_through_steps_until_question(activity_content, activity_state, room_name):
+def loop_through_steps_until_question(
+    activity_content, activity_state, room_name, username
+):
     room = get_room(room_name)
 
     current_section_id = activity_state.section_id
@@ -1716,12 +1718,19 @@ def loop_through_steps_until_question(activity_content, activity_state, room_nam
 
     while True:
         section = next(
-            (s for s in activity_content["sections"] if s["section_id"] == current_section_id), None
+            (
+                s
+                for s in activity_content["sections"]
+                if s["section_id"] == current_section_id
+            ),
+            None,
         )
         if not section:
             break
 
-        step = next((s for s in section["steps"] if s["step_id"] == current_step_id), None)
+        step = next(
+            (s for s in section["steps"] if s["step_id"] == current_step_id), None
+        )
         if not step:
             break
 
@@ -1778,6 +1787,10 @@ def loop_through_steps_until_question(activity_content, activity_state, room_nam
             current_step_id = next_step["step_id"]
         else:
             # Activity completed
+
+            # Display activity info before completing
+            display_activity_info(room_name, username)
+
             db.session.delete(activity_state)
             db.session.commit()
             socketio.emit(
@@ -1817,7 +1830,9 @@ def start_activity(room_name, s3_file_path, username):
         db.session.commit()
 
         # Loop through steps until a question is found or the end is reached
-        loop_through_steps_until_question(activity_content, activity_state, room_name)
+        loop_through_steps_until_question(
+            activity_content, activity_state, room_name, username
+        )
 
 
 def cancel_activity(room_name, username):
@@ -1974,7 +1989,9 @@ def handle_activity_response(room_name, user_response, username):
 
                 # Emit the transition content blocks if they exist
                 if "content_blocks" in step["transitions"][category]:
-                    transition_content = "\n\n".join(step["transitions"][category]["content_blocks"])
+                    transition_content = "\n\n".join(
+                        step["transitions"][category]["content_blocks"]
+                    )
                     new_message = Message(
                         username="System", content=transition_content, room_id=room.id
                     )
@@ -2044,7 +2061,9 @@ def handle_activity_response(room_name, user_response, username):
                         db.session.commit()
 
                         # Loop through steps until a question is found or the end is reached
-                        loop_through_steps_until_question(activity_content, activity_state, room_name)
+                        loop_through_steps_until_question(
+                            activity_content, activity_state, room_name, username
+                        )
                 else:
                     # the user response is any bucket other than correct.
                     activity_state.attempts += 1
@@ -2070,7 +2089,9 @@ def handle_activity_response(room_name, user_response, username):
                     )
             else:
                 # Handle steps without a question
-                loop_through_steps_until_question(activity_content, activity_state, room_name)
+                loop_through_steps_until_question(
+                    activity_content, activity_state, room_name, username
+                )
 
         except Exception as e:
             socketio.emit(
