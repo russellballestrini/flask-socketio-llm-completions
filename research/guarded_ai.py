@@ -45,7 +45,7 @@ def generate_ai_feedback(category, question, user_response, tokens_for_ai):
     messages = [
         {
             "role": "system",
-            "content": "{tokens_for_ai} Generate a human-readable feedback message based on the following:",
+            "content": f"{tokens_for_ai} Generate a human-readable feedback message based on the following:",
         },
         {
             "role": "user",
