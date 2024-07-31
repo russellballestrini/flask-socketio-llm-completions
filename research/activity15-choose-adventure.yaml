@@ -1,0 +1,339 @@
+default_max_attempts_per_step: 30
+
+tokens_for_ai_rubric: |
+    You are a master storyteller. Your task is to create a coherent and engaging story based on the following chat history. The story should seamlessly integrate the user's responses and the AI's feedback, ensuring that the narrative flows naturally. Pay special attention to the user's choices and how they shape the story. Use descriptive language to bring the scenes to life and make the story immersive. The story should have a clear beginning, middle, and end, reflecting the user's journey and the outcomes of their decisions. Here is the chat history.
+
+sections:
+  - section_id: "section_1"
+    title: "The Escape Room Begins"
+    steps:
+      - step_id: "step_1"
+        title: "Waking Up"
+        content_blocks:
+          - "You wake up in a dimly lit room with no memory of how you got there. The room is small and has a single door that is locked."
+          - "You see a rug on the floor, a bookshelf with a book, and a safe on the wall."
+          - "There is also an exit door, but it seems to be blocked by something."
+          - "What do you do first? Look under the rug, examine the book, try to open the safe, or try to leave the room?"
+        tokens_for_ai: "Guide the user to make a choice between looking under the rug, examining the book, trying to open the safe, or trying to leave the room. Provide feedback based on their choice. Be flexible to classify actions that lead to finding hidden items."
+        question: "What do you choose? Look under the rug, Examine the book, Try to open the safe, or Try to leave the room? 🤔"
+        buckets:
+          - look_under_rug
+          - examine_book
+          - try_open_safe
+          - try_leave_room
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          look_under_rug:
+            content_blocks:
+              - "You chose to look under the rug. 🧺"
+              - "You find something hidden under the rug."
+              - "Do you take it or continue exploring the room?"
+            next_section_and_step: "section_2:step_1"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and guide the user to make the next choice. Be flexible to classify actions that lead to finding hidden items. Use emojis like 👍 and 🌟."
+          examine_book:
+            content_blocks:
+              - "You chose to examine the book. 📖"
+              - "The book contains something interesting."
+              - "Do you take note of it or continue exploring the room?"
+            next_section_and_step: "section_3:step_1"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and guide the user to make the next choice. Be flexible to classify actions that lead to finding hidden items. Use emojis like 👍 and 🌟."
+          try_open_safe:
+            content_blocks:
+              - "You chose to try to open the safe. 🔒"
+              - "The safe is locked and requires both a key and a password to open."
+              - "Do you look under the rug, examine the book, or continue exploring the room?"
+            next_section_and_step: "section_4:step_1"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and guide the user to make the next choice. Be flexible to classify actions that lead to finding hidden items. Use emojis like 👍 and 🌟."
+          try_leave_room:
+            metadata_conditions:
+              exit_key: true
+            content_blocks:
+              - "You chose to try to leave the room. 🚪"
+              - "The exit door opens, revealing a way out."
+              - "Congratulations! You have found the way out and successfully completed the escape room. 🎉"
+            next_section_and_step: "section_6:step_1"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and guide the user to the final encounter. Be flexible to classify actions that lead to finding hidden items. Use emojis like 👍 and 🌟."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the story. 🔄"
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the story in a supportive manner. Use emojis like 🔄 and 🧭."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them. ❓"
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner. Use emojis like ❓ and 💬."
+
+  - section_id: "section_2"
+    title: "The Key"
+    steps:
+      - step_id: "step_1"
+        title: "Found the Key"
+        content_blocks:
+          - "You chose to look under the rug. 🧺"
+          - "You find a key hidden under the rug."
+          - "Do you take the key or continue exploring the room?"
+        tokens_for_ai: "Guide the user to make a choice between taking the key or continuing to explore the room. Be flexible to classify actions that lead to finding hidden items. Provide feedback based on their choice."
+        question: "What do you choose? Take the key or Continue exploring? 🤔"
+        buckets:
+          - take_key
+          - continue_exploring
+          - find_coin
+          - go_back
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          take_key:
+            content_blocks:
+              - "You chose to take the key. 🔑"
+              - "You now have the key. Do you examine the book or try to open the safe?"
+            next_section_and_step: "section_2:step_1"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and guide the user to make the next choice. Be flexible to classify actions that lead to finding hidden items. Use emojis like 👍 and 🌟."
+            metadata_updates:
+              key: true
+          continue_exploring:
+            content_blocks:
+              - "You chose to continue exploring the room. 🕵️"
+              - "You see a rug on the floor, a bookshelf with a book, and a safe on the wall."
+              - "What do you do next? Examine the book or try to open the safe?"
+            next_section_and_step: "section_1:step_1"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and guide the user to make the next choice. Be flexible to classify actions that lead to finding hidden items. Use emojis like 👍 and 🌟."
+          find_coin:
+            content_blocks:
+              - "You chose to take a closer look under the rug. 🧺"
+              - "You find a small, mysterious coin with strange engravings."
+              - "You now have the coin. Do you examine the book or try to open the safe?"
+            next_section_and_step: "section_1:step_1"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and guide the user to make the next choice. Be flexible to classify actions that lead to finding hidden items. Use emojis like 👍 and 🌟."
+            metadata_updates:
+              coin: true
+          go_back:
+            content_blocks:
+              - "You chose to go back to the previous step. 🔄"
+              - "You are now back at the previous step. What do you choose? Look under the rug, Examine the book, or Try to open the safe?"
+            next_section_and_step: "section_1:step_1"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and guide the user to make the next choice. Be flexible to classify actions that lead to finding hidden items. Use emojis like 👍 and 🌟."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the story. 🔄"
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the story in a supportive manner. Use emojis like 🔄 and 🧭."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them. ❓"
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner. Use emojis like ❓ and 💬."
+
+  - section_id: "section_3"
+    title: "The Book"
+    steps:
+      - step_id: "step_1"
+        title: "Found the Password"
+        content_blocks:
+          - "You chose to examine the book. 📖"
+          - "The book contains a note with a password: 'ESCAPE123'."
+          - "Do you take note of the password or continue exploring the room?"
+        tokens_for_ai: "Guide the user to make a choice between taking note of the password or continuing to explore the room. Be flexible to classify actions that lead to finding hidden items. Provide feedback based on their choice."
+        question: "What do you choose? Take note of the password or Continue exploring? 🤔"
+        buckets:
+          - take_password
+          - continue_exploring
+          - find_paper
+          - go_back
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          take_password:
+            content_blocks:
+              - "You chose to take note of the password. 🔑"
+              - "You now have the password. Do you look under the rug or try to open the safe?"
+            next_section_and_step: "section_3:step_1"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and guide the user to make the next choice. Be flexible to classify actions that lead to finding hidden items. Use emojis like 👍 and 🌟."
+            metadata_updates:
+              password: true
+          continue_exploring:
+            content_blocks:
+              - "You chose to continue exploring the room. 🕵️"
+              - "You see a rug on the floor, a bookshelf with a book, and a safe on the wall."
+              - "What do you do next? Look under the rug or try to open the safe?"
+            next_section_and_step: "section_1:step_1"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and guide the user to make the next choice. Be flexible to classify actions that lead to finding hidden items. Use emojis like 👍 and 🌟."
+          find_paper:
+            content_blocks:
+              - "You chose to take a closer look at the book. 📖"
+              - "You find a small, folded piece of paper with a cryptic message."
+              - "You now have the paper. Do you look under the rug or try to open the safe?"
+            next_section_and_step: "section_1:step_1"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and guide the user to make the next choice. Be flexible to classify actions that lead to finding hidden items. Use emojis like 👍 and 🌟."
+            metadata_updates:
+              paper: true
+          go_back:
+            content_blocks:
+              - "You chose to go back to the previous step. 🔄"
+              - "You are now back at the previous step. What do you choose? Look under the rug, Examine the book, or Try to open the safe?"
+            next_section_and_step: "section_1:step_1"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and guide the user to make the next choice. Be flexible to classify actions that lead to finding hidden items. Use emojis like 👍 and 🌟."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the story. 🔄"
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the story in a supportive manner. Use emojis like 🔄 and 🧭."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them. ❓"
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner. Use emojis like ❓ and 💬."
+
+  - section_id: "section_4"
+    title: "The Safe"
+    steps:
+      - step_id: "step_1"
+        title: "Opening the Safe"
+        content_blocks:
+          - "You chose to try to open the safe. 🔒"
+          - "The safe is locked and requires both a key and a password to open."
+          - "Do you use the key and enter the password to open the safe or continue exploring the room?"
+        tokens_for_ai: "Guide the user to make a choice between using the key and entering the password to open the safe or continuing to explore the room. Be flexible to classify actions that lead to finding hidden items. Provide feedback based on their choice."
+        question: "What do you choose? Use the key and enter the password or Continue exploring? 🤔"
+        buckets:
+          - use_key_and_password
+          - continue_exploring
+          - go_back
+          - off_topic
+          - asking_clarifying_questions
+          - use_coin
+        transitions:
+          use_key_and_password:
+            metadata_conditions:
+              key: true
+              password: true
+            content_blocks:
+              - "You chose to use the key and enter the password to open the safe. 🔑"
+              - "The safe opens, revealing a hidden treasure."
+              - "Congratulations! You have found the hidden treasure and the exit key. 🎉"
+              - "There is also a slot for a coin, but that is likely not important..."
+            next_section_and_step: "section_4:step_1"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and guide the user to the final encounter. Be flexible to classify actions that lead to finding hidden items. Use emojis like 👍 and 🌟."
+            metadata_updates:
+              second_safe: true
+              exit_key: true
+          continue_exploring:
+            content_blocks:
+              - "You chose to continue exploring the room. 🕵️"
+              - "You see a rug on the floor, a bookshelf with a book, and a safe on the wall."
+              - "What do you do next? Look under the rug or examine the book?"
+            next_section_and_step: "section_1:step_1"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and guide the user to make the next choice. Be flexible to classify actions that lead to finding hidden items. Use emojis like 👍 and 🌟."
+          go_back:
+            content_blocks:
+              - "You chose to go back to the previous step. 🔄"
+              - "You are now back at the previous step. Do you take note of the password or continue exploring the room?"
+            next_section_and_step: "section_3:step_1"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and guide the user to make the next choice. Be flexible to classify actions that lead to finding hidden items. Use emojis like 👍 and 🌟."
+          use_coin:
+            metadata_conditions:
+              coin: true
+              second_safe: true
+            content_blocks:
+              - "You chose to use the coin to open the compartment. 🪙"
+              - "The compartment opens, revealing a second, smaller safe."
+              - "This safe requires a combination to open."
+              - "Do you try to solve the combination or leave it alone?"
+            next_section_and_step: "section_5:step_1"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and guide the user to the final encounter. Be flexible to classify actions that lead to finding hidden items. Use emojis like 👍 and 🌟."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the story. 🔄"
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the story in a supportive manner. Use emojis like 🔄 and 🧭."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them. ❓"
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner. Use emojis like ❓ and 💬."
+
+  - section_id: "section_5"
+    title: "The Secret Compartment"
+    steps:
+      - step_id: "step_1"
+        title: "The Hidden Compartment"
+        content_blocks:
+          - "You chose to use the coin to open the compartment. 🪙"
+          - "The compartment opens, revealing a second, smaller safe."
+          - "This safe requires a combination to open."
+          - "Do you try to solve the combination or leave it alone?"
+        tokens_for_ai: "Guide the user to make a choice between solving the combination to open the second safe or leaving it alone. Be flexible to classify actions that lead to finding hidden items. Provide feedback based on their choice."
+        question: "What do you choose? Solve the combination or Leave it alone? 🤔"
+        buckets:
+          - solve_combination
+          - leave_it_alone
+          - go_back
+          - off_topic
+          - asking_clarifying_questions
+        transitions:
+          solve_combination:
+            metadata_conditions:
+              paper: true
+            content_blocks:
+              - "You chose to solve the combination. 🧩"
+              - "After some thought, you decipher the cryptic message and enter the combination."
+              - "The second safe opens, revealing a map to a hidden location outside the room."
+              - "Congratulations! You have found the ultimate secret and a new adventure awaits. 🎉"
+            next_section_and_step: "section_1:step_1"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and guide the user to the final encounter. Be flexible to classify actions that lead to finding hidden items. Use emojis like 👍 and 🌟."
+          leave_it_alone:
+            content_blocks:
+              - "You chose to leave the second safe alone. 🚪"
+              - "You decide to take the treasure and leave the room."
+              - "Congratulations on finding the hidden treasure! 🎉"
+              - "You have successfully completed the escape room."
+              - "We hope you enjoyed the adventure. 🌟"
+            next_section_and_step: "section_5:step_1"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and guide the user to the final encounter. Be flexible to classify actions that lead to finding hidden items. Use emojis like 👍 and 🌟."
+          go_back:
+            content_blocks:
+              - "You chose to go back to the previous step. 🔄"
+              - "You are now back at the previous step. Do you use the key and enter the password to open the safe or continue exploring the room?"
+            next_section_and_step: "section_4:step_1"
+            ai_feedback:
+              tokens_for_ai: "Provide positive reinforcement and guide the user to make the next choice. Be flexible to classify actions that lead to finding hidden items. Use emojis like 👍 and 🌟."
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the story. 🔄"
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the story in a supportive manner. Use emojis like 🔄 and 🧭."
+          asking_clarifying_questions:
+            content_blocks:
+              - "I see you have some questions. Let's address them. ❓"
+            ai_feedback:
+              tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner. Use emojis like ❓ and 💬."
+
+  - section_id: "section_6"
+    title: "Congratulations!"
+    steps:
+      - step_id: "step_1"
+        title: "Well Done!"
+        content_blocks:
+          - "Congratulations on finding the hidden treasure! 🎉"
+          - "You have successfully completed the escape room."
+          - "We hope you enjoyed the adventure. 🌟"
+

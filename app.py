@@ -1971,6 +1971,25 @@ def handle_activity_response(room_name, user_response, username):
                     room=room_name,
                 )
 
+                # Emit the transition content blocks if they exist
+                if "content_blocks" in step["transitions"][category]:
+                    transition_content = "\n\n".join(step["transitions"][category]["content_blocks"])
+                    new_message = Message(
+                        username="System", content=transition_content, room_id=room.id
+                    )
+                    db.session.add(new_message)
+                    db.session.commit()
+
+                    socketio.emit(
+                        "message",
+                        {
+                            "id": new_message.id,
+                            "username": "System",
+                            "content": transition_content,
+                        },
+                        room=room_name,
+                    )
+
                 # Update metadata based on user actions
                 if "metadata_updates" in step["transitions"][category]:
                     for key, value in step["transitions"][category][
