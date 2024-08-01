@@ -721,5 +721,7 @@ sections:
           - "Keep practicing what you've learned, stay curious, and continue to build your financial knowledge."
           - "We are proud of your dedication and hard work. Well done!"
 
-
-
+      - step_id: "step_3"
+        title: "The End."
+        content_blocks:
+          - "The End."

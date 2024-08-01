@@ -359,3 +359,9 @@ sections:
               - "I see you have some questions. Let's answer them."
             ai_feedback:
               tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner."
+
+      - step_id: "step_3"
+        title: "The End."
+        content_blocks:
+          - "The End."
+
