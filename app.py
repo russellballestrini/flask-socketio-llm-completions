@@ -322,13 +322,17 @@ def handle_message(data):
     commands = data["message"].splitlines()
 
     for command in commands:
+        if command.startswith("/activity cancel"):
+            gevent.spawn(cancel_activity, room_name, data["username"])
+            # Exit early since we're canceling the activity
+            return
         if command.startswith("/activity info"):
             gevent.spawn(display_activity_info, room_name, data["username"])
             # Exit early since we're displaying activity info
             return
-        if command.startswith("/activity cancel"):
-            gevent.spawn(cancel_activity, room_name, data["username"])
-            # Exit early since we're canceling the activity
+        if command.startswith("/activity metadata"):
+            gevent.spawn(display_activity_metadata, room_name, data["username"])
+            # Exit early since we're displaying activity metadata
             return
         if command.startswith("/activity"):
             s3_file_path = command.split(" ", 1)[1].strip()
@@ -1868,6 +1872,45 @@ def cancel_activity(room_name, username):
         )
 
 
+def display_activity_metadata(room_name, username):
+    with app.app_context():
+        room = get_room(room_name)
+        activity_state = ActivityState.query.filter_by(room_id=room.id).first()
+
+        if not activity_state:
+            socketio.emit(
+                "message",
+                {
+                    "id": None,
+                    "username": "System",
+                    "content": "No active activity found.",
+                },
+                room=room_name,
+            )
+            return
+
+        # Pretty print the metadata
+        metadata_pretty = json.dumps(activity_state.dict_metadata, indent=2)
+
+        # Store and emit the metadata
+        metadata_message = f"```\n{metadata_pretty}\n```"
+        new_message = Message(
+            username="System", content=metadata_message, room_id=room.id
+        )
+        db.session.add(new_message)
+        db.session.commit()
+
+        socketio.emit(
+            "message",
+            {
+                "id": new_message.id,
+                "username": "System",
+                "content": metadata_message,
+            },
+            room=room_name,
+        )
+
+
 def handle_activity_response(room_name, user_response, username):
     with app.app_context():
         room = get_room(room_name)
@@ -2292,7 +2335,7 @@ def generate_ai_feedback(category, question, user_response, tokens_for_ai):
     try:
         print(messages)
         completion = openai_client.chat.completions.create(
-            model=model_name, messages=messages, max_tokens=2000, temperature=0.7
+            model=model_name, messages=messages, max_tokens=1000, temperature=0.7
         )
         feedback = completion.choices[0].message.content.strip()
         return feedback

@@ -1,7 +1,7 @@
-default_max_attempts_per_step: 3
+default_max_attempts_per_step: 8
 
 tokens_for_ai_rubric: |
-    You are a master storyteller. Your task is to create a coherent and engaging story based on the following chat history. The story should seamlessly integrate the user's responses and the AI's feedback, ensuring that the narrative flows naturally. Pay special attention to the user's choices and how they shape the story. Use descriptive language to bring the scenes to life and make the story immersive. The story should have a clear beginning, middle, and end, reflecting the user's journey and the outcomes of their decisions. Here is the chat history.
+    Review the conversation and highlight the statements or questions that the user asked and anything they learned. A summary.
 
 sections:
   - section_id: "introduction"
@@ -52,13 +52,9 @@ sections:
             ai_feedback:
               tokens_for_ai: "Provide positive reinforcement and guide the user to the exit. Use emojis like 👍 and 🌟."
           off_topic:
-            content_blocks:
-              - "It seems like your response is off-topic. Let's try to stay focused on the activity. 🔄"
             ai_feedback:
               tokens_for_ai: "Gently guide the user back to the activity in a supportive manner. Use emojis like 🔄 and 🧭."
           asking_clarifying_questions:
-            content_blocks:
-              - "I see you have some questions. Let's address them. ❓"
             ai_feedback:
               tokens_for_ai: "Answer the user's clarifying questions with detailed explanations and examples. Provide comprehensive and helpful feedback. Use emojis like ❓ and 💬."
 
@@ -96,13 +92,9 @@ sections:
             ai_feedback:
               tokens_for_ai: "Provide supportive feedback and review the basics of Topic 1. Use emojis like 📝 and 🌟."
           off_topic:
-            content_blocks:
-              - "It seems like your response is off-topic. Let's try to stay focused on the lesson. 🔄"
             ai_feedback:
               tokens_for_ai: "Gently guide the user back to the lesson in a supportive manner. Use emojis like 🔄 and 🧭."
           asking_clarifying_questions:
-            content_blocks:
-              - "I see you have some questions. Let's address them. ❓"
             ai_feedback:
               tokens_for_ai: "Answer the user's clarifying questions with detailed explanations and examples. Provide comprehensive and helpful feedback. Use emojis like ❓ and 💬."
 
@@ -132,13 +124,9 @@ sections:
             ai_feedback:
               tokens_for_ai: "Provide supportive feedback and review the advanced concepts of Topic 1. Use emojis like 📝 and 🌟."
           off_topic:
-            content_blocks:
-              - "It seems like your response is off-topic. Let's try to stay focused on the lesson. 🔄"
             ai_feedback:
               tokens_for_ai: "Gently guide the user back to the lesson in a supportive manner. Use emojis like 🔄 and 🧭."
           asking_clarifying_questions:
-            content_blocks:
-              - "I see you have some questions. Let's address them. ❓"
             ai_feedback:
               tokens_for_ai: "Answer the user's clarifying questions with detailed explanations and examples. Provide comprehensive and helpful feedback. Use emojis like ❓ and 💬."
 
@@ -176,13 +164,9 @@ sections:
             ai_feedback:
               tokens_for_ai: "Provide supportive feedback and review the basics of Topic 2. Use emojis like 📝 and 🌟."
           off_topic:
-            content_blocks:
-              - "It seems like your response is off-topic. Let's try to stay focused on the lesson. 🔄"
             ai_feedback:
               tokens_for_ai: "Gently guide the user back to the lesson in a supportive manner. Use emojis like 🔄 and 🧭."
           asking_clarifying_questions:
-            content_blocks:
-              - "I see you have some questions. Let's address them. ❓"
             ai_feedback:
               tokens_for_ai: "Answer the user's clarifying questions with detailed explanations and examples. Provide comprehensive and helpful feedback. Use emojis like ❓ and 💬."
 
@@ -212,13 +196,9 @@ sections:
             ai_feedback:
               tokens_for_ai: "Provide supportive feedback and review the advanced concepts of Topic 2. Use emojis like 📝 and 🌟."
           off_topic:
-            content_blocks:
-              - "It seems like your response is off-topic. Let's try to stay focused on the lesson. 🔄"
             ai_feedback:
               tokens_for_ai: "Gently guide the user back to the lesson in a supportive manner. Use emojis like 🔄 and 🧭."
           asking_clarifying_questions:
-            content_blocks:
-              - "I see you have some questions. Let's address them. ❓"
             ai_feedback:
               tokens_for_ai: "Answer the user's clarifying questions with detailed explanations and examples. Provide comprehensive and helpful feedback. Use emojis like ❓ and 💬."
 
@@ -256,13 +236,9 @@ sections:
             ai_feedback:
               tokens_for_ai: "Provide supportive feedback and review the basics of Topic 3. Use emojis like 📝 and 🌟."
           off_topic:
-            content_blocks:
-              - "It seems like your response is off-topic. Let's try to stay focused on the lesson. 🔄"
             ai_feedback:
               tokens_for_ai: "Gently guide the user back to the lesson in a supportive manner. Use emojis like 🔄 and 🧭."
           asking_clarifying_questions:
-            content_blocks:
-              - "I see you have some questions. Let's address them. ❓"
             ai_feedback:
               tokens_for_ai: "Answer the user's clarifying questions with detailed explanations and examples. Provide comprehensive and helpful feedback. Use emojis like ❓ and 💬."
 
@@ -292,13 +268,9 @@ sections:
             ai_feedback:
               tokens_for_ai: "Provide supportive feedback and review the advanced concepts of Topic 3. Use emojis like 📝 and 🌟."
           off_topic:
-            content_blocks:
-              - "It seems like your response is off-topic. Let's try to stay focused on the lesson. 🔄"
             ai_feedback:
               tokens_for_ai: "Gently guide the user back to the lesson in a supportive manner. Use emojis like 🔄 and 🧭."
           asking_clarifying_questions:
-            content_blocks:
-              - "I see you have some questions. Let's address them. ❓"
             ai_feedback:
               tokens_for_ai: "Answer the user's clarifying questions with detailed explanations and examples. Provide comprehensive and helpful feedback. Use emojis like ❓ and 💬."
 

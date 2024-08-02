@@ -161,11 +161,15 @@ The server expects to load the YAML file out of the S3 bucket you specify in you
 
     ``/activity path-to-activity.yaml``
 
-2. **Display Activity Info**: Use the ``/activity info`` command to display information about the current activity, including grading and user performance.
+2. **Display Activity Info**: Use the ``/activity info`` command to display AI information about the current activity, including grading and user performance.
 
     ``/activity info``
 
-3. **Cancel an Activity**: Use the ``/activity cancel`` command to display cancel the current activity running in the room.
+3. **Display Activity Metadata**: Use the ``/activity metadata`` command to display metadata information collected about the activity.
+
+    ``/activity metadata``
+
+4. **Cancel an Activity**: Use the ``/activity cancel`` command to display cancel the current activity running in the room.
 
     ``/activity cancel``
 
