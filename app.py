@@ -2318,7 +2318,6 @@ def categorize_response(question, response, buckets, tokens_for_ai):
             .message.content.strip()
             .lower()
             .replace(" ", "_")
-            .strip("_")
         )
         return category
     except Exception as e:
