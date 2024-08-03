@@ -7,10 +7,15 @@ sections:
   - section_id: "section_1"
     title: "The Escape Room Begins"
     steps:
-      - step_id: "step_1"
+
+      - step_id: "step_0"
         title: "Waking Up"
         content_blocks:
           - "You wake up in a dimly lit room with no memory of how you got there. The room is small and has a single door that is locked."
+
+      - step_id: "step_1"
+        title: "Explore"
+        content_blocks:
           - "You see a rug on the floor, a bookshelf with a book, and a safe on the wall."
           - "There is also an exit door, but it seems to be blocked by something."
           - "What do you do first? Look under the rug, examine the book, try to open the safe, or try to leave the room?"
@@ -39,12 +44,8 @@ sections:
             ai_feedback:
               tokens_for_ai: "Provide positive reinforcement and guide the user to make the next choice. Be flexible to classify actions that lead to finding hidden items. Use emojis like 👍 and 🌟."
           try_open_safe:
-            content_blocks:
-              - "You chose to try to open the safe. 🔒"
-              - "The safe is locked and requires both a key and a password to open."
             next_section_and_step: "section_4:step_1"
-            ai_feedback:
-              tokens_for_ai: "Provide positive reinforcement and guide the user to make the next choice. Be flexible to classify actions that lead to finding hidden items. Use emojis like 👍 and 🌟."
+
           try_leave_room:
             metadata_conditions:
               exit_key: true
@@ -95,8 +96,6 @@ sections:
               key: true
           continue_exploring:
             next_section_and_step: "section_1:step_1"
-            ai_feedback:
-              tokens_for_ai: "Provide positive reinforcement and guide the user to make the next choice. Be flexible to classify actions that lead to finding hidden items. Use emojis like 👍 and 🌟."
           find_coin:
             content_blocks:
               - "You chose to take a closer look under the rug. 🧺"
@@ -150,8 +149,6 @@ sections:
               password: true
           continue_exploring:
             next_section_and_step: "section_1:step_1"
-            ai_feedback:
-              tokens_for_ai: "Provide positive reinforcement and guide the user to make the next choice. Be flexible to classify actions that lead to finding hidden items. Use emojis like 👍 and 🌟."
           find_paper:
             content_blocks:
               - "You chose to take a closer look at the book. 📖"
@@ -211,8 +208,6 @@ sections:
               exit_key: true
           continue_exploring:
             next_section_and_step: "section_1:step_1"
-            ai_feedback:
-              tokens_for_ai: "Provide positive reinforcement and guide the user to make the next choice. Be flexible to classify actions that lead to finding hidden items. Use emojis like 👍 and 🌟."
           go_back:
             next_section_and_step: "section_3:step_1"
             ai_feedback:

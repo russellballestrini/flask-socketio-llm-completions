@@ -1712,6 +1712,24 @@ def cancel_generation(room_name):
         )
 
 
+def get_activity_content(file_path):
+    """
+    Load the activity content from either S3 or the local filesystem based on the configuration.
+    """
+    if app.config["LOCAL_ACTIVITIES"]:
+        # Load the activity YAML from a local file
+        with open(file_path, 'r') as file:
+            activity_yaml = file.read()
+    else:
+        # Load the activity YAML from S3
+        s3_client = boto3.client("s3")
+        bucket_name = os.environ.get("S3_BUCKET_NAME")
+        response = s3_client.get_object(Bucket=bucket_name, Key=file_path)
+        activity_yaml = response["Body"].read().decode("utf-8")
+
+    return yaml.safe_load(activity_yaml)
+
+
 def loop_through_steps_until_question(
     activity_content, activity_state, room_name, username
 ):
@@ -1810,12 +1828,7 @@ def loop_through_steps_until_question(
 
 
 def start_activity(room_name, s3_file_path, username):
-    s3_client = boto3.client("s3")
-    bucket_name = os.environ.get("S3_BUCKET_NAME")
-
-    response = s3_client.get_object(Bucket=bucket_name, Key=s3_file_path)
-    activity_yaml = response["Body"].read().decode("utf-8")
-    activity_content = yaml.safe_load(activity_yaml)
+    activity_content = get_activity_content(s3_file_path)
 
     with app.app_context():
         # Save the initial state to the database
@@ -1919,16 +1932,10 @@ def handle_activity_response(room_name, user_response, username):
         if not activity_state:
             return
 
-        # Load the activity YAML from S3
-        s3_client = boto3.client("s3")
-        bucket_name = os.environ.get("S3_BUCKET_NAME")
-        s3_file_path = activity_state.s3_file_path
+        # Load the activity content
+        activity_content = get_activity_content(activity_state.s3_file_path)
 
         try:
-            response = s3_client.get_object(Bucket=bucket_name, Key=s3_file_path)
-            activity_yaml = response["Body"].read().decode("utf-8")
-            activity_content = yaml.safe_load(activity_yaml)
-
             # Find the current section and step
             section = next(
                 s
@@ -2379,9 +2386,11 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--profile", help="AWS profile name", default=None)
+    parser.add_argument("--local-activities", action="store_true", help="Use local activity files instead of S3")
     args = parser.parse_args()
 
     # Set profile_name as a global attribute of the app object
     app.config["PROFILE_NAME"] = args.profile
+    app.config["LOCAL_ACTIVITIES"] = args.local_activities
 
     socketio.run(app, host="0.0.0.0", port=5001, use_reloader=True)
