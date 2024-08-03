@@ -2339,7 +2339,6 @@ def generate_ai_feedback(category, question, user_response, tokens_for_ai):
     ]
 
     try:
-        print(messages)
         completion = openai_client.chat.completions.create(
             model=model_name, messages=messages, max_tokens=1000, temperature=0.7
         )
