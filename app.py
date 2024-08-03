@@ -2071,8 +2071,6 @@ def handle_activity_response(room_name, user_response, username):
                     db.session.add(activity_state)
                     db.session.commit()
 
-                # Log the updated metadata
-
                 # if "correct" or max_attempts reached.
                 if (
                     category

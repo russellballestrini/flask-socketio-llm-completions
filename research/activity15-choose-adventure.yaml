@@ -7,7 +7,6 @@ sections:
   - section_id: "section_1"
     title: "The Escape Room Begins"
     steps:
-
       - step_id: "step_0"
         title: "Waking Up"
         content_blocks:
@@ -18,7 +17,7 @@ sections:
         content_blocks:
           - "You see a rug on the floor, a bookshelf with a book, and a safe on the wall."
           - "There is also an exit door, but it seems to be locked."
-        tokens_for_ai: "Guide the user to make a choice between looking under the rug, examining the book, trying to open the safe, or trying to leave the room. Use off_topic sparringly if the response choice doesn't fit any other topic."
+        tokens_for_ai: "Guide the user to make a choice between looking under the rug, examining the book, trying to open the safe, or trying to leave the room. Use off_topic sparingly if the response choice doesn't fit any other topic."
         question: "What do you do? Look under the rug, Examine the book, Try to open the safe, or Try to leave the room? 🤔"
         buckets:
           - look_under_rug
@@ -34,7 +33,6 @@ sections:
             next_section_and_step: "section_3:step_1"
           try_open_safe:
             next_section_and_step: "section_4:step_1"
-
           try_leave_room:
             metadata_conditions:
               exit_key: true
@@ -60,7 +58,7 @@ sections:
         content_blocks:
           - "You chose to look under the rug. 🧺"
           - "You find a key hidden under the rug."
-        tokens_for_ai: "Guide the user to make a choice between taking the key or continuing to explore the room. Be flexible to classify actions that lead to finding hidden items. Use off_topic sparringly if the response choice doesn't fit any other topic. Provide feedback based on their choice."
+        tokens_for_ai: "Guide the user to make a choice between taking the key or continuing to explore the room. Be flexible to classify actions that lead to finding hidden items. Use off_topic sparingly if the response choice doesn't fit any other topic. Provide feedback based on their choice."
         question: "What do you choose? Take the key or Continue exploring? 🤔"
         buckets:
           - take_key
@@ -109,7 +107,7 @@ sections:
         content_blocks:
           - "You chose to examine the book. 📖"
           - "The book contains a note with a password: 'ESCAPE123'."
-        tokens_for_ai: "Guide the user to make a choice between taking note of the password or continuing to explore the room. Be flexible to classify actions that lead to finding hidden items.  Use off_topic sparringly if the response choice doesn't fit any other topic. Provide feedback based on their choice."
+        tokens_for_ai: "Guide the user to make a choice between taking note of the password or continuing to explore the room. Be flexible to classify actions that lead to finding hidden items. Use off_topic sparingly if the response choice doesn't fit any other topic. Provide feedback based on their choice."
         question: "What do you choose? Take note of the password or Continue exploring? 🤔"
         buckets:
           - take_password
@@ -156,7 +154,7 @@ sections:
         content_blocks:
           - "You chose to try to open the safe. 🔒"
           - "The safe is locked and requires both a key and a password to open."
-        tokens_for_ai: "Guide the user to make a choice between using the key and entering the password to open the safe or continuing to explore the room. Be flexible to classify actions that lead to finding hidden items. Use off_topic sparringly if the response choice doesn't fit any other topic. Provide feedback based on their choice."
+        tokens_for_ai: "Guide the user to make a choice between using the key and entering the password to open the safe or continuing to explore the room. Be flexible to classify actions that lead to finding hidden items. Use off_topic sparingly if the response choice doesn't fit any other topic. Provide feedback based on their choice."
         question: "What do you do? Use the key and enter the password or Continue exploring? 🤔"
         buckets:
           - use_key_and_password
@@ -209,7 +207,7 @@ sections:
           - "You chose to use the coin to open the compartment. 🪙"
           - "The compartment opens, revealing a second, smaller safe."
           - "This safe requires a combination to open."
-        tokens_for_ai: "Guide the user to make a choice between solving the combination to open the second safe or leaving it alone. Be flexible to classify actions that lead to finding hidden items. Use off_topic sparringly if the response choice doesn't fit any other topic. Provide feedback based on their choice."
+        tokens_for_ai: "Guide the user to make a choice between solving the combination to open the second safe or leaving it alone. Be flexible to classify actions that lead to finding hidden items. Use off_topic sparingly if the response choice doesn't fit any other topic. Provide feedback based on their choice."
         question: "Do you try to solve the combination or leave it alone? 🤔"
         buckets:
           - solve_combination
@@ -245,6 +243,79 @@ sections:
               tokens_for_ai: "Answer the user's clarifying questions and provide additional information in a friendly and engaging manner. Use emojis like ❓ and 💬."
 
   - section_id: "section_6"
+    title: "Prize Room"
+    steps:
+      - step_id: "step_1"
+        title: "Choose Your Prize"
+        content_blocks:
+          - "You have reached the prize room! 🎁"
+          - "There are 10 different items in the room. One is your prize."
+        tokens_for_ai: "Randomly select one of the following prize_ items as the user's prize."
+        question: "Guess your prize? 🤔"
+        buckets:
+          - prize_1
+          - prize_2
+          - prize_3
+          - prize_4
+          - prize_5
+          - prize_6
+          - prize_7
+          - prize_8
+          - prize_9
+          - prize_10
+        transitions:
+          prize_1:
+            content_blocks:
+              - "You won Prize 1: A golden keychain. 🗝️"
+            metadata_updates:
+              prize: golden_keychain
+          prize_2:
+            content_blocks:
+              - "You won Prize 2: A mysterious amulet. 🧿"
+            metadata_updates:
+              prize: mysterious_amulet
+          prize_3:
+            content_blocks:
+              - "You won Prize 3: A rare gemstone. 💎"
+            metadata_updates:
+              prize: rare_gemstone
+          prize_4:
+            content_blocks:
+              - "You won Prize 4: An ancient scroll. 📜"
+            metadata_updates:
+              prize: ancient_scroll
+          prize_5:
+            content_blocks:
+              - "You won Prize 5: A magical wand. 🪄"
+            metadata_updates:
+              prize: magical_wand
+          prize_6:
+            content_blocks:
+              - "You won Prize 6: A treasure map. 🗺️"
+            metadata_updates:
+              prize: treasure_map
+          prize_7:
+            content_blocks:
+              - "You won Prize 7: A silver coin. 🪙"
+            metadata_updates:
+              prize: silver_coin
+          prize_8:
+            content_blocks:
+              - "You won Prize 8: A mystical ring. 💍"
+            metadata_updates:
+              prize: mystical_ring
+          prize_9:
+            content_blocks:
+              - "You won Prize 9: A rare book. 📚"
+            metadata_updates:
+              prize: rare_book
+          prize_10:
+            content_blocks:
+              - "You won Prize 10: A magical potion. 🧪"
+            metadata_updates:
+              prize: magical_potion
+
+  - section_id: "section_7"
     title: "Congratulations!"
     steps:
       - step_id: "step_1"
