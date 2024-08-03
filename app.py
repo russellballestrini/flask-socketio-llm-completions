@@ -2018,24 +2018,26 @@ def handle_activity_response(room_name, user_response, username):
                     category,
                     step["question"],
                     user_response,
+                    username,
                 )
 
                 # Store and emit the feedback
-                new_message = Message(
-                    username="System", content=feedback, room_id=room.id
-                )
-                db.session.add(new_message)
-                db.session.commit()
+                if feedback:
+                    new_message = Message(
+                        username="System", content=feedback, room_id=room.id
+                    )
+                    db.session.add(new_message)
+                    db.session.commit()
 
-                socketio.emit(
-                    "message",
-                    {
-                        "id": new_message.id,
-                        "username": "System",
-                        "content": feedback,
-                    },
-                    room=room_name,
-                )
+                    socketio.emit(
+                        "message",
+                        {
+                            "id": new_message.id,
+                            "username": "System",
+                            "content": feedback,
+                        },
+                        room=room_name,
+                    )
 
                 # Emit the transition content blocks if they exist
                 if "content_blocks" in step["transitions"][category]:
@@ -2325,7 +2327,7 @@ def categorize_response(question, response, buckets, tokens_for_ai):
 
 
 # Generate AI feedback
-def generate_ai_feedback(category, question, user_response, tokens_for_ai):
+def generate_ai_feedback(category, question, user_response, tokens_for_ai, username):
     openai_client, model_name = get_openai_client_and_model()
     messages = [
         {
@@ -2334,7 +2336,7 @@ def generate_ai_feedback(category, question, user_response, tokens_for_ai):
         },
         {
             "role": "user",
-            "content": f"Question: {question}\nResponse: {user_response}\nCategory: {category}",
+            "content": f"Username: {username}\nQuestion: {question}\nResponse: {user_response}\nCategory: {category}",
         },
     ]
 
@@ -2349,7 +2351,7 @@ def generate_ai_feedback(category, question, user_response, tokens_for_ai):
 
 
 def provide_feedback(
-    yaml_content, section_id, step_id, category, question, user_response
+    yaml_content, section_id, step_id, category, question, user_response, username
 ):
     section = next(
         (s for s in yaml_content["sections"] if s["section_id"] == section_id), None
@@ -2371,7 +2373,7 @@ def provide_feedback(
             step["tokens_for_ai"] + " " + transition["ai_feedback"]["tokens_for_ai"]
         )
         ai_feedback = generate_ai_feedback(
-            category, question, user_response, tokens_for_ai
+            category, question, user_response, tokens_for_ai, username
         )
         feedback += f"\n\nAI Feedback: {ai_feedback}"
 
