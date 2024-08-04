@@ -764,7 +764,6 @@ def get_openai_client_and_model(model_name="gpt-4o-mini"):
 
     if "gpt" not in model_name and vllm_endpoint:
         openai_client = OpenAI(base_url=vllm_endpoint, api_key=vllm_api_key)
-        model_name = "NousResearch/Hermes-2-Pro-Llama-3-8B"
     else:
         openai_client = OpenAI()
 
