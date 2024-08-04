@@ -1,0 +1,211 @@
+default_max_attempts_per_step: 30
+
+tokens_for_ai_rubric: |
+    You are a master storyteller. Your task is to create a coherent and engaging story based on the following chat history. The story should seamlessly integrate the user's responses and the AI's feedback, ensuring that the narrative flows naturally. Pay special attention to the user's choices and how they shape the story. Use descriptive language to bring the scenes to life and make the story immersive. The story should have a clear beginning, middle, and end, reflecting the user's journey and the outcomes of their decisions. Here is the chat history.
+
+sections:
+  - section_id: "section_1"
+    title: "The Prize Room"
+    steps:
+      - step_id: "step_1"
+        title: "Receive Your Prize"
+        content_blocks:
+          - "You have entered the prize room! 🎁"
+          - "A prize is randomly selected for you from the room."
+        tokens_for_ai: "Randomly select one of the following items as the user's prize."
+        question: "You have received a prize! Guess what it could be? 🤔"
+        buckets:
+          - prize_1
+          - prize_2
+          - prize_3
+          - prize_4
+          - prize_5
+          - prize_6
+          - prize_7
+          - prize_8
+          - prize_9
+          - prize_10
+          - go_back
+        transitions:
+          prize_1:
+            content_blocks:
+              - "You received Prize 1: A golden keychain. 🗝️"
+            next_section_and_step: "section_2:step_1"
+            metadata_add:
+              golden_keychain: true
+          prize_2:
+            content_blocks:
+              - "You received Prize 2: A mysterious amulet. 🧿"
+            next_section_and_step: "section_2:step_1"
+            metadata_add:
+              mysterious_amulet: true
+          prize_3:
+            content_blocks:
+              - "You received Prize 3: A rare gemstone. 💎"
+            next_section_and_step: "section_2:step_1"
+            metadata_add:
+              rare_gemstone: true
+          prize_4:
+            content_blocks:
+              - "You received Prize 4: An ancient scroll. 📜"
+            next_section_and_step: "section_2:step_1"
+            metadata_add:
+              ancient_scroll: true
+          prize_5:
+            content_blocks:
+              - "You received Prize 5: A magical wand. 🪄"
+            next_section_and_step: "section_2:step_1"
+            metadata_add:
+              magical_wand: true
+          prize_6:
+            content_blocks:
+              - "You received Prize 6: A treasure map. 🗺️"
+            next_section_and_step: "section_2:step_1"
+            metadata_add:
+              treasure_map: true
+          prize_7:
+            content_blocks:
+              - "You received Prize 7: A silver coin. 🪙"
+            next_section_and_step: "section_2:step_1"
+            metadata_add:
+              silver_coin: true
+          prize_8:
+            content_blocks:
+              - "You received Prize 8: A mystical ring. 💍"
+            next_section_and_step: "section_2:step_1"
+            metadata_add:
+              mystical_ring: true
+          prize_9:
+            content_blocks:
+              - "You received Prize 9: A rare book. 📚"
+            next_section_and_step: "section_2:step_1"
+            metadata_add:
+              rare_book: true
+          prize_10:
+            content_blocks:
+              - "You received Prize 10: A magical potion. 🧪"
+            next_section_and_step: "section_2:step_1"
+            metadata_add:
+              magical_potion: true
+          go_back:
+            content_blocks:
+              - "You chose to go back to the temple pit room. 🏛"
+            next_section_and_step: "section_2:step_1"
+
+  - section_id: "section_2"
+    title: "The Temple Pit"
+    steps:
+      - step_id: "step_1"
+        title: "Offer to the God"
+        content_blocks:
+          - "You have entered the temple pit. 🏛️"
+          - "You can offer an item to the god to receive a new item."
+        tokens_for_ai: "Guide the user to make a choice between offering different items."
+        question: "Which item do you offer to the god? 🤔"
+        buckets:
+          - offer_golden_keychain
+          - offer_mysterious_amulet
+          - offer_rare_gemstone
+          - offer_ancient_scroll
+          - offer_magical_wand
+          - offer_treasure_map
+          - offer_silver_coin
+          - offer_mystical_ring
+          - offer_rare_book
+          - offer_magical_potion
+          - go_back
+        transitions:
+          offer_golden_keychain:
+            content_blocks:
+              - "You offered the golden keychain to the god. 🗝️"
+              - "The god grants you a mystical amulet. 🧿"
+            next_section_and_step: "section_2:step_1"
+            metadata_add:
+              mystical_amulet: true
+            metadata_remove:
+              golden_keychain: true
+          offer_mysterious_amulet:
+            content_blocks:
+              - "You offered the mysterious amulet to the god. 🧿"
+              - "The god grants you a rare gemstone. 💎"
+            next_section_and_step: "section_2:step_1"
+            metadata_add:
+              rare_gemstone: true
+            metadata_remove:
+              mysterious_amulet: true
+          offer_rare_gemstone:
+            content_blocks:
+              - "You offered the rare gemstone to the god. 💎"
+              - "The god grants you an ancient scroll. 📜"
+            next_section_and_step: "section_2:step_1"
+            metadata_add:
+              ancient_scroll: true
+            metadata_remove:
+              rare_gemstone: true
+          offer_ancient_scroll:
+            content_blocks:
+              - "You offered the ancient scroll to the god. 📜"
+              - "The god grants you a magical wand. 🪄"
+            next_section_and_step: "section_2:step_1"
+            metadata_add:
+              magical_wand: true
+            metadata_remove:
+              ancient_scroll: true
+          offer_magical_wand:
+            content_blocks:
+              - "You offered the magical wand to the god. 🪄"
+              - "The god grants you a treasure map. 🗺️"
+            next_section_and_step: "section_2:step_1"
+            metadata_add:
+              treasure_map: true
+            metadata_remove:
+              magical_wand: true
+          offer_treasure_map:
+            content_blocks:
+              - "You offered the treasure map to the god. 🗺️"
+              - "The god grants you a silver coin. 🪙"
+            next_section_and_step: "section_2:step_1"
+            metadata_add:
+              silver_coin: true
+            metadata_remove:
+              treasure_map: true
+          offer_silver_coin:
+            content_blocks:
+              - "You offered the silver coin to the god. 🪙"
+              - "The god grants you a mystical ring. 💍"
+            next_section_and_step: "section_2:step_1"
+            metadata_add:
+              mystical_ring: true
+            metadata_remove:
+              silver_coin: true
+          offer_mystical_ring:
+            content_blocks:
+              - "You offered the mystical ring to the god. 💍"
+              - "The god grants you a rare book. 📚"
+            next_section_and_step: "section_2:step_1"
+            metadata_add:
+              rare_book: true
+            metadata_remove:
+              mystical_ring: true
+          offer_rare_book:
+            content_blocks:
+              - "You offered the rare book to the god. 📚"
+              - "The god grants you a magical potion. 🧪"
+            next_section_and_step: "section_2:step_1"
+            metadata_add:
+              magical_potion: true
+            metadata_remove:
+              rare_book: true
+          offer_magical_potion:
+            content_blocks:
+              - "You offered the magical potion to the god. 🧪"
+              - "The god grants you a golden keychain. 🗝️"
+            next_section_and_step: "section_2:step_1"
+            metadata_add:
+              golden_keychain: true
+            metadata_remove:
+              magical_potion: true
+          go_back:
+            content_blocks:
+              - "You chose to go back to the prize room. 🎁"
+            next_section_and_step: "section_1:step_1"
