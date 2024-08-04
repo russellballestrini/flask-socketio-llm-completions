@@ -29,7 +29,7 @@ sections:
         transitions:
           prize_1:
             content_blocks:
-              - "You received Prize 1: A golden keychain. 🗝️"
+              - "You received Prize 1: A golden keychain. 🗝"
             next_section_and_step: "section_2:step_1"
             metadata_add:
               golden_keychain: true
@@ -59,7 +59,7 @@ sections:
               magical_wand: true
           prize_6:
             content_blocks:
-              - "You received Prize 6: A treasure map. 🗺️"
+              - "You received Prize 6: A treasure map. 🗺"
             next_section_and_step: "section_2:step_1"
             metadata_add:
               treasure_map: true
@@ -98,7 +98,7 @@ sections:
       - step_id: "step_1"
         title: "Offer to the God"
         content_blocks:
-          - "You have entered the temple pit. 🏛️"
+          - "You have entered the temple pit. 🏛"
           - "You can offer an item to the god to receive a new item."
         tokens_for_ai: "Guide the user to make a choice between offering different items."
         question: "Which item do you offer to the god? 🤔"
@@ -114,10 +114,13 @@ sections:
           - offer_rare_book
           - offer_magical_potion
           - go_back
+          - off_topic
         transitions:
           offer_golden_keychain:
+            metadata_conditions:
+              golden_keychain: true
             content_blocks:
-              - "You offered the golden keychain to the god. 🗝️"
+              - "You offered the golden keychain to the god. 🗝"
               - "The god grants you a mystical amulet. 🧿"
             next_section_and_step: "section_2:step_1"
             metadata_add:
@@ -125,6 +128,8 @@ sections:
             metadata_remove:
               golden_keychain: true
           offer_mysterious_amulet:
+            metadata_conditions:
+              mysterious_amulet: true
             content_blocks:
               - "You offered the mysterious amulet to the god. 🧿"
               - "The god grants you a rare gemstone. 💎"
@@ -134,6 +139,8 @@ sections:
             metadata_remove:
               mysterious_amulet: true
           offer_rare_gemstone:
+            metadata_conditions:
+              rare_gemstone: true
             content_blocks:
               - "You offered the rare gemstone to the god. 💎"
               - "The god grants you an ancient scroll. 📜"
@@ -143,6 +150,8 @@ sections:
             metadata_remove:
               rare_gemstone: true
           offer_ancient_scroll:
+            metadata_conditions:
+              ancient_scroll: true
             content_blocks:
               - "You offered the ancient scroll to the god. 📜"
               - "The god grants you a magical wand. 🪄"
@@ -152,17 +161,21 @@ sections:
             metadata_remove:
               ancient_scroll: true
           offer_magical_wand:
+            metadata_conditions:
+              magical_wand: true
             content_blocks:
               - "You offered the magical wand to the god. 🪄"
-              - "The god grants you a treasure map. 🗺️"
+              - "The god grants you a treasure map. 🗺"
             next_section_and_step: "section_2:step_1"
             metadata_add:
               treasure_map: true
             metadata_remove:
               magical_wand: true
           offer_treasure_map:
+            metadata_conditions:
+              treasure_map: true
             content_blocks:
-              - "You offered the treasure map to the god. 🗺️"
+              - "You offered the treasure map to the god. 🗺"
               - "The god grants you a silver coin. 🪙"
             next_section_and_step: "section_2:step_1"
             metadata_add:
@@ -170,6 +183,8 @@ sections:
             metadata_remove:
               treasure_map: true
           offer_silver_coin:
+            metadata_conditions:
+              silver_coin: true
             content_blocks:
               - "You offered the silver coin to the god. 🪙"
               - "The god grants you a mystical ring. 💍"
@@ -179,6 +194,8 @@ sections:
             metadata_remove:
               silver_coin: true
           offer_mystical_ring:
+            metadata_conditions:
+              mystical_ring: true
             content_blocks:
               - "You offered the mystical ring to the god. 💍"
               - "The god grants you a rare book. 📚"
@@ -188,6 +205,8 @@ sections:
             metadata_remove:
               mystical_ring: true
           offer_rare_book:
+            metadata_conditions:
+              rare_book: true
             content_blocks:
               - "You offered the rare book to the god. 📚"
               - "The god grants you a magical potion. 🧪"
@@ -197,9 +216,11 @@ sections:
             metadata_remove:
               rare_book: true
           offer_magical_potion:
+            metadata_conditions:
+              magical_potion: true
             content_blocks:
               - "You offered the magical potion to the god. 🧪"
-              - "The god grants you a golden keychain. 🗝️"
+              - "The god grants you a golden keychain. 🗝"
             next_section_and_step: "section_2:step_1"
             metadata_add:
               golden_keychain: true
@@ -209,3 +230,7 @@ sections:
             content_blocks:
               - "You chose to go back to the prize room. 🎁"
             next_section_and_step: "section_1:step_1"
+          off_topic:
+            ai_feedback:
+              tokens_for_ai: "Gently guide the user back to the story in a supportive manner. Use emojis like 🔄 and 🧭."
+            next_section_and_step: "section_2:step_1"

@@ -2182,16 +2182,10 @@ def display_activity_info(room_name, username):
             )
             return
 
-        # Load the activity YAML from S3
-        s3_client = boto3.client("s3")
-        bucket_name = os.environ.get("S3_BUCKET_NAME")
-        s3_file_path = activity_state.s3_file_path
+        # Load the activity content
+        activity_content = get_activity_content(activity_state.s3_file_path)
 
         try:
-            response = s3_client.get_object(Bucket=bucket_name, Key=s3_file_path)
-            activity_yaml = response["Body"].read().decode("utf-8")
-            activity_content = yaml.safe_load(activity_yaml)
-
             # Fetch the entire room history
             all_messages = (
                 Message.query.filter_by(room_id=room.id)
