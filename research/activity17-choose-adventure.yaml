@@ -232,5 +232,5 @@ sections:
             next_section_and_step: "section_1:step_1"
           off_topic:
             ai_feedback:
-              tokens_for_ai: "Gently guide the user back to the story in a supportive manner. Use emojis like 🔄 and 🧭."
+              tokens_for_ai: "Gently guide the user back to the story in a supportive manner. DO NOT ask any questions. Use emojis like 🔄 and 🧭."
             next_section_and_step: "section_2:step_1"

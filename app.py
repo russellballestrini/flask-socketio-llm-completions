@@ -2025,6 +2025,7 @@ def handle_activity_response(room_name, user_response, username):
                     step["question"],
                     user_response,
                     username,
+                    activity_state.json_metadata,
                 )
 
                 # Store and emit the feedback
@@ -2326,7 +2327,7 @@ def categorize_response(question, response, buckets, tokens_for_ai):
 
 
 # Generate AI feedback
-def generate_ai_feedback(category, question, user_response, tokens_for_ai, username):
+def generate_ai_feedback(category, question, user_response, tokens_for_ai, username, json_metadata):
     openai_client, model_name = get_openai_client_and_model()
     messages = [
         {
@@ -2335,7 +2336,7 @@ def generate_ai_feedback(category, question, user_response, tokens_for_ai, usern
         },
         {
             "role": "user",
-            "content": f"Username: {username}\nQuestion: {question}\nResponse: {user_response}\nCategory: {category}",
+            "content": f"Username: {username}\nQuestion: {question}\nResponse: {user_response}\nCategory: {category}\nMetadata: {json_metadata}",
         },
     ]
 
@@ -2350,7 +2351,7 @@ def generate_ai_feedback(category, question, user_response, tokens_for_ai, usern
 
 
 def provide_feedback(
-    yaml_content, section_id, step_id, category, question, user_response, username
+    yaml_content, section_id, step_id, category, question, user_response, username, json_metadata
 ):
     section = next(
         (s for s in yaml_content["sections"] if s["section_id"] == section_id), None
@@ -2372,7 +2373,7 @@ def provide_feedback(
             step["tokens_for_ai"] + " " + transition["ai_feedback"]["tokens_for_ai"]
         )
         ai_feedback = generate_ai_feedback(
-            category, question, user_response, tokens_for_ai, username
+            category, question, user_response, tokens_for_ai, username, json_metadata
         )
         feedback += f"\n\nAI Feedback: {ai_feedback}"
 
