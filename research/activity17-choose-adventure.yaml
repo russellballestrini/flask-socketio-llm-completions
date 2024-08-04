@@ -12,7 +12,7 @@ sections:
         content_blocks:
           - "You have entered the prize room! 🎁"
           - "A prize is randomly selected for you from the room."
-        tokens_for_ai: "Randomly select one of the following items as the user's prize."
+        tokens_for_ai: "Randomly select one of the following items as the user's prize. DO NOT select go_back unless you are sure the user wants to go back to the temple pit."
         question: "You have received a prize! Guess what it could be? 🤔"
         buckets:
           - prize_1
