@@ -116,7 +116,7 @@ sections:
             next_section_and_step: "introduction:intro_step_2"
             ai_feedback:
               tokens_for_ai: "Provide positive reinforcement and guide the user back to the introduction. Use emojis like 👍 and 🌟."
-            metadata_updates:
+            metadata_add:
               lesson_1_completed: true
           not_understand:
             content_blocks:
@@ -188,7 +188,7 @@ sections:
             next_section_and_step: "introduction:intro_step_2"
             ai_feedback:
               tokens_for_ai: "Provide positive reinforcement and guide the user back to the introduction. Use emojis like 👍 and 🌟."
-            metadata_updates:
+            metadata_add:
               lesson_2_completed: true
           not_understand:
             content_blocks:
@@ -260,7 +260,7 @@ sections:
             next_section_and_step: "introduction:intro_step_2"
             ai_feedback:
               tokens_for_ai: "Provide positive reinforcement and guide the user back to the introduction. Use emojis like 👍 and 🌟."
-            metadata_updates:
+            metadata_add:
               lesson_3_completed: true
           not_understand:
             content_blocks:

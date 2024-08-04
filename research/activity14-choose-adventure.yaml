@@ -30,7 +30,7 @@ sections:
             next_section_and_step: "section_2:step_1"
             ai_feedback:
               tokens_for_ai: "Provide positive reinforcement and guide the user to make the next choice. Use emojis like 👍 and 🌟."
-            metadata_updates:
+            metadata_add:
               key: true
           examine_book:
             content_blocks:
@@ -40,7 +40,7 @@ sections:
             next_section_and_step: "section_3:step_1"
             ai_feedback:
               tokens_for_ai: "Provide positive reinforcement and guide the user to make the next choice. Use emojis like 👍 and 🌟."
-            metadata_updates:
+            metadata_add:
               password: true
           try_open_safe:
             content_blocks:
@@ -86,7 +86,7 @@ sections:
             next_section_and_step: "section_1:step_1"
             ai_feedback:
               tokens_for_ai: "Provide positive reinforcement and guide the user to make the next choice. Use emojis like 👍 and 🌟."
-            metadata_updates:
+            metadata_add:
               key: true
           continue_exploring:
             content_blocks:
@@ -139,7 +139,7 @@ sections:
             next_section_and_step: "section_1:step_1"
             ai_feedback:
               tokens_for_ai: "Provide positive reinforcement and guide the user to make the next choice. Use emojis like 👍 and 🌟."
-            metadata_updates:
+            metadata_add:
               password: true
           continue_exploring:
             content_blocks:

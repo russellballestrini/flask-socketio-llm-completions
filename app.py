@@ -117,9 +117,15 @@ class ActivityState(db.Model):
     def dict_metadata(self, value):
         self.json_metadata = json.dumps(value)
 
-    def update_metadata(self, key, value):
+    def add_metadata(self, key, value):
         metadata = self.dict_metadata
         metadata[key] = value
+        self.dict_metadata = metadata
+
+    def remove_metadata(self, key):
+        metadata = self.dict_metadata
+        if key in metadata:
+            del metadata[key]
         self.dict_metadata = metadata
 
 
@@ -1718,7 +1724,7 @@ def get_activity_content(file_path):
     """
     if app.config["LOCAL_ACTIVITIES"]:
         # Load the activity YAML from a local file
-        with open(file_path, 'r') as file:
+        with open(file_path, "r") as file:
             activity_yaml = file.read()
     else:
         # Load the activity YAML from S3
@@ -2061,15 +2067,19 @@ def handle_activity_response(room_name, user_response, username):
                     )
 
                 # Update metadata based on user actions
-                if "metadata_updates" in step["transitions"][category]:
+                if "metadata_add" in step["transitions"][category]:
                     for key, value in step["transitions"][category][
-                        "metadata_updates"
+                        "metadata_add"
                     ].items():
-                        activity_state.update_metadata(key, value)
+                        activity_state.add_metadata(key, value)
 
-                    # Commit the changes after the loop
-                    db.session.add(activity_state)
-                    db.session.commit()
+                if "metadata_remove" in step["transitions"][category]:
+                    for key in step["transitions"][category]["metadata_remove"]:
+                        activity_state.remove_metadata(key)
+
+                # Commit the changes after the loop
+                db.session.add(activity_state)
+                db.session.commit()
 
                 # if "correct" or max_attempts reached.
                 if (
@@ -2314,10 +2324,7 @@ def categorize_response(question, response, buckets, tokens_for_ai):
             temperature=0,
         )
         category = (
-            completion.choices[0]
-            .message.content.strip()
-            .lower()
-            .replace(" ", "_")
+            completion.choices[0].message.content.strip().lower().replace(" ", "_")
         )
         return category
     except Exception as e:
@@ -2384,7 +2391,11 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--profile", help="AWS profile name", default=None)
-    parser.add_argument("--local-activities", action="store_true", help="Use local activity files instead of S3")
+    parser.add_argument(
+        "--local-activities",
+        action="store_true",
+        help="Use local activity files instead of S3",
+    )
     args = parser.parse_args()
 
     # Set profile_name as a global attribute of the app object

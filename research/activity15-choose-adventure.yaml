@@ -72,7 +72,7 @@ sections:
             content_blocks:
               - "You chose to take the key. 🔑"
             next_section_and_step: "section_1:step_1"
-            metadata_updates:
+            metadata_add:
               key: true
           continue_exploring:
             next_section_and_step: "section_1:step_1"
@@ -84,7 +84,7 @@ sections:
             next_section_and_step: "section_1:step_1"
             ai_feedback:
               tokens_for_ai: "The player found a hidden coin. Congratulate them by name with your feedback. Use emojis like 👍 and 🌟."
-            metadata_updates:
+            metadata_add:
               coin: true
           go_back:
             next_section_and_step: "section_1:step_1"
@@ -121,7 +121,7 @@ sections:
             content_blocks:
               - "You chose to take note of the password. 🔑"
             next_section_and_step: "section_1:step_1"
-            metadata_updates:
+            metadata_add:
               password: true
           continue_exploring:
             next_section_and_step: "section_1:step_1"
@@ -133,7 +133,7 @@ sections:
             next_section_and_step: "section_1:step_1"
             ai_feedback:
               tokens_for_ai: "The player found a hidden paper with a cryptic message. Congratulate them by name with your feedback. Use emojis like 👍 and 🌟."
-            metadata_updates:
+            metadata_add:
               paper: true
           go_back:
             next_section_and_step: "section_1:step_1"
@@ -175,7 +175,7 @@ sections:
             next_section_and_step: "section_4:step_1"
             ai_feedback:
               tokens_for_ai: "Provide positive reinforcement and guide the user to the final encounter. Be flexible to classify actions that lead to finding hidden items. Use emojis like 👍 and 🌟."
-            metadata_updates:
+            metadata_add:
               second_safe: true
               exit_key: true
           continue_exploring:
@@ -188,6 +188,8 @@ sections:
             metadata_conditions:
               coin: true
               second_safe: true
+            metadata_remove:
+              - coin
             next_section_and_step: "section_5:step_1"
             ai_feedback:
               tokens_for_ai: "Provide positive reinforcement and guide the user to the final encounter. Be flexible to classify actions that lead to finding hidden items. Use emojis like 👍 and 🌟."
@@ -267,52 +269,52 @@ sections:
           prize_1:
             content_blocks:
               - "You won Prize 1: A golden keychain. 🗝️"
-            metadata_updates:
+            metadata_add:
               prize: golden_keychain
           prize_2:
             content_blocks:
               - "You won Prize 2: A mysterious amulet. 🧿"
-            metadata_updates:
+            metadata_add:
               prize: mysterious_amulet
           prize_3:
             content_blocks:
               - "You won Prize 3: A rare gemstone. 💎"
-            metadata_updates:
+            metadata_add:
               prize: rare_gemstone
           prize_4:
             content_blocks:
               - "You won Prize 4: An ancient scroll. 📜"
-            metadata_updates:
+            metadata_add:
               prize: ancient_scroll
           prize_5:
             content_blocks:
               - "You won Prize 5: A magical wand. 🪄"
-            metadata_updates:
+            metadata_add:
               prize: magical_wand
           prize_6:
             content_blocks:
               - "You won Prize 6: A treasure map. 🗺️"
-            metadata_updates:
+            metadata_add:
               prize: treasure_map
           prize_7:
             content_blocks:
               - "You won Prize 7: A silver coin. 🪙"
-            metadata_updates:
+            metadata_add:
               prize: silver_coin
           prize_8:
             content_blocks:
               - "You won Prize 8: A mystical ring. 💍"
-            metadata_updates:
+            metadata_add:
               prize: mystical_ring
           prize_9:
             content_blocks:
               - "You won Prize 9: A rare book. 📚"
-            metadata_updates:
+            metadata_add:
               prize: rare_book
           prize_10:
             content_blocks:
               - "You won Prize 10: A magical potion. 🧪"
-            metadata_updates:
+            metadata_add:
               prize: magical_potion
 
   - section_id: "section_7"
