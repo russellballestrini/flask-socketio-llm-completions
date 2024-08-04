@@ -11,6 +11,8 @@ import json
 import yaml
 import os
 
+import random
+
 import boto3
 import tiktoken
 import together
@@ -2015,6 +2017,36 @@ def handle_activity_response(room_name, user_response, username):
                         )
                         return
 
+                # this gives the llm context on what changed.
+                new_metadata = {}
+
+                # Update metadata based on user actions
+                if "metadata_add" in step["transitions"][category]:
+                    for key, value in step["transitions"][category][
+                        "metadata_add"
+                    ].items():
+                        new_metadata[key] = value
+                        activity_state.add_metadata(key, value)
+
+                if "metadata_remove" in step["transitions"][category]:
+                    for key in step["transitions"][category]["metadata_remove"]:
+                        activity_state.remove_metadata(key)
+
+                # Handle metadata_random
+                if "metadata_random" in step["transitions"][category]:
+                    random_key = random.choice(
+                        list(step["transitions"][category]["metadata_random"].keys())
+                    )
+                    random_value = step["transitions"][category]["metadata_random"][
+                        random_key
+                    ]
+                    new_metadata[random_key] = random_value
+                    activity_state.add_metadata(random_key, random_value)
+
+                # Commit the changes after the loop
+                db.session.add(activity_state)
+                db.session.commit()
+
                 # Provide feedback based on the category
                 feedback, next_section_and_step = provide_feedback(
                     activity_content,
@@ -2025,6 +2057,7 @@ def handle_activity_response(room_name, user_response, username):
                     user_response,
                     username,
                     activity_state.json_metadata,
+                    json.dumps(new_metadata),
                 )
 
                 # Store and emit the feedback
@@ -2065,21 +2098,6 @@ def handle_activity_response(room_name, user_response, username):
                         },
                         room=room_name,
                     )
-
-                # Update metadata based on user actions
-                if "metadata_add" in step["transitions"][category]:
-                    for key, value in step["transitions"][category][
-                        "metadata_add"
-                    ].items():
-                        activity_state.add_metadata(key, value)
-
-                if "metadata_remove" in step["transitions"][category]:
-                    for key in step["transitions"][category]["metadata_remove"]:
-                        activity_state.remove_metadata(key)
-
-                # Commit the changes after the loop
-                db.session.add(activity_state)
-                db.session.commit()
 
                 # if "correct" or max_attempts reached.
                 if (
@@ -2154,12 +2172,15 @@ def handle_activity_response(room_name, user_response, username):
                 )
 
         except Exception as e:
+            import traceback
+
+            msg = traceback.format_exc()
             socketio.emit(
                 "message",
                 {
                     "id": None,
                     "username": "System",
-                    "content": f"Error processing activity response: {e}",
+                    "content": f"Error processing activity response: {e}\n\n{msg}",
                 },
                 room=room_name,
             )
@@ -2314,7 +2335,7 @@ def categorize_response(question, response, buckets, tokens_for_ai):
         completion = openai_client.chat.completions.create(
             model=model_name,
             messages=messages,
-            max_tokens=5,
+            max_tokens=10,
             temperature=0,
         )
         category = (
@@ -2326,7 +2347,15 @@ def categorize_response(question, response, buckets, tokens_for_ai):
 
 
 # Generate AI feedback
-def generate_ai_feedback(category, question, user_response, tokens_for_ai, username, json_metadata):
+def generate_ai_feedback(
+    category,
+    question,
+    user_response,
+    tokens_for_ai,
+    username,
+    json_metadata,
+    json_new_metadata,
+):
     openai_client, model_name = get_openai_client_and_model()
     messages = [
         {
@@ -2335,7 +2364,7 @@ def generate_ai_feedback(category, question, user_response, tokens_for_ai, usern
         },
         {
             "role": "user",
-            "content": f"Username: {username}\nQuestion: {question}\nResponse: {user_response}\nCategory: {category}\nMetadata: {json_metadata}",
+            "content": f"Username: {username}\nQuestion: {question}\nResponse: {user_response}\nCategory: {category}\nMetadata: {json_metadata}\n New Metadata: {json_new_metadata}",
         },
     ]
 
@@ -2350,7 +2379,15 @@ def generate_ai_feedback(category, question, user_response, tokens_for_ai, usern
 
 
 def provide_feedback(
-    yaml_content, section_id, step_id, category, question, user_response, username, json_metadata
+    yaml_content,
+    section_id,
+    step_id,
+    category,
+    question,
+    user_response,
+    username,
+    json_metadata,
+    json_new_metadata,
 ):
     section = next(
         (s for s in yaml_content["sections"] if s["section_id"] == section_id), None
@@ -2372,7 +2409,7 @@ def provide_feedback(
             step["tokens_for_ai"] + " " + transition["ai_feedback"]["tokens_for_ai"]
         )
         ai_feedback = generate_ai_feedback(
-            category, question, user_response, tokens_for_ai, username, json_metadata
+            category, question, user_response, tokens_for_ai, username, json_metadata, json_new_metadata,
         )
         feedback += f"\n\nAI Feedback: {ai_feedback}"
 
