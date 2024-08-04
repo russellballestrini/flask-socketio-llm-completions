@@ -762,7 +762,7 @@ def get_openai_client_and_model(model_name="gpt-4o-mini"):
     vllm_endpoint = os.environ.get("VLLM_ENDPOINT")
     vllm_api_key = os.environ.get("VLLM_API_KEY", "not-needed")
 
-    if vllm_endpoint:
+    if "gpt" not in model_name and vllm_endpoint:
         openai_client = OpenAI(base_url=vllm_endpoint, api_key=vllm_api_key)
         model_name = "NousResearch/Hermes-2-Pro-Llama-3-8B"
     else:
