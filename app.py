@@ -2025,6 +2025,8 @@ def handle_activity_response(room_name, user_response, username):
                     for key, value in step["transitions"][category][
                         "metadata_add"
                     ].items():
+                        if value == "the-users-response":
+                            value = user_response
                         new_metadata[key] = value
                         activity_state.add_metadata(key, value)
 
