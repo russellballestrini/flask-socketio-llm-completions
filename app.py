@@ -47,6 +47,7 @@ system_users = [
     "gpt-4",
     "gpt-4o",
     "gpt-4o-mini",
+    "gpt-4o-2024-08-06",
     "gpt-4-1106-preview",
     "gpt-4-turbo-preview",
     "gpt-4-turbo",
@@ -430,13 +431,22 @@ def handle_message(data):
             )
         if "gpt-3" in data["message"]:
             gevent.spawn(chat_gpt, data["username"], room.name)
-        if "gpt-4" in data["message"]:
+
+        if "gpt-4o-2024-08-06" in data["message"]:
+            gevent.spawn(
+                chat_gpt,
+                data["username"],
+                room.name,
+                model_name="gpt-4o-2024-08-06",
+            )
+        elif "gpt-4" in data["message"]:
             gevent.spawn(
                 chat_gpt,
                 data["username"],
                 room.name,
                 model_name="gpt-4o",
             )
+
         if "gpt-mini" in data["message"]:
             gevent.spawn(
                 chat_gpt,

@@ -94,6 +94,7 @@ To interact with the various language models, you can use the following commands
 
 - For GPT-3, send a message with ``gpt-3`` and include your prompt.
 - For GPT-4o, send a message with ``gpt-4`` and include your prompt.
+- For GPT-4o cheapest version, send a message with ``gpt-4o-2024-08-06`` and include your prompt.
 - For GPT-4o-mini, send a message with ``gpt-mini`` and include your prompt.
 - For Claude-haiku, send a message with ``claude-haiku`` and include your prompt.
 - For Claude-sonnet, send a message with ``claude-sonnet`` and include your prompt.
