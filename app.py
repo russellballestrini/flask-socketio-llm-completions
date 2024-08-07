@@ -145,6 +145,16 @@ def get_room(room_name):
         return new_room
 
 
+def get_s3_client():
+    """Utility function to get the S3 client with the appropriate profile."""
+    if app.config.get("PROFILE_NAME"):
+        session = boto3.Session(profile_name=app.config["PROFILE_NAME"])
+        s3_client = session.client("s3")
+    else:
+        s3_client = boto3.client("s3")
+    return s3_client
+
+
 from flask_migrate import Migrate
 
 migrate = Migrate(app, db)
@@ -1517,7 +1527,7 @@ def find_most_recent_code_block(room_name):
 
 def save_code_block_to_s3(room_name, s3_key_path, username):
     # Initialize the S3 client
-    s3_client = boto3.client("s3")
+    s3_client = get_s3_client()
 
     # Assuming the bucket name is set in an environment variable
     bucket_name = os.environ.get("S3_BUCKET_NAME")
@@ -1570,7 +1580,7 @@ def save_code_block_to_s3(room_name, s3_key_path, username):
 
 def load_s3_file(room_name, s3_file_path, username):
     # Initialize the S3 client
-    s3_client = boto3.client("s3")
+    s3_client = get_s3_client()
 
     # Assuming the bucket name is set in an environment variable
     bucket_name = os.environ.get("S3_BUCKET_NAME")
@@ -1618,7 +1628,7 @@ def list_s3_files(room_name, s3_file_path_pattern, username):
     from datetime import timezone
 
     # Initialize the S3 client
-    s3_client = boto3.client("s3")
+    s3_client = get_s3_client()
 
     # Assuming the bucket name is set in an environment variable
     bucket_name = os.environ.get("S3_BUCKET_NAME")
@@ -1729,7 +1739,7 @@ def get_activity_content(file_path):
             activity_yaml = file.read()
     else:
         # Load the activity YAML from S3
-        s3_client = boto3.client("s3")
+        s3_client = get_s3_client()
         bucket_name = os.environ.get("S3_BUCKET_NAME")
         response = s3_client.get_object(Bucket=bucket_name, Key=file_path)
         activity_yaml = response["Body"].read().decode("utf-8")
