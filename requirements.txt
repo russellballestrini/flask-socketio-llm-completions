@@ -19,3 +19,5 @@ Flask-SQLAlchemy
 Flask-Migrate
 
 boto3
+
+pyyaml
