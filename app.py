@@ -444,7 +444,8 @@ def handle_message(data):
                 chat_gpt,
                 data["username"],
                 room.name,
-                model_name="gpt-4o",
+                # model_name="gpt-4o",
+                model_name="gpt-4o-2024-08-06",
             )
 
         if "gpt-mini" in data["message"]:
@@ -1983,6 +1984,24 @@ def handle_activity_response(room_name, user_response, username):
                     step["tokens_for_ai"],
                 )
 
+                transition = step["transitions"].get(category, None)
+
+                if transition is None:
+                    # Emit an error message and return early
+                    socketio.emit(
+                        "message",
+                        {
+                            "id": None,
+                            "username": "System",
+                            "content": f"Error: Unrecognized category '{category}'. Please try again.",
+                        },
+                        room=room_name,
+                    )
+                    return
+
+                next_section_and_step = transition.get("next_section_and_step", None)
+                counts_as_attempt = transition.get("counts_as_attempt", True)
+
                 # Emit the category to the frontend
                 socketio.emit(
                     "message",
@@ -1995,12 +2014,10 @@ def handle_activity_response(room_name, user_response, username):
                 )
 
                 # Check metadata conditions for the current step
-                if "metadata_conditions" in step["transitions"][category]:
+                if "metadata_conditions" in transition:
                     conditions_met = all(
                         activity_state.dict_metadata.get(key) == value
-                        for key, value in step["transitions"][category][
-                            "metadata_conditions"
-                        ].items()
+                        for key, value in transition["metadata_conditions"].items()
                     )
                     if not conditions_met:
                         # Emit a message indicating the conditions are not met
@@ -2041,27 +2058,23 @@ def handle_activity_response(room_name, user_response, username):
                 new_metadata = {}
 
                 # Update metadata based on user actions
-                if "metadata_add" in step["transitions"][category]:
-                    for key, value in step["transitions"][category][
-                        "metadata_add"
-                    ].items():
+                if "metadata_add" in transition:
+                    for key, value in transition["metadata_add"].items():
                         if value == "the-users-response":
                             value = user_response
                         new_metadata[key] = value
                         activity_state.add_metadata(key, value)
 
-                if "metadata_remove" in step["transitions"][category]:
-                    for key in step["transitions"][category]["metadata_remove"]:
+                if "metadata_remove" in transition:
+                    for key in transition["metadata_remove"]:
                         activity_state.remove_metadata(key)
 
                 # Handle metadata_random
-                if "metadata_random" in step["transitions"][category]:
+                if "metadata_random" in transition:
                     random_key = random.choice(
-                        list(step["transitions"][category]["metadata_random"].keys())
+                        list(transition["metadata_random"].keys())
                     )
-                    random_value = step["transitions"][category]["metadata_random"][
-                        random_key
-                    ]
+                    random_value = transition["metadata_random"][random_key]
                     new_metadata[random_key] = random_value
                     activity_state.add_metadata(random_key, random_value)
 
@@ -2070,12 +2083,11 @@ def handle_activity_response(room_name, user_response, username):
                 db.session.commit()
 
                 # Provide feedback based on the category
-                feedback, next_section_and_step = provide_feedback(
-                    activity_content,
-                    section["section_id"],
-                    step["step_id"],
+                feedback = provide_feedback(
+                    transition,
                     category,
                     step["question"],
+                    step["tokens_for_ai"],
                     user_response,
                     username,
                     activity_state.json_metadata,
@@ -2101,10 +2113,8 @@ def handle_activity_response(room_name, user_response, username):
                     )
 
                 # Emit the transition content blocks if they exist
-                if "content_blocks" in step["transitions"][category]:
-                    transition_content = "\n\n".join(
-                        step["transitions"][category]["content_blocks"]
-                    )
+                if "content_blocks" in transition:
+                    transition_content = "\n\n".join(transition["content_blocks"])
                     new_message = Message(
                         username="System", content=transition_content, room_id=room.id
                     )
@@ -2166,9 +2176,10 @@ def handle_activity_response(room_name, user_response, username):
                         )
                 else:
                     # the user response is any bucket other than correct.
-                    activity_state.attempts += 1
-                    db.session.add(activity_state)
-                    db.session.commit()
+                    if counts_as_attempt:
+                        activity_state.attempts += 1
+                        db.session.add(activity_state)
+                        db.session.commit()
 
                     # Emit the question again
                     question_content = f"Question: {step['question']}"
@@ -2401,42 +2412,30 @@ def generate_ai_feedback(
 
 
 def provide_feedback(
-    yaml_content,
-    section_id,
-    step_id,
+    transition,
     category,
     question,
     user_response,
+    tokens_for_ai,
     username,
     json_metadata,
     json_new_metadata,
 ):
-    section = next(
-        (s for s in yaml_content["sections"] if s["section_id"] == section_id), None
-    )
-    if not section:
-        return "Section not found.", None
-
-    step = next((s for s in section["steps"] if s["step_id"] == step_id), None)
-    if not step:
-        return "Step not found.", None
-
-    transition = step["transitions"].get(category, None)
-    if not transition:
-        return "Category not found.", None
-
     feedback = ""
     if "ai_feedback" in transition:
-        tokens_for_ai = (
-            step["tokens_for_ai"] + " " + transition["ai_feedback"]["tokens_for_ai"]
-        )
+        tokens_for_ai += " " + transition["ai_feedback"]["tokens_for_ai"]
         ai_feedback = generate_ai_feedback(
-            category, question, user_response, tokens_for_ai, username, json_metadata, json_new_metadata,
+            category,
+            question,
+            user_response,
+            tokens_for_ai,
+            username,
+            json_metadata,
+            json_new_metadata,
         )
         feedback += f"\n\nAI Feedback: {ai_feedback}"
 
-    next_section_and_step = transition.get("next_section_and_step", None)
-    return feedback, next_section_and_step
+    return feedback
 
 
 if __name__ == "__main__":

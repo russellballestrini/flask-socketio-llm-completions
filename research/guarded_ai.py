@@ -1,5 +1,7 @@
 import argparse
 import yaml
+import json
+import random
 from openai import OpenAI
 
 client = OpenAI()
@@ -64,35 +66,16 @@ def generate_ai_feedback(category, question, user_response, tokens_for_ai):
 
 
 # Provide feedback based on the category
-def provide_feedback(
-    yaml_content, section_id, step_id, category, question, user_response
-):
-    section = next(
-        (s for s in yaml_content["sections"] if s["section_id"] == section_id), None
-    )
-    if not section:
-        return "Section not found."
-
-    step = next((s for s in section["steps"] if s["step_id"] == step_id), None)
-    if not step:
-        return "Step not found."
-
-    transition = step["transitions"].get(category, None)
-    if not transition:
-        return "Category not found."
-
+def provide_feedback(transition, category, question, user_response, tokens_for_ai):
     feedback = ""
     if "ai_feedback" in transition:
-        tokens_for_ai = (
-            step["tokens_for_ai"] + " " + transition["ai_feedback"]["tokens_for_ai"]
-        )
+        tokens_for_ai += " " + transition["ai_feedback"]["tokens_for_ai"]
         ai_feedback = generate_ai_feedback(
             category, question, user_response, tokens_for_ai
         )
         feedback += f"\n\nAI Feedback: {ai_feedback}"
 
-    next_section_and_step = transition.get("next_section_and_step", None)
-    return feedback, next_section_and_step
+    return feedback
 
 
 def get_next_section_and_step(activity_content, current_section_id, current_step_id):
@@ -118,7 +101,6 @@ def get_next_section_and_step(activity_content, current_section_id, current_step
     return None, None
 
 
-# Simulate the activity
 def simulate_activity(yaml_file_path):
     yaml_content = load_yaml_activity(yaml_file_path)
     max_attempts = yaml_content.get("default_max_attempts_per_step", 3)
@@ -126,8 +108,12 @@ def simulate_activity(yaml_file_path):
     current_section_id = yaml_content["sections"][0]["section_id"]
     current_step_id = yaml_content["sections"][0]["steps"][0]["step_id"]
 
+    metadata = {}
+
     while current_section_id and current_step_id:
-        print(f"\n\nCurrent section: {current_section_id}, Current step: {current_step_id}\n\n")
+        print(
+            f"\n\nCurrent section: {current_section_id}, Current step: {current_step_id}\n\n"
+        )
         section = next(
             (
                 s
@@ -171,15 +157,46 @@ def simulate_activity(yaml_file_path):
             )
             print(f"\nCategory: {category}")
 
-            feedback, next_section_and_step = provide_feedback(
-                yaml_content,
-                section["section_id"],
-                step["step_id"],
-                category,
-                question,
-                user_response,
+            transition = step["transitions"].get(category, None)
+            if not transition:
+                print("\nError: No valid transition found. Please try again.")
+                continue
+
+            # Check metadata conditions
+            if "metadata_conditions" in transition:
+                conditions_met = all(
+                    metadata.get(key) == value
+                    for key, value in transition["metadata_conditions"].items()
+                )
+                if not conditions_met:
+                    print("\nYou do not meet the required conditions to proceed.")
+                    print(f"Current Metadata: {json.dumps(metadata, indent=2)}")
+                    continue
+
+            feedback = provide_feedback(
+                transition, category, question, user_response, step["tokens_for_ai"]
             )
             print(f"\nFeedback: {feedback}")
+
+            # Update metadata based on user actions
+            if "metadata_add" in transition:
+                for key, value in transition["metadata_add"].items():
+                    if value == "the-users-response":
+                        value = user_response
+                    metadata[key] = value
+
+            if "metadata_remove" in transition:
+                for key in transition["metadata_remove"]:
+                    if key in metadata:
+                        del metadata[key]
+
+            # Handle metadata_random
+            if "metadata_random" in transition:
+                random_key = random.choice(list(transition["metadata_random"].keys()))
+                random_value = transition["metadata_random"][random_key]
+                metadata[random_key] = random_value
+
+            print(f"\nMetadata: {json.dumps(metadata, indent=2)}")
 
             if category not in [
                 "off_topic",
@@ -188,11 +205,16 @@ def simulate_activity(yaml_file_path):
             ]:
                 break
 
-            attempts += 1
+            # Access counts_as_attempt directly from the transition
+            counts_as_attempt = transition.get("counts_as_attempt", True)
+            if counts_as_attempt:
+                attempts += 1
 
         if attempts == max_attempts:
             print("\nMaximum attempts reached. Moving to the next step.")
 
+        # Access next_section_and_step directly from the transition
+        next_section_and_step = transition.get("next_section_and_step", None)
         if next_section_and_step:
             current_section_id, current_step_id = next_section_and_step.split(":")
         else:
@@ -200,9 +222,14 @@ def simulate_activity(yaml_file_path):
                 yaml_content, current_section_id, current_step_id
             )
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Simulate an activity.")
-    parser.add_argument("yaml_file_path", type=str, help="Path to the activity YAML file", default="activity0.yaml")
+    parser.add_argument(
+        "yaml_file_path",
+        type=str,
+        help="Path to the activity YAML file",
+        default="activity0.yaml",
+    )
     args = parser.parse_args()
     simulate_activity(args.yaml_file_path)
-    # simulate_activity("activity13-choose-adventure.yaml")
