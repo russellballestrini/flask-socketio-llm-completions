@@ -2108,9 +2108,9 @@ def handle_activity_response(room_name, user_response, username):
 
                 # Store and emit the feedback
                 if feedback:
-                    translated_feedback = translate_text(feedback, user_language)
+                    # feedback is metadata language aware, doesn't need to be translated.
                     new_message = Message(
-                        username="System", content=translated_feedback, room_id=room.id
+                        username="System", content=feedback, room_id=room.id
                     )
                     db.session.add(new_message)
                     db.session.commit()
@@ -2471,7 +2471,7 @@ def translate_text(text, target_language):
     messages = [
         {
             "role": "system",
-            "content": f"Translate the following text to {target_language}:",
+            "content": f"Translate the following text to {target_language}."
         },
         {
             "role": "user",
