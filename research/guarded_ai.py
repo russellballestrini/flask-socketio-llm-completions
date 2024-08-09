@@ -6,12 +6,10 @@ from openai import OpenAI
 
 client = OpenAI()
 
-
 # Load the YAML activity file
 def load_yaml_activity(file_path):
     with open(file_path, "r") as file:
         return yaml.safe_load(file)
-
 
 # Categorize the user's response using gpt-4o-mini
 def categorize_response(question, response, buckets, tokens_for_ai):
@@ -41,7 +39,6 @@ def categorize_response(question, response, buckets, tokens_for_ai):
     except Exception as e:
         return f"Error: {e}"
 
-
 # Generate AI feedback using gpt-4o-mini
 def generate_ai_feedback(category, question, user_response, tokens_for_ai):
     messages = [
@@ -64,19 +61,17 @@ def generate_ai_feedback(category, question, user_response, tokens_for_ai):
     except Exception as e:
         return f"Error: {e}"
 
-
 # Provide feedback based on the category
-def provide_feedback(transition, category, question, user_response, tokens_for_ai):
+def provide_feedback(transition, category, question, user_response, user_language, tokens_for_ai):
     feedback = ""
     if "ai_feedback" in transition:
-        tokens_for_ai += " " + transition["ai_feedback"]["tokens_for_ai"]
+        tokens_for_ai += f" Provide the feedback in {user_language}. {transition.get('ai_feedback',{}).get('tokens_for_ai', '')}."
         ai_feedback = generate_ai_feedback(
             category, question, user_response, tokens_for_ai
         )
         feedback += f"\n\nAI Feedback: {ai_feedback}"
 
     return feedback
-
 
 def get_next_section_and_step(activity_content, current_section_id, current_step_id):
     for section in activity_content["sections"]:
@@ -100,6 +95,30 @@ def get_next_section_and_step(activity_content, current_section_id, current_step
                             )
     return None, None
 
+def translate_text(text, target_language):
+    # Guard clause for default language
+    if target_language.lower() == "english":
+        return text
+
+    messages = [
+        {
+            "role": "system",
+            "content": f"Translate the following text to {target_language}:",
+        },
+        {
+            "role": "user",
+            "content": text,
+        },
+    ]
+
+    try:
+        completion = client.chat.completions.create(
+            model="gpt-4o-mini", messages=messages, max_tokens=500, temperature=0.7
+        )
+        translation = completion.choices[0].message.content.strip()
+        return translation
+    except Exception as e:
+        return f"Error: {e}"
 
 def simulate_activity(yaml_file_path):
     yaml_content = load_yaml_activity(yaml_file_path)
@@ -108,7 +127,7 @@ def simulate_activity(yaml_file_path):
     current_section_id = yaml_content["sections"][0]["section_id"]
     current_step_id = yaml_content["sections"][0]["steps"][0]["step_id"]
 
-    metadata = {}
+    metadata = {"language": "English"}  # Default language
 
     while current_section_id and current_step_id:
         print(
@@ -122,20 +141,19 @@ def simulate_activity(yaml_file_path):
             ),
             None,
         )
-        if not section:
-            print("Section not found.")
-            break
 
         step = next(
             (s for s in section["steps"] if s["step_id"] == current_step_id), None
         )
-        if not step:
-            print("Step not found.")
-            break
 
-        # Print all content blocks once per step
+        # Get the user's language preference from metadata
+        user_language = metadata.get("language", "English")
+
+        # Translate and print all content blocks once per step
         if "content_blocks" in step:
-            print("\n\n".join(step["content_blocks"]))
+            content = "\n\n".join(step["content_blocks"])
+            translated_content = translate_text(content, user_language)
+            print(translated_content)
 
         # Skip classification and feedback if there's no question
         if "question" not in step:
@@ -145,11 +163,11 @@ def simulate_activity(yaml_file_path):
             continue
 
         question = step["question"]
+        translated_question = translate_text(question, user_language)
+        print(f"\nQuestion: {translated_question}")
 
         attempts = 0
         while attempts < max_attempts:
-            print(f"\nQuestion: {question}")
-
             user_response = input("\nYour Response: ")
 
             category = categorize_response(
@@ -174,7 +192,7 @@ def simulate_activity(yaml_file_path):
                     continue
 
             feedback = provide_feedback(
-                transition, category, question, user_response, step["tokens_for_ai"]
+                transition, category, question, user_response, user_language, step["tokens_for_ai"]
             )
             print(f"\nFeedback: {feedback}")
 
@@ -192,7 +210,9 @@ def simulate_activity(yaml_file_path):
 
             # Handle metadata_random
             if "metadata_random" in transition:
-                random_key = random.choice(list(transition["metadata_random"].keys()))
+                random_key = random.choice(
+                    list(transition["metadata_random"].keys())
+                )
                 random_value = transition["metadata_random"][random_key]
                 metadata[random_key] = random_value
 
@@ -221,7 +241,6 @@ def simulate_activity(yaml_file_path):
             current_section_id, current_step_id = get_next_section_and_step(
                 yaml_content, current_section_id, current_step_id
             )
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Simulate an activity.")
