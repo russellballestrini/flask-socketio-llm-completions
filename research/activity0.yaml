@@ -24,9 +24,10 @@ sections:
         buckets:
           - correct
           - partial_understanding
-          - off_topic
+          - limited_effort
           - asking_clarifying_questions
           - set_language
+          - off_topic
         transitions:
           correct:
             content_blocks:
@@ -38,11 +39,11 @@ sections:
               - "You have a partial understanding. Let's clarify a few points. 🤔"
             ai_feedback:
               tokens_for_ai: "Provide additional information to clarify the student's understanding in a friendly and supportive manner. Use emojis like 🤔 and 📚."
-          off_topic:
+          limited_effort:
             content_blocks:
-              - "It seems like your response is off-topic. Let's try to stay focused on the reasons for creating a free operating system. 🔄"
+              - "It seems like you're unsure. That's okay! Let's explore this topic together. What do you think are some reasons someone might want a free operating system? 🤔"
             ai_feedback:
-              tokens_for_ai: "Gently guide the student back to the topic of the reasons for creating a free operating system in a supportive manner. Use emojis like 🔄 and 🧭."
+              tokens_for_ai: "Encourage the student to reflect on the topic and consider different aspects. Offer hints or context to guide their thinking. Use emojis like 🤔 and 💡."
           asking_clarifying_questions:
             content_blocks:
               - "I see you have some questions. Let's address them. ❓"
@@ -57,6 +58,11 @@ sections:
             metadata_add:
               language: "the-users-response"
             counts_as_attempt: false
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the reasons for creating a free operating system. 🔄"
+            ai_feedback:
+              tokens_for_ai: "Gently guide the student back to the topic of the reasons for creating a free operating system in a supportive manner. Use emojis like 🔄 and 🧭."
 
       - step_id: "step_2"
         title: "Importance of The GNU Manifesto"
@@ -69,9 +75,10 @@ sections:
         buckets:
           - correct
           - partial_understanding
-          - off_topic
+          - limited_effort
           - asking_clarifying_questions
           - set_language
+          - off_topic
         transitions:
           correct:
             content_blocks:
@@ -83,11 +90,11 @@ sections:
               - "You have a partial understanding. Let's clarify a few points. 🤔"
             ai_feedback:
               tokens_for_ai: "Provide additional information to clarify the student's understanding in a friendly and supportive manner. Use emojis like 🤔 and 📚."
-          off_topic:
+          limited_effort:
             content_blocks:
-              - "It seems like your response is off-topic. Let's try to stay focused on the benefits of free software. 🔄"
+              - "It seems like you're unsure. That's okay! Let's explore this topic together. How do you think free software might help users and developers? 🤔"
             ai_feedback:
-              tokens_for_ai: "Gently guide the student back to the topic of the benefits of free software in a supportive manner. Use emojis like 🔄 and 🧭."
+              tokens_for_ai: "Encourage the student to reflect on the topic and consider different aspects. Offer hints or context to guide their thinking. Use emojis like 🤔 and 💡."
           asking_clarifying_questions:
             content_blocks:
               - "I see you have some questions. Let's address them. ❓"
@@ -102,6 +109,11 @@ sections:
             metadata_add:
               language: "the-users-response"
             counts_as_attempt: false
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the benefits of free software. 🔄"
+            ai_feedback:
+              tokens_for_ai: "Gently guide the student back to the topic of the benefits of free software in a supportive manner. Use emojis like 🔄 and 🧭."
 
   - section_id: "section_2"
     title: "Key Concepts of The GNU Manifesto"
@@ -117,9 +129,10 @@ sections:
         buckets:
           - correct
           - partial_understanding
-          - off_topic
+          - limited_effort
           - asking_clarifying_questions
           - set_language
+          - off_topic
         transitions:
           correct:
             content_blocks:
@@ -131,11 +144,11 @@ sections:
               - "You have a partial understanding. Let's clarify a few points. 🤔"
             ai_feedback:
               tokens_for_ai: "Provide additional information to clarify the student's understanding in a friendly and supportive manner. Use emojis like 🤔 and 📚."
-          off_topic:
+          limited_effort:
             content_blocks:
-              - "It seems like your response is off-topic. Let's try to stay focused on the importance of GNU being compatible with Unix. 🔄"
+              - "It seems like you're unsure. That's okay! Let's explore this topic together. Why do you think compatibility with Unix is important for GNU? 🤔"
             ai_feedback:
-              tokens_for_ai: "Gently guide the student back to the topic of the importance of GNU being compatible with Unix in a supportive manner. Use emojis like 🔄 and 🧭."
+              tokens_for_ai: "Encourage the student to reflect on the topic and consider different aspects. Offer hints or context to guide their thinking. Use emojis like 🤔 and 💡."
           asking_clarifying_questions:
             content_blocks:
               - "I see you have some questions. Let's address them. ❓"
@@ -150,6 +163,11 @@ sections:
             metadata_add:
               language: "the-users-response"
             counts_as_attempt: false
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the importance of GNU being compatible with Unix. 🔄"
+            ai_feedback:
+              tokens_for_ai: "Gently guide the student back to the topic of the importance of GNU being compatible with Unix in a supportive manner. Use emojis like 🔄 and 🧭."
 
       - step_id: "step_2"
         title: "Why GNU Will Be Free"
@@ -162,9 +180,10 @@ sections:
         buckets:
           - correct
           - partial_understanding
-          - off_topic
+          - limited_effort
           - asking_clarifying_questions
           - set_language
+          - off_topic
         transitions:
           correct:
             content_blocks:
@@ -176,11 +195,11 @@ sections:
               - "You have a partial understanding. Let's clarify a few points. 🤔"
             ai_feedback:
               tokens_for_ai: "Provide additional information to clarify the student's understanding in a friendly and supportive manner. Use emojis like 🤔 and 📚."
-          off_topic:
+          limited_effort:
             content_blocks:
-              - "It seems like your response is off-topic. Let's try to stay focused on the importance of GNU remaining free. 🔄"
+              - "It seems like you're unsure. That's okay! Let's explore this topic together. Why do you think it's important for GNU to remain free? 🤔"
             ai_feedback:
-              tokens_for_ai: "Gently guide the student back to the topic of the importance of GNU remaining free in a supportive manner. Use emojis like 🔄 and 🧭."
+              tokens_for_ai: "Encourage the student to reflect on the topic and consider different aspects. Offer hints or context to guide their thinking. Use emojis like 🤔 and 💡."
           asking_clarifying_questions:
             content_blocks:
               - "I see you have some questions. Let's address them. ❓"
@@ -195,6 +214,11 @@ sections:
             metadata_add:
               language: "the-users-response"
             counts_as_attempt: false
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the importance of GNU remaining free. 🔄"
+            ai_feedback:
+              tokens_for_ai: "Gently guide the student back to the topic of the importance of GNU remaining free in a supportive manner. Use emojis like 🔄 and 🧭."
 
   - section_id: "section_3"
     title: "Contributing to GNU"
@@ -209,9 +233,10 @@ sections:
         buckets:
           - correct
           - partial_understanding
-          - off_topic
+          - limited_effort
           - asking_clarifying_questions
           - set_language
+          - off_topic
         transitions:
           correct:
             content_blocks:
@@ -223,11 +248,11 @@ sections:
               - "You have a partial understanding. Let's clarify a few points. 🤔"
             ai_feedback:
               tokens_for_ai: "Provide additional information to clarify the student's understanding in a friendly and supportive manner. Use emojis like 🤔 and 📚."
-          off_topic:
+          limited_effort:
             content_blocks:
-              - "It seems like your response is off-topic. Let's try to stay focused on the importance of contributing to the GNU Project. 🔄"
+              - "It seems like you're unsure. That's okay! Let's explore this topic together. Why do you think contributing to the GNU Project is important? 🤔"
             ai_feedback:
-              tokens_for_ai: "Gently guide the student back to the topic of the importance of contributing to the GNU Project in a supportive manner. Use emojis like 🔄 and 🧭."
+              tokens_for_ai: "Encourage the student to reflect on the topic and consider different aspects. Offer hints or context to guide their thinking. Use emojis like 🤔 and 💡."
           asking_clarifying_questions:
             content_blocks:
               - "I see you have some questions. Let's address them. ❓"
@@ -242,6 +267,11 @@ sections:
             metadata_add:
               language: "the-users-response"
             counts_as_attempt: false
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the importance of contributing to the GNU Project. 🔄"
+            ai_feedback:
+              tokens_for_ai: "Gently guide the student back to the topic of the importance of contributing to the GNU Project in a supportive manner. Use emojis like 🔄 and 🧭."
 
       - step_id: "step_2"
         title: "Ways to Contribute"
@@ -253,9 +283,10 @@ sections:
         buckets:
           - correct
           - partial_understanding
-          - off_topic
+          - limited_effort
           - asking_clarifying_questions
           - set_language
+          - off_topic
         transitions:
           correct:
             content_blocks:
@@ -267,11 +298,11 @@ sections:
               - "You have a partial understanding. Let's clarify a few points. 🤔"
             ai_feedback:
               tokens_for_ai: "Provide additional information to clarify the student's understanding in a friendly and supportive manner. Use emojis like 🤔 and 📚."
-          off_topic:
+          limited_effort:
             content_blocks:
-              - "It seems like your response is off-topic. Let's try to stay focused on how you can contribute to the GNU Project. 🔄"
+              - "It seems like you're unsure. That's okay! Let's explore this topic together. How do you think you can contribute to the GNU Project with your skills? 🤔"
             ai_feedback:
-              tokens_for_ai: "Gently guide the student back to the topic of how they can contribute to the GNU Project in a supportive manner. Use emojis like 🔄 and 🧭."
+              tokens_for_ai: "Encourage the student to reflect on the topic and consider different aspects. Offer hints or context to guide their thinking. Use emojis like 🤔 and 💡."
           asking_clarifying_questions:
             content_blocks:
               - "I see you have some questions. Let's address them. ❓"
@@ -286,6 +317,11 @@ sections:
             metadata_add:
               language: "the-users-response"
             counts_as_attempt: false
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on how you can contribute to the GNU Project. 🔄"
+            ai_feedback:
+              tokens_for_ai: "Gently guide the student back to the topic of how they can contribute to the GNU Project in a supportive manner. Use emojis like 🔄 and 🧭."
 
   - section_id: "section_4"
     title: "Legacy of The GNU Manifesto"
@@ -300,9 +336,10 @@ sections:
         buckets:
           - correct
           - partial_understanding
-          - off_topic
+          - limited_effort
           - asking_clarifying_questions
           - set_language
+          - off_topic
         transitions:
           correct:
             content_blocks:
@@ -314,11 +351,11 @@ sections:
               - "You have a partial understanding. Let's clarify a few points. 🤔"
             ai_feedback:
               tokens_for_ai: "Provide additional information to clarify the student's understanding in a friendly and supportive manner. Use emojis like 🤔 and 📚."
-          off_topic:
+          limited_effort:
             content_blocks:
-              - "It seems like your response is off-topic. Let's try to stay focused on the impact of the GNU Manifesto. 🔄"
+              - "It seems like you're unsure. That's okay! Let's explore this topic together. How do you think the GNU Manifesto has influenced software development? 🤔"
             ai_feedback:
-              tokens_for_ai: "Gently guide the student back to the topic of the impact of the GNU Manifesto in a supportive manner. Use emojis like 🔄 and 🧭."
+              tokens_for_ai: "Encourage the student to reflect on the topic and consider different aspects. Offer hints or context to guide their thinking. Use emojis like 🤔 and 💡."
           asking_clarifying_questions:
             content_blocks:
               - "I see you have some questions. Let's address them. ❓"
@@ -333,6 +370,11 @@ sections:
             metadata_add:
               language: "the-users-response"
             counts_as_attempt: false
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the impact of the GNU Manifesto. 🔄"
+            ai_feedback:
+              tokens_for_ai: "Gently guide the student back to the topic of the impact of the GNU Manifesto in a supportive manner. Use emojis like 🔄 and 🧭."
 
       - step_id: "step_2"
         title: "Future of Free Software"
@@ -344,9 +386,10 @@ sections:
         buckets:
           - correct
           - partial_understanding
-          - off_topic
+          - limited_effort
           - asking_clarifying_questions
           - set_language
+          - off_topic
         transitions:
           correct:
             content_blocks:
@@ -358,16 +401,17 @@ sections:
               - "You have a partial understanding. Let's clarify a few points. 🤔"
             ai_feedback:
               tokens_for_ai: "Provide additional information to clarify the student's understanding in a friendly and supportive manner. Use emojis like 🤔 and 📚."
-          off_topic:
+          limited_effort:
             content_blocks:
-              - "It seems like your response is off-topic. Let's try to stay focused on the future of free software. 🔄"
+              - "It seems like you're unsure. That's okay! Let's explore this topic together. How do you think free software will shape technology's future? 🤔"
             ai_feedback:
-              tokens_for_ai: "Gently guide the student back to the topic of the future of free software in a supportive manner. Use emojis like 🔄 and 🧭."
+              tokens_for_ai: "Encourage the student to reflect on the topic and consider different aspects. Offer hints or context to guide their thinking. Use emojis like 🤔 and 💡."
           asking_clarifying_questions:
             content_blocks:
               - "I see you have some questions. Let's address them. ❓"
             ai_feedback:
               tokens_for_ai: "Answer the student's clarifying questions and provide additional information in a friendly and engaging manner. Use emojis like ❓ and 💬."
+            counts_as_attempt: false
           set_language:
             content_blocks:
               - "Language preference updated. Please continue in your preferred language."
@@ -376,6 +420,11 @@ sections:
             metadata_add:
               language: "the-users-response"
             counts_as_attempt: false
+          off_topic:
+            content_blocks:
+              - "It seems like your response is off-topic. Let's try to stay focused on the future of free software. 🔄"
+            ai_feedback:
+              tokens_for_ai: "Gently guide the student back to the topic of the future of free software in a supportive manner. Use emojis like 🔄 and 🧭."
 
   - section_id: "section_5"
     title: "Congratulations!"
