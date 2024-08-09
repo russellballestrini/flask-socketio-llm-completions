@@ -1766,6 +1766,9 @@ def loop_through_steps_until_question(
     current_section_id = activity_state.section_id
     current_step_id = activity_state.step_id
 
+    # Get the user's language preference from metadata
+    user_language = activity_state.dict_metadata.get("language", "English")
+
     while True:
         section = next(
             (
@@ -1786,7 +1789,10 @@ def loop_through_steps_until_question(
 
         # Emit the current step content blocks
         content = "\n\n".join(step["content_blocks"])
-        new_message = Message(username="System", content=content, room_id=room.id)
+        translated_content = translate_text(content, user_language)
+        new_message = Message(
+            username="System", content=translated_content, room_id=room.id
+        )
         db.session.add(new_message)
         db.session.commit()
 
@@ -1795,7 +1801,7 @@ def loop_through_steps_until_question(
             {
                 "id": new_message.id,
                 "username": "System",
-                "content": content,
+                "content": translated_content,
             },
             room=room_name,
         )
@@ -1803,8 +1809,11 @@ def loop_through_steps_until_question(
         # Check if the current step has a question
         if "question" in step:
             question_content = f"Question: {step['question']}"
+            translated_question_content = translate_text(
+                question_content, user_language
+            )
             new_message = Message(
-                username="System", content=question_content, room_id=room.id
+                username="System", content=translated_question_content, room_id=room.id
             )
             db.session.add(new_message)
             db.session.commit()
@@ -1814,7 +1823,7 @@ def loop_through_steps_until_question(
                 {
                     "id": new_message.id,
                     "username": "System",
-                    "content": question_content,
+                    "content": translated_question_content,
                 },
                 room=room_name,
             )
@@ -2082,6 +2091,8 @@ def handle_activity_response(room_name, user_response, username):
                 db.session.add(activity_state)
                 db.session.commit()
 
+                user_language = activity_state.dict_metadata.get("language", "English")
+
                 # Provide feedback based on the category
                 feedback = provide_feedback(
                     transition,
@@ -2089,6 +2100,7 @@ def handle_activity_response(room_name, user_response, username):
                     step["question"],
                     step["tokens_for_ai"],
                     user_response,
+                    user_language,
                     username,
                     activity_state.json_metadata,
                     json.dumps(new_metadata),
@@ -2096,8 +2108,9 @@ def handle_activity_response(room_name, user_response, username):
 
                 # Store and emit the feedback
                 if feedback:
+                    translated_feedback = translate_text(feedback, user_language)
                     new_message = Message(
-                        username="System", content=feedback, room_id=room.id
+                        username="System", content=translated_feedback, room_id=room.id
                     )
                     db.session.add(new_message)
                     db.session.commit()
@@ -2115,8 +2128,13 @@ def handle_activity_response(room_name, user_response, username):
                 # Emit the transition content blocks if they exist
                 if "content_blocks" in transition:
                     transition_content = "\n\n".join(transition["content_blocks"])
+                    translated_transition_content = translate_text(
+                        transition_content, user_language
+                    )
                     new_message = Message(
-                        username="System", content=transition_content, room_id=room.id
+                        username="System",
+                        content=translated_transition_content,
+                        room_id=room.id,
                     )
                     db.session.add(new_message)
                     db.session.commit()
@@ -2126,7 +2144,7 @@ def handle_activity_response(room_name, user_response, username):
                         {
                             "id": new_message.id,
                             "username": "System",
-                            "content": transition_content,
+                            "content": translated_transition_content,
                         },
                         room=room_name,
                     )
@@ -2183,8 +2201,13 @@ def handle_activity_response(room_name, user_response, username):
 
                     # Emit the question again
                     question_content = f"Question: {step['question']}"
+                    translated_question_content = translate_text(
+                        question_content, user_language
+                    )
                     new_message = Message(
-                        username="System", content=question_content, room_id=room.id
+                        username="System",
+                        content=translated_question_content,
+                        room_id=room.id,
                     )
                     db.session.add(new_message)
                     db.session.commit()
@@ -2194,7 +2217,7 @@ def handle_activity_response(room_name, user_response, username):
                         {
                             "id": new_message.id,
                             "username": "System",
-                            "content": question_content,
+                            "content": translated_question_content,
                         },
                         room=room_name,
                     )
@@ -2416,6 +2439,7 @@ def provide_feedback(
     category,
     question,
     user_response,
+    user_language,
     tokens_for_ai,
     username,
     json_metadata,
@@ -2423,7 +2447,7 @@ def provide_feedback(
 ):
     feedback = ""
     if "ai_feedback" in transition:
-        tokens_for_ai += " " + transition["ai_feedback"]["tokens_for_ai"]
+        tokens_for_ai += f" Provide the feedback in {user_language}. {transition.get('ai_feedback',{}).get('tokens_for_ai', '')}."
         ai_feedback = generate_ai_feedback(
             category,
             question,
@@ -2436,6 +2460,33 @@ def provide_feedback(
         feedback += f"\n\nAI Feedback: {ai_feedback}"
 
     return feedback
+
+
+def translate_text(text, target_language):
+    # Guard clause for default language
+    if target_language.lower() == "english":
+        return text
+
+    openai_client, model_name = get_openai_client_and_model()
+    messages = [
+        {
+            "role": "system",
+            "content": f"Translate the following text to {target_language}:",
+        },
+        {
+            "role": "user",
+            "content": text,
+        },
+    ]
+
+    try:
+        completion = openai_client.chat.completions.create(
+            model=model_name, messages=messages, max_tokens=2000, temperature=0.7
+        )
+        translation = completion.choices[0].message.content.strip()
+        return translation
+    except Exception as e:
+        return f"Error: {e}"
 
 
 if __name__ == "__main__":

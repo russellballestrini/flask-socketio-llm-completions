@@ -8,6 +8,7 @@ sections:
         content_blocks:
           - "Welcome to the GNU Manifesto course! 👋"
           - "You will learn about the GNU Manifesto and its significance."
+
   - section_id: "section_1"
     title: "Introduction to The GNU Manifesto"
     steps:
@@ -25,6 +26,7 @@ sections:
           - partial_understanding
           - off_topic
           - asking_clarifying_questions
+          - set_language
         transitions:
           correct:
             content_blocks:
@@ -46,6 +48,15 @@ sections:
               - "I see you have some questions. Let's address them. ❓"
             ai_feedback:
               tokens_for_ai: "Answer the student's clarifying questions and provide additional information in a friendly and engaging manner. Use emojis like ❓ and 💬."
+            counts_as_attempt: false
+          set_language:
+            content_blocks:
+              - "Language preference updated. Please continue in your preferred language."
+            ai_feedback:
+              tokens_for_ai: "Acknowledge the language change and confirm the update."
+            metadata_add:
+              language: "the-users-response"
+            counts_as_attempt: false
 
       - step_id: "step_2"
         title: "Importance of The GNU Manifesto"
@@ -60,6 +71,7 @@ sections:
           - partial_understanding
           - off_topic
           - asking_clarifying_questions
+          - set_language
         transitions:
           correct:
             content_blocks:
@@ -81,6 +93,15 @@ sections:
               - "I see you have some questions. Let's address them. ❓"
             ai_feedback:
               tokens_for_ai: "Answer the student's clarifying questions and provide additional information in a friendly and engaging manner. Use emojis like ❓ and 💬."
+            counts_as_attempt: false
+          set_language:
+            content_blocks:
+              - "Language preference updated. Please continue in your preferred language."
+            ai_feedback:
+              tokens_for_ai: "Acknowledge the language change and confirm the update."
+            metadata_add:
+              language: "the-users-response"
+            counts_as_attempt: false
 
   - section_id: "section_2"
     title: "Key Concepts of The GNU Manifesto"
@@ -98,6 +119,7 @@ sections:
           - partial_understanding
           - off_topic
           - asking_clarifying_questions
+          - set_language
         transitions:
           correct:
             content_blocks:
@@ -119,6 +141,15 @@ sections:
               - "I see you have some questions. Let's address them. ❓"
             ai_feedback:
               tokens_for_ai: "Answer the student's clarifying questions and provide additional information in a friendly and engaging manner. Use emojis like ❓ and 💬."
+            counts_as_attempt: false
+          set_language:
+            content_blocks:
+              - "Language preference updated. Please continue in your preferred language."
+            ai_feedback:
+              tokens_for_ai: "Acknowledge the language change and confirm the update."
+            metadata_add:
+              language: "the-users-response"
+            counts_as_attempt: false
 
       - step_id: "step_2"
         title: "Why GNU Will Be Free"
@@ -133,6 +164,7 @@ sections:
           - partial_understanding
           - off_topic
           - asking_clarifying_questions
+          - set_language
         transitions:
           correct:
             content_blocks:
@@ -154,6 +186,15 @@ sections:
               - "I see you have some questions. Let's address them. ❓"
             ai_feedback:
               tokens_for_ai: "Answer the student's clarifying questions and provide additional information in a friendly and engaging manner. Use emojis like ❓ and 💬."
+            counts_as_attempt: false
+          set_language:
+            content_blocks:
+              - "Language preference updated. Please continue in your preferred language."
+            ai_feedback:
+              tokens_for_ai: "Acknowledge the language change and confirm the update."
+            metadata_add:
+              language: "the-users-response"
+            counts_as_attempt: false
 
   - section_id: "section_3"
     title: "Contributing to GNU"
@@ -170,6 +211,7 @@ sections:
           - partial_understanding
           - off_topic
           - asking_clarifying_questions
+          - set_language
         transitions:
           correct:
             content_blocks:
@@ -191,6 +233,15 @@ sections:
               - "I see you have some questions. Let's address them. ❓"
             ai_feedback:
               tokens_for_ai: "Answer the student's clarifying questions and provide additional information in a friendly and engaging manner. Use emojis like ❓ and 💬."
+            counts_as_attempt: false
+          set_language:
+            content_blocks:
+              - "Language preference updated. Please continue in your preferred language."
+            ai_feedback:
+              tokens_for_ai: "Acknowledge the language change and confirm the update."
+            metadata_add:
+              language: "the-users-response"
+            counts_as_attempt: false
 
       - step_id: "step_2"
         title: "Ways to Contribute"
@@ -204,6 +255,7 @@ sections:
           - partial_understanding
           - off_topic
           - asking_clarifying_questions
+          - set_language
         transitions:
           correct:
             content_blocks:
@@ -225,6 +277,15 @@ sections:
               - "I see you have some questions. Let's address them. ❓"
             ai_feedback:
               tokens_for_ai: "Answer the student's clarifying questions and provide additional information in a friendly and engaging manner. Use emojis like ❓ and 💬."
+            counts_as_attempt: false
+          set_language:
+            content_blocks:
+              - "Language preference updated. Please continue in your preferred language."
+            ai_feedback:
+              tokens_for_ai: "Acknowledge the language change and confirm the update."
+            metadata_add:
+              language: "the-users-response"
+            counts_as_attempt: false
 
   - section_id: "section_4"
     title: "Legacy of The GNU Manifesto"
@@ -241,6 +302,7 @@ sections:
           - partial_understanding
           - off_topic
           - asking_clarifying_questions
+          - set_language
         transitions:
           correct:
             content_blocks:
@@ -262,6 +324,15 @@ sections:
               - "I see you have some questions. Let's address them. ❓"
             ai_feedback:
               tokens_for_ai: "Answer the student's clarifying questions and provide additional information in a friendly and engaging manner. Use emojis like ❓ and 💬."
+            counts_as_attempt: false
+          set_language:
+            content_blocks:
+              - "Language preference updated. Please continue in your preferred language."
+            ai_feedback:
+              tokens_for_ai: "Acknowledge the language change and confirm the update."
+            metadata_add:
+              language: "the-users-response"
+            counts_as_attempt: false
 
       - step_id: "step_2"
         title: "Future of Free Software"
@@ -275,6 +346,7 @@ sections:
           - partial_understanding
           - off_topic
           - asking_clarifying_questions
+          - set_language
         transitions:
           correct:
             content_blocks:
@@ -296,6 +368,14 @@ sections:
               - "I see you have some questions. Let's address them. ❓"
             ai_feedback:
               tokens_for_ai: "Answer the student's clarifying questions and provide additional information in a friendly and engaging manner. Use emojis like ❓ and 💬."
+          set_language:
+            content_blocks:
+              - "Language preference updated. Please continue in your preferred language."
+            ai_feedback:
+              tokens_for_ai: "Acknowledge the language change and confirm the update."
+            metadata_add:
+              language: "the-users-response"
+            counts_as_attempt: false
 
   - section_id: "section_5"
     title: "Congratulations!"
@@ -307,4 +387,3 @@ sections:
           - "You have learned about the key concepts, principles, and impact of the GNU Manifesto."
           - "This knowledge will help you understand the importance of software freedom and the Free Software Movement."
           - "We are proud of your dedication and hard work. Well done! 🌟"
-
