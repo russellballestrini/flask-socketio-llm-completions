@@ -2164,13 +2164,22 @@ def handle_activity_response(room_name, user_response, username):
                     for key, value in transition["metadata_add"].items():
                         if value == "the-users-response":
                             value = user_response
-                        elif isinstance(value, str) and (value.startswith("n+") or value.startswith("n-")):
-                            # Extract the numeric part c and apply the operation +/-
-                            c = int(value[1:])
-                            if value.startswith("n+"):
-                                value = activity_state.dict_metadata.get(key, 0) + c
-                            elif value.startswith("n-"):
-                                value = activity_state.dict_metadata.get(key, 0) - c
+                        elif isinstance(value, str):
+                            if value.startswith("n+random(") and value.endswith(")"):
+                                # Extract the range and apply the random increment
+                                range_values = value[9:-1].split(",")
+                                if len(range_values) == 2:
+                                    x, y = map(int, range_values)
+                                    value = activity_state.dict_metadata.get(
+                                        key, 0
+                                    ) + random.randint(x, y)
+                            elif value.startswith("n+") or value.startswith("n-"):
+                                # Extract the numeric part c and apply the operation +/-
+                                c = int(value[1:])
+                                if value.startswith("n+"):
+                                    value = activity_state.dict_metadata.get(key, 0) + c
+                                elif value.startswith("n-"):
+                                    value = activity_state.dict_metadata.get(key, 0) - c
                         new_metadata[key] = value
                         activity_state.add_metadata(key, value)
 
@@ -2271,9 +2280,10 @@ def handle_activity_response(room_name, user_response, username):
                 if (
                     category
                     not in [
-                        "off_topic",
-                        "asking_clarifying_questions",
                         "partial_understanding",
+                        "asking_clarifying_questions",
+                        "set_language",
+                        "off_topic",
                     ]
                     or activity_state.attempts >= activity_state.max_attempts
                 ):

@@ -18,7 +18,7 @@ sections:
           - "Python is a powerful tool for hackers due to its simplicity and extensive libraries."
           - "Think about why Python is favored in the hacking community. Consider aspects like ease of use, versatility, and community support."
         tokens_for_ai: "Guide the student to think about the reasons Python is popular among hackers. Be on the lookout for the user trying to change their language preference because it's never 'off_topic' to 'set_language'. Use the 'off_topic' category sparingly, focusing on guiding the user back to the topic if needed. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
-        feedback_tokens_for_ai: "Don't forget to let the user know how many they have answered correct. Give a detailed example of the tool or concept in Python markdown fenced code block."
+        feedback_tokens_for_ai: "Don't forget to let the user know how many they have answered correctly. Give a detailed example of the tool or concept in Python markdown fenced code block."
         question: "Why do you think Python is a popular choice for hackers? 🤔"
         buckets:
           - correct
@@ -34,17 +34,24 @@ sections:
             ai_feedback:
               tokens_for_ai: "Provide positive reinforcement and encourage the student to continue learning. Use emojis like 👍 and 🌟."
             metadata_add:
-              correct_answers: "n+1"
+              points: "n+random(1,20)"
+              attempts: "n+1"
           partial_understanding:
             content_blocks:
               - "You have a partial understanding. Let's clarify a few points. 🤔"
             ai_feedback:
               tokens_for_ai: "Provide additional information to clarify the student's understanding in a friendly and supportive manner. Use emojis like 🤔 and 📚."
+            metadata_add:
+              points: "n+random(1,4)"
+              attempts: "n+1"
           limited_effort:
             content_blocks:
               - "It seems like you're unsure. That's okay! Let's explore this topic together. Why do you think Python is favored by hackers? 🤔"
             ai_feedback:
               tokens_for_ai: "Encourage the student to reflect on the topic and consider different aspects. Offer hints or context to guide their thinking. Use emojis like 🤔 and 💡."
+            metadata_add:
+              points: "n+random(1,2)"
+              attempts: "n+1"
           asking_clarifying_questions:
             content_blocks:
               - "I see you have some questions. Let's address them. ❓"
@@ -71,7 +78,7 @@ sections:
           - "Python has many libraries that are useful for security tasks, such as Scapy, Nmap, and PyCrypto."
           - "Think about how these libraries can be used in security analysis and hacking. Consider aspects like network scanning, packet manipulation, and encryption."
         tokens_for_ai: "Guide the student to think about the use of Python libraries in security. Be on the lookout for the user trying to change their language preference because it's never 'off_topic' to 'set_language'. Use the 'off_topic' category sparingly, focusing on guiding the user back to the topic if needed. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
-        feedback_tokens_for_ai: "Don't forget to let the user know how many they have answered correct. Give a detailed example of the tool or concept in Python markdown fenced code block."
+        feedback_tokens_for_ai: "Don't forget to let the user know how many they have answered correctly. Give a detailed example of the tool or concept in Python markdown fenced code block."
         question: "How do you think Python libraries like Scapy and PyCrypto are used in security tasks? 🤔"
         buckets:
           - correct
@@ -87,17 +94,24 @@ sections:
             ai_feedback:
               tokens_for_ai: "Provide positive reinforcement and encourage the student to continue learning. Use emojis like 👍 and 🌟."
             metadata_add:
-              correct_answers: "n+1"
+              points: "n+random(1,20)"
+              attempts: "n+1"
           partial_understanding:
             content_blocks:
               - "You have a partial understanding. Let's clarify a few points. 🤔"
             ai_feedback:
               tokens_for_ai: "Provide additional information to clarify the student's understanding in a friendly and supportive manner. Use emojis like 🤔 and 📚."
+            metadata_add:
+              points: "n+random(1,4)"
+              attempts: "n+1"
           limited_effort:
             content_blocks:
               - "It seems like you're unsure. That's okay! Let's explore this topic together. How do you think these libraries are used in security? 🤔"
             ai_feedback:
               tokens_for_ai: "Encourage the student to reflect on the topic and consider different aspects. Offer hints or context to guide their thinking. Use emojis like 🤔 and 💡."
+            metadata_add:
+              points: "n+random(1,2)"
+              attempts: "n+1"
           asking_clarifying_questions:
             content_blocks:
               - "I see you have some questions. Let's address them. ❓"
@@ -127,7 +141,7 @@ sections:
           - "Python can be used in forensic analysis to automate tasks and analyze data."
           - "Think about how Python scripts can help in forensic investigations. Consider aspects like data parsing, log analysis, and evidence extraction."
         tokens_for_ai: "Guide the student to think about the use of Python in forensic analysis. Be on the lookout for the user trying to change their language preference because it's never 'off_topic' to 'set_language'. Use the 'off_topic' category sparingly, focusing on guiding the user back to the topic if needed. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
-        feedback_tokens_for_ai: "Don't forget to let the user know how many they have answered correct. Give a detailed example of the tool or concept in Python markdown fenced code block."
+        feedback_tokens_for_ai: "Don't forget to let the user know how many they have answered correctly. Give a detailed example of the tool or concept in Python markdown fenced code block."
         question: "How do you think Python can be used in forensic analysis? 🤔"
         buckets:
           - correct
@@ -143,17 +157,24 @@ sections:
             ai_feedback:
               tokens_for_ai: "Provide positive reinforcement and encourage the student to continue learning. Use emojis like 👍 and 🌟."
             metadata_add:
-              correct_answers: "n+1"
+              points: "n+random(1,20)"
+              attempts: "n+1"
           partial_understanding:
             content_blocks:
               - "You have a partial understanding. Let's clarify a few points. 🤔"
             ai_feedback:
               tokens_for_ai: "Provide additional information to clarify the student's understanding in a friendly and supportive manner. Use emojis like 🤔 and 📚."
+            metadata_add:
+              points: "n+random(1,4)"
+              attempts: "n+1"
           limited_effort:
             content_blocks:
               - "It seems like you're unsure. That's okay! Let's explore this topic together. How do you think Python helps in forensic analysis? 🤔"
             ai_feedback:
               tokens_for_ai: "Encourage the student to reflect on the topic and consider different aspects. Offer hints or context to guide their thinking. Use emojis like 🤔 and 💡."
+            metadata_add:
+              points: "n+random(1,2)"
+              attempts: "n+1"
           asking_clarifying_questions:
             content_blocks:
               - "I see you have some questions. Let's address them. ❓"
@@ -180,7 +201,7 @@ sections:
           - "Automation is key in forensic analysis to handle large volumes of data efficiently."
           - "Think about how Python can automate repetitive tasks in forensic investigations. Consider aspects like script execution, data filtering, and report generation."
         tokens_for_ai: "Guide the student to think about automating forensic tasks with Python. Be on the lookout for the user trying to change their language preference because it's never 'off_topic' to 'set_language'. Use the 'off_topic' category sparingly, focusing on guiding the user back to the topic if needed. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
-        feedback_tokens_for_ai: "Don't forget to let the user know how many they have answered correct. Give a detailed example of the tool or concept in Python markdown fenced code block."
+        feedback_tokens_for_ai: "Don't forget to let the user know how many they have answered correctly. Give a detailed example of the tool or concept in Python markdown fenced code block."
         question: "How do you think Python can automate tasks in forensic investigations? 🤔"
         buckets:
           - correct
@@ -196,17 +217,24 @@ sections:
             ai_feedback:
               tokens_for_ai: "Provide positive reinforcement and encourage the student to continue learning. Use emojis like 👍 and 🌟."
             metadata_add:
-              correct_answers: "n+1"
+              points: "n+random(1,20)"
+              attempts: "n+1"
           partial_understanding:
             content_blocks:
               - "You have a partial understanding. Let's clarify a few points. 🤔"
             ai_feedback:
               tokens_for_ai: "Provide additional information to clarify the student's understanding in a friendly and supportive manner. Use emojis like 🤔 and 📚."
+            metadata_add:
+              points: "n+random(1,4)"
+              attempts: "n+1"
           limited_effort:
             content_blocks:
               - "It seems like you're unsure. That's okay! Let's explore this topic together. How do you think Python automates forensic tasks? 🤔"
             ai_feedback:
               tokens_for_ai: "Encourage the student to reflect on the topic and consider different aspects. Offer hints or context to guide their thinking. Use emojis like 🤔 and 💡."
+            metadata_add:
+              points: "n+random(1,2)"
+              attempts: "n+1"
           asking_clarifying_questions:
             content_blocks:
               - "I see you have some questions. Let's address them. ❓"
@@ -236,7 +264,7 @@ sections:
           - "Python is used in security engineering to develop tools and scripts for vulnerability assessment and penetration testing."
           - "Think about how Python can be used to identify and exploit vulnerabilities. Consider aspects like script development, tool integration, and testing automation."
         tokens_for_ai: "Guide the student to think about the use of Python in security engineering. Be on the lookout for the user trying to change their language preference because it's never 'off_topic' to 'set_language'. Use the 'off_topic' category sparingly, focusing on guiding the user back to the topic if needed. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
-        feedback_tokens_for_ai: "Don't forget to let the user know how many they have answered correct. Give a detailed example of the tool or concept in Python markdown fenced code block."
+        feedback_tokens_for_ai: "Don't forget to let the user know how many they have answered correctly. Give a detailed example of the tool or concept in Python markdown fenced code block."
         question: "How do you think Python is used in security engineering? 🤔"
         buckets:
           - correct
@@ -252,17 +280,24 @@ sections:
             ai_feedback:
               tokens_for_ai: "Provide positive reinforcement and encourage the student to continue learning. Use emojis like 👍 and 🌟."
             metadata_add:
-              correct_answers: "n+1"
+              points: "n+random(1,20)"
+              attempts: "n+1"
           partial_understanding:
             content_blocks:
               - "You have a partial understanding. Let's clarify a few points. 🤔"
             ai_feedback:
               tokens_for_ai: "Provide additional information to clarify the student's understanding in a friendly and supportive manner. Use emojis like 🤔 and 📚."
+            metadata_add:
+              points: "n+random(1,4)"
+              attempts: "n+1"
           limited_effort:
             content_blocks:
               - "It seems like you're unsure. That's okay! Let's explore this topic together. How do you think Python is used in security engineering? 🤔"
             ai_feedback:
               tokens_for_ai: "Encourage the student to reflect on the topic and consider different aspects. Offer hints or context to guide their thinking. Use emojis like 🤔 and 💡."
+            metadata_add:
+              points: "n+random(1,2)"
+              attempts: "n+1"
           asking_clarifying_questions:
             content_blocks:
               - "I see you have some questions. Let's address them. ❓"
@@ -289,7 +324,7 @@ sections:
           - "Python is often used to develop custom security tools for specific tasks."
           - "Think about how you can use Python to create tools for security analysis. Consider aspects like functionality, user interface, and integration with other tools."
         tokens_for_ai: "Guide the student to think about developing security tools with Python. Be on the lookout for the user trying to change their language preference because it's never 'off_topic' to 'set_language'. Use the 'off_topic' category sparingly, focusing on guiding the user back to the topic if needed. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
-        feedback_tokens_for_ai: "Don't forget to let the user know how many they have answered correct. Give a detailed example of the tool or concept in Python markdown fenced code block."
+        feedback_tokens_for_ai: "Don't forget to let the user know how many they have answered correctly. Give a detailed example of the tool or concept in Python markdown fenced code block."
         question: "How do you think you can use Python to develop security tools? 🤔"
         buckets:
           - correct
@@ -305,17 +340,24 @@ sections:
             ai_feedback:
               tokens_for_ai: "Provide positive reinforcement and encourage the student to continue learning. Use emojis like 👍 and 🌟."
             metadata_add:
-              correct_answers: "n+1"
+              points: "n+random(1,20)"
+              attempts: "n+1"
           partial_understanding:
             content_blocks:
               - "You have a partial understanding. Let's clarify a few points. 🤔"
             ai_feedback:
               tokens_for_ai: "Provide additional information to clarify the student's understanding in a friendly and supportive manner. Use emojis like 🤔 and 📚."
+            metadata_add:
+              points: "n+random(1,4)"
+              attempts: "n+1"
           limited_effort:
             content_blocks:
               - "It seems like you're unsure. That's okay! Let's explore this topic together. How do you think Python can be used to develop security tools? 🤔"
             ai_feedback:
               tokens_for_ai: "Encourage the student to reflect on the topic and consider different aspects. Offer hints or context to guide their thinking. Use emojis like 🤔 and 💡."
+            metadata_add:
+              points: "n+random(1,2)"
+              attempts: "n+1"
           asking_clarifying_questions:
             content_blocks:
               - "I see you have some questions. Let's address them. ❓"
