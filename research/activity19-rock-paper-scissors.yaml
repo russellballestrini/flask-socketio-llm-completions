@@ -1,0 +1,76 @@
+default_max_attempts_per_step: 30
+sections:
+  - section_id: "section_1"
+    title: "Rock-Paper-Scissors with History"
+    steps:
+      - step_id: "step_1"
+        title: "Challenge a Historical Figure"
+        content_blocks:
+          - "Welcome to the Rock-Paper-Scissors challenge! 🎮"
+          - "You will be playing against a random historical figure. Make your choice: rock, paper, or scissors."
+        tokens_for_ai: |
+          Determine who wins the game, use 'user_choice2' against the given value.
+
+          The rules are simple:
+
+          * rock beats scissors
+          * paper beats rock
+          * rock beats scissors
+
+          and provide a witty fact from the historical figure's perspective."
+        question: "What's your choice? Rock, paper, or scissors? 🤔"
+        buckets:
+          - rock
+          - paper
+          - scissors
+          - exit
+        transitions:
+          rock:
+            content_blocks:
+              - "You chose rock! Let's see what the historical figure picked... 🪨"
+            ai_feedback:
+              tokens_for_ai: "Declare you move and then determine who wins the game and provide a witty fact from the historical figure's perspective."
+            metadata_tmp_add:
+              #user_choice: "the-users-response"
+              user_choice: "rock"
+            metadata_tmp_random:
+              ai_rock: true
+              ai_paper: true
+              ai_scissors: true
+            next_section_and_step: "section_1:step_1"
+          paper:
+            content_blocks:
+              - "You chose paper! Let's see what the historical figure picked... 📄"
+            ai_feedback:
+              tokens_for_ai: "Declare you move and then determine who wins the game and provide a witty fact from the historical figure's perspective."
+            metadata_tmp_add:
+              #user_choice: "the-users-response"
+              user_choice: "paper"
+            metadata_tmp_random:
+              ai_rock: true
+              ai_paper: true
+              ai_scissors: true
+            next_section_and_step: "section_1:step_1"
+          scissors:
+            content_blocks:
+              - "You chose scissors! Let's see what the historical figure picked... ✂️"
+            ai_feedback:
+              tokens_for_ai: "Declare you move and Determine who wins the game and provide a witty fact from the historical figure's perspective."
+            metadata_tmp_add:
+              #user_choice: "the-users-response"
+              user_choice: "scissors"
+            metadata_tmp_random:
+              ai_rock: true
+              ai_paper: true
+              ai_scissors: true
+            next_section_and_step: "section_1:step_1"
+          exit:
+            next_section_and_step: "section_1:step_1"
+
+  - section_id: "section_2"
+    title: "Goodbye"
+    steps:
+      - step_id: "step_1"
+        title: "Exit"
+        content_blocks:
+          - "Thank you for playing! We hope you enjoyed the game. Have a great day! 🌟"

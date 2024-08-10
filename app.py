@@ -1871,23 +1871,24 @@ def loop_through_steps_until_question(
             break
 
         # Emit the current step content blocks
-        content = "\n\n".join(step["content_blocks"])
-        translated_content = translate_text(content, user_language)
-        new_message = Message(
-            username="System", content=translated_content, room_id=room.id
-        )
-        db.session.add(new_message)
-        db.session.commit()
+        if "content_blocks" in step:
+            content = "\n\n".join(step["content_blocks"])
+            translated_content = translate_text(content, user_language)
+            new_message = Message(
+                username="System", content=translated_content, room_id=room.id
+            )
+            db.session.add(new_message)
+            db.session.commit()
 
-        socketio.emit(
-            "message",
-            {
-                "id": new_message.id,
-                "username": "System",
-                "content": translated_content,
-            },
-            room=room_name,
-        )
+            socketio.emit(
+                "message",
+                {
+                    "id": new_message.id,
+                    "username": "System",
+                    "content": translated_content,
+                },
+                room=room_name,
+            )
 
         # Check if the current step has a question
         if "question" in step:
@@ -2073,7 +2074,7 @@ def handle_activity_response(room_name, user_response, username):
                     step["question"],
                     user_response,
                     step["buckets"],
-                    step["tokens_for_ai"],
+                    step.get("tokens_for_ai", ""),
                 )
 
                 transition = step["transitions"].get(category, None)
@@ -2123,31 +2124,36 @@ def handle_activity_response(room_name, user_response, username):
                             room=room_name,
                         )
                         # Remind the user of what they can do in the room
-                        content_blocks = step.get("content_blocks", [])
-                        question = step.get("question", "")
-                        options_message = (
-                            "\n\n".join(content_blocks) + "\n\n" + question
-                        )
+                        if "content_blocks" in step or "question" in step:
+                            content_blocks = step.get("content_blocks", [])
+                            question = step.get("question", "")
+                            options_message = (
+                                "\n\n".join(content_blocks) + "\n\n" + question
+                            )
 
-                        new_message = Message(
-                            username="System", content=options_message, room_id=room.id
-                        )
-                        db.session.add(new_message)
-                        db.session.commit()
+                            new_message = Message(
+                                username="System", content=options_message, room_id=room.id
+                            )
+                            db.session.add(new_message)
+                            db.session.commit()
 
-                        socketio.emit(
-                            "message",
-                            {
-                                "id": new_message.id,
-                                "username": "System",
-                                "content": options_message,
-                            },
-                            room=room_name,
-                        )
+                            socketio.emit(
+                                "message",
+                                {
+                                    "id": new_message.id,
+                                    "username": "System",
+                                    "content": options_message,
+                                },
+                                room=room_name,
+                            )
+                        # exit early, the user may not pass ... yet.
                         return
 
                 # this gives the llm context on what changed.
                 new_metadata = {}
+
+                # Track temporary metadata keys that last for a single turn.
+                metadata_tmp_keys = []
 
                 # Update metadata based on user actions
                 if "metadata_add" in transition:
@@ -2155,6 +2161,15 @@ def handle_activity_response(room_name, user_response, username):
                         if value == "the-users-response":
                             value = user_response
                         new_metadata[key] = value
+                        activity_state.add_metadata(key, value)
+
+                # Update metadata based on user actions
+                if "metadata_tmp_add" in transition:
+                    for key, value in transition["metadata_tmp_add"].items():
+                        if value == "the-users-response":
+                            value = user_response
+                        new_metadata[key] = value
+                        metadata_tmp_keys.append(key)
                         activity_state.add_metadata(key, value)
 
                 if "metadata_remove" in transition:
@@ -2170,12 +2185,46 @@ def handle_activity_response(room_name, user_response, username):
                     new_metadata[random_key] = random_value
                     activity_state.add_metadata(random_key, random_value)
 
+                if "metadata_tmp_random" in transition:
+                    random_key = random.choice(
+                        list(transition["metadata_tmp_random"].keys())
+                    )
+                    random_value = transition["metadata_tmp_random"][random_key]
+                    new_metadata[random_key] = random_value
+                    metadata_tmp_keys.append(random_key)
+                    activity_state.add_metadata(random_key, random_value)
+
                 # Commit the changes after the loop
                 db.session.add(activity_state)
                 db.session.commit()
 
                 user_language = activity_state.dict_metadata.get("language", "English")
 
+                # Emit the transition content blocks if they exist
+                if "content_blocks" in transition:
+                    transition_content = "\n\n".join(transition["content_blocks"])
+                    translated_transition_content = translate_text(
+                        transition_content, user_language
+                    )
+                    new_message = Message(
+                        username="System",
+                        content=translated_transition_content,
+                        room_id=room.id,
+                    )
+                    db.session.add(new_message)
+                    db.session.commit()
+
+                    socketio.emit(
+                        "message",
+                        {
+                            "id": new_message.id,
+                            "username": "System",
+                            "content": translated_transition_content,
+                        },
+                        room=room_name,
+                    )
+
+                # if "correct" or max_attempts reached.
                 # Provide feedback based on the category
                 feedback = provide_feedback(
                     transition,
@@ -2209,31 +2258,6 @@ def handle_activity_response(room_name, user_response, username):
                         room=room_name,
                     )
 
-                # Emit the transition content blocks if they exist
-                if "content_blocks" in transition:
-                    transition_content = "\n\n".join(transition["content_blocks"])
-                    translated_transition_content = translate_text(
-                        transition_content, user_language
-                    )
-                    new_message = Message(
-                        username="System",
-                        content=translated_transition_content,
-                        room_id=room.id,
-                    )
-                    db.session.add(new_message)
-                    db.session.commit()
-
-                    socketio.emit(
-                        "message",
-                        {
-                            "id": new_message.id,
-                            "username": "System",
-                            "content": translated_transition_content,
-                        },
-                        room=room_name,
-                    )
-
-                # if "correct" or max_attempts reached.
                 if (
                     category
                     not in [
@@ -2305,6 +2329,17 @@ def handle_activity_response(room_name, user_response, username):
                         },
                         room=room_name,
                     )
+
+                # Check if the activity state still exists before removing temporary metadata
+                if ActivityState.query.filter_by(room_id=room.id).first():
+                    # Remove temporary metadata at the end of the turn
+                    for key in metadata_tmp_keys:
+                        activity_state.remove_metadata(key)
+
+                    # Commit the changes after removing temporary metadata
+                    db.session.add(activity_state)
+                    db.session.commit()
+
             else:
                 # Handle steps without a question
                 loop_through_steps_until_question(
