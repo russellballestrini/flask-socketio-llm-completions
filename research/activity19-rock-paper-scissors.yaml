@@ -3,17 +3,19 @@ sections:
   - section_id: "section_1"
     title: "Rock-Paper-Scissors with History"
     steps:
+
       - step_id: "step_0"
         title: "Challenge a Historical Figure"
         content_blocks:
           - "Welcome to the Rock-Paper-Scissors challenge! 🎮"
           - "You will be playing against a random historical figure."
+
       - step_id: "step_1"
         title: "Shoot against a Historical Figure"
         tokens_for_ai: |
           Careful to check if user is trying to 'set_language' and do that first. otherwise figure out if they are picking the bucket rock, paper, or scissors.
         feedback_tokens_for_ai: |
-          Speaking in first person as a historical firgure, firstly announce your move based on the metadata and then on a new line,
+          Speaking in first person as a historical figure, firstly announce your move based on the metadata and then on a new line,
           Determine who wins the game, use 'user_choice' against the given `ai_` value.
 
           The rules are simple:
