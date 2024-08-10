@@ -2281,6 +2281,7 @@ def handle_activity_response(room_name, user_response, username):
                     category
                     not in [
                         "partial_understanding",
+                        "limited_effort",
                         "asking_clarifying_questions",
                         "set_language",
                         "off_topic",

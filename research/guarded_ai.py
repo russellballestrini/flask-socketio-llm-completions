@@ -272,6 +272,7 @@ def simulate_activity(yaml_file_path):
 
             if category not in [
                 "partial_understanding",
+                "limited_effort",
                 "asking_clarifying_questions",
                 "set_language",
                 "off_topic",
