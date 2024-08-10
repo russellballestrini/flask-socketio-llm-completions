@@ -1,0 +1,102 @@
+default_max_attempts_per_step: 3
+sections:
+  - section_id: "section_1"
+    title: "History Quiz Challenge"
+    steps:
+      - step_id: "step_1"
+        title: "Question 1"
+        content_blocks:
+          - "Welcome to the History Quiz Challenge! 🏆"
+          - "Let's see how well you know your history. Answer the following questions:"
+        question: "Who was the first President of the United States? 🇺🇸"
+        buckets:
+          - george_washington
+          - incorrect
+        transitions:
+          george_washington:
+            content_blocks:
+              - "Correct! George Washington was the first President of the United States."
+            metadata_add:
+              correct_answers: "n+1"
+            next_section_and_step: "section_1:step_2"
+          incorrect:
+            content_blocks:
+              - "That's not correct. The first President was George Washington."
+            metadata_add:
+              incorrect_attempts: "n+1"
+            next_section_and_step: "section_1:step_2"
+
+      - step_id: "step_2"
+        title: "Question 2"
+        question: "What year did the Titanic sink? 🚢"
+        buckets:
+          - 1912
+          - incorrect
+        transitions:
+          1912:
+            content_blocks:
+              - "Correct! The Titanic sank in 1912."
+            metadata_add:
+              correct_answers: "n+1"
+            next_section_and_step: "section_1:step_3"
+          incorrect:
+            content_blocks:
+              - "That's not correct. The Titanic sank in 1912."
+            metadata_add:
+              incorrect_attempts: "n+1"
+            next_section_and_step: "section_1:step_3"
+
+      - step_id: "step_3"
+        title: "Question 3"
+        question: "Who painted the Mona Lisa? 🎨"
+        buckets:
+          - leonardo_da_vinci
+          - incorrect
+        transitions:
+          leonardo_da_vinci:
+            content_blocks:
+              - "Correct! Leonardo da Vinci painted the Mona Lisa."
+            metadata_add:
+              correct_answers: "n+1"
+            next_section_and_step: "section_2:step_1"
+          incorrect:
+            content_blocks:
+              - "That's not correct. The Mona Lisa was painted by Leonardo da Vinci."
+            metadata_add:
+              incorrect_attempts: "n+1"
+            next_section_and_step: "section_2:step_1"
+
+  - section_id: "section_2"
+    title: "Quiz Results"
+    steps:
+      - step_id: "step_1"
+        title: "Results"
+        content_blocks:
+          - "Congratulations on completing the quiz! 🎉"
+          - "Let's see how you did:"
+          - "Correct Answers: {{correct_answers}}"
+          - "Incorrect Attempts: {{incorrect_attempts}}"
+        question: "Do you want to try the quiz again or exit? Type 'retry' to start over or 'exit' to finish."
+        buckets:
+          - retry
+          - exit
+        transitions:
+          retry:
+            content_blocks:
+              - "Great! Let's start the quiz again. 🏆"
+            metadata_remove:
+              - correct_answers
+              - incorrect_attempts
+            next_section_and_step: "section_1:step_1"
+          exit:
+            content_blocks:
+              - "Thank you for playing the History Quiz Challenge! Have a great day! 🌟"
+            next_section_and_step: "section_3:step_1"
+
+  - section_id: "section_3"
+    title: "Goodbye"
+    steps:
+      - step_id: "step_1"
+        title: "Exit"
+        content_blocks:
+          - "Thank you for participating! We hope you enjoyed the quiz. Goodbye! 👋"

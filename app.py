@@ -2077,9 +2077,11 @@ def handle_activity_response(room_name, user_response, username):
                     step.get("tokens_for_ai", ""),
                 )
 
-                transition = step["transitions"].get(category, None)
-
-                if transition is None:
+                if category in step["transitions"]:
+                    transition = step["transitions"][category]
+                elif int(category) in step["transitions"]:
+                    transition = step["transitions"][int(category)]
+                else:
                     # Emit an error message and return early
                     socketio.emit(
                         "message",
@@ -2132,7 +2134,9 @@ def handle_activity_response(room_name, user_response, username):
                             )
 
                             new_message = Message(
-                                username="System", content=options_message, room_id=room.id
+                                username="System",
+                                content=options_message,
+                                room_id=room.id,
                             )
                             db.session.add(new_message)
                             db.session.commit()
@@ -2160,6 +2164,8 @@ def handle_activity_response(room_name, user_response, username):
                     for key, value in transition["metadata_add"].items():
                         if value == "the-users-response":
                             value = user_response
+                        elif value == "n+1":
+                            value = activity_state.dict_metadata.get(key, 0) + 1
                         new_metadata[key] = value
                         activity_state.add_metadata(key, value)
 
@@ -2494,7 +2500,7 @@ def get_next_step(activity_content, current_section_id, current_step_id):
 # Categorize the user's response.
 def categorize_response(question, response, buckets, tokens_for_ai):
     openai_client, model_name = get_openai_client_and_model()
-    bucket_list = ", ".join(buckets)
+    bucket_list = ", ".join([str(bucket) for bucket in buckets])
     messages = [
         {
             "role": "system",

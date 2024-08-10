@@ -6,10 +6,12 @@ from openai import OpenAI
 
 client = OpenAI()
 
+
 # Load the YAML activity file
 def load_yaml_activity(file_path):
     with open(file_path, "r") as file:
         return yaml.safe_load(file)
+
 
 # Categorize the user's response using gpt-4o-mini
 def categorize_response(question, response, buckets, tokens_for_ai):
@@ -39,6 +41,7 @@ def categorize_response(question, response, buckets, tokens_for_ai):
     except Exception as e:
         return f"Error: {e}"
 
+
 # Generate AI feedback using gpt-4o-mini
 def generate_ai_feedback(category, question, user_response, tokens_for_ai):
     messages = [
@@ -61,8 +64,11 @@ def generate_ai_feedback(category, question, user_response, tokens_for_ai):
     except Exception as e:
         return f"Error: {e}"
 
+
 # Provide feedback based on the category
-def provide_feedback(transition, category, question, user_response, user_language, tokens_for_ai):
+def provide_feedback(
+    transition, category, question, user_response, user_language, tokens_for_ai
+):
     feedback = ""
     if "ai_feedback" in transition:
         tokens_for_ai += f" Provide the feedback in {user_language}. {transition['ai_feedback'].get('tokens_for_ai', '')}."
@@ -72,6 +78,7 @@ def provide_feedback(transition, category, question, user_response, user_languag
         feedback += f"\n\nAI Feedback: {ai_feedback}"
 
     return feedback
+
 
 def get_next_section_and_step(activity_content, current_section_id, current_step_id):
     for section in activity_content["sections"]:
@@ -94,6 +101,7 @@ def get_next_section_and_step(activity_content, current_section_id, current_step
                                 next_section["steps"][0]["step_id"],
                             )
     return None, None
+
 
 def translate_text(text, target_language):
     # Guard clause for default language
@@ -119,6 +127,7 @@ def translate_text(text, target_language):
         return translation
     except Exception as e:
         return f"Error: {e}"
+
 
 def simulate_activity(yaml_file_path):
     yaml_content = load_yaml_activity(yaml_file_path)
@@ -200,7 +209,12 @@ def simulate_activity(yaml_file_path):
                 print(translated_transition_content)
 
             feedback = provide_feedback(
-                transition, category, question, user_response, user_language, step["tokens_for_ai"]
+                transition,
+                category,
+                question,
+                user_response,
+                user_language,
+                step["tokens_for_ai"],
             )
             print(f"\nFeedback: {feedback}")
 
@@ -212,6 +226,8 @@ def simulate_activity(yaml_file_path):
                 for key, value in transition["metadata_add"].items():
                     if value == "the-users-response":
                         value = user_response
+                    elif value == "n+1":
+                        value = metadata.get(key, 0) + 1
                     metadata[key] = value
 
             if "metadata_tmp_add" in transition:
@@ -228,9 +244,7 @@ def simulate_activity(yaml_file_path):
 
             # Handle metadata_random
             if "metadata_random" in transition:
-                random_key = random.choice(
-                    list(transition["metadata_random"].keys())
-                )
+                random_key = random.choice(list(transition["metadata_random"].keys()))
                 random_value = transition["metadata_random"][random_key]
                 metadata[random_key] = random_value
 
@@ -272,6 +286,7 @@ def simulate_activity(yaml_file_path):
             current_section_id, current_step_id = get_next_section_and_step(
                 yaml_content, current_section_id, current_step_id
             )
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Simulate an activity.")
