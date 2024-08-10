@@ -226,8 +226,13 @@ def simulate_activity(yaml_file_path):
                 for key, value in transition["metadata_add"].items():
                     if value == "the-users-response":
                         value = user_response
-                    elif value == "n+1":
-                        value = metadata.get(key, 0) + 1
+                    elif isinstance(value, str) and (value.startswith("n+") or value.startswith("n-")):
+                        # Extract the numeric part c and apply the operation +/-
+                        c = int(value[1:])
+                        if value.startswith("n+"):
+                            value = metadata.get(key, 0) + c
+                        elif value.startswith("n-"):
+                            value = metadata.get(key, 0) - c
                     metadata[key] = value
 
             if "metadata_tmp_add" in transition:
