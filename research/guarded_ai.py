@@ -65,7 +65,7 @@ def generate_ai_feedback(category, question, user_response, tokens_for_ai):
 def provide_feedback(transition, category, question, user_response, user_language, tokens_for_ai):
     feedback = ""
     if "ai_feedback" in transition:
-        tokens_for_ai += f" Provide the feedback in {user_language}. {transition.get('ai_feedback',{}).get('tokens_for_ai', '')}."
+        tokens_for_ai += f" Provide the feedback in {user_language}. {transition['ai_feedback'].get('tokens_for_ai', '')}."
         ai_feedback = generate_ai_feedback(
             category, question, user_response, tokens_for_ai
         )
