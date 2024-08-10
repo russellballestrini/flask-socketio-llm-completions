@@ -3,35 +3,43 @@ sections:
   - section_id: "section_1"
     title: "Rock-Paper-Scissors with History"
     steps:
-      - step_id: "step_1"
+      - step_id: "step_0"
         title: "Challenge a Historical Figure"
         content_blocks:
           - "Welcome to the Rock-Paper-Scissors challenge! 🎮"
-          - "You will be playing against a random historical figure. Make your choice: rock, paper, or scissors."
+          - "You will be playing against a random historical figure."
+      - step_id: "step_1"
+        title: "Shoot against a Historical Figure"
         tokens_for_ai: |
-          Determine who wins the game, use 'user_choice2' against the given value.
+          Careful to check if user is trying to 'set_language' and do that first. otherwise figure out if they are picking the bucket rock, paper, or scissors.
+        feedback_tokens_for_ai: |
+          Speaking in first person as a historical firgure, firstly announce your move based on the metadata and then on a new line,
+          Determine who wins the game, use 'user_choice' against the given `ai_` value.
 
           The rules are simple:
 
-          * rock beats scissors
-          * paper beats rock
-          * rock beats scissors
+          * rock always beats scissors
+          * paper always beats rock
+          * scissors always beats paper
 
-          and provide a witty fact from the historical figure's perspective."
+          Finally continue to provide a witty fact as the figure. Don't ever mention AI.
+          The figure should also comment on the 'attempts' number and how many times played!
+          if you feel like it, jeer at the player about an early 'exit' & suggest they quit.
+
         question: "What's your choice? Rock, paper, or scissors? 🤔"
         buckets:
           - rock
           - paper
           - scissors
+          - set_language
           - exit
         transitions:
           rock:
-            content_blocks:
-              - "You chose rock! Let's see what the historical figure picked... 🪨"
             ai_feedback:
-              tokens_for_ai: "Declare you move and then determine who wins the game and provide a witty fact from the historical figure's perspective."
+              tokens_for_ai: "Declare your move and then determine who wins the game and provide a witty fact from the historical figure's perspective."
+            metadata_add:
+              attempts: "n+1"
             metadata_tmp_add:
-              #user_choice: "the-users-response"
               user_choice: "rock"
             metadata_tmp_random:
               ai_rock: true
@@ -39,12 +47,11 @@ sections:
               ai_scissors: true
             next_section_and_step: "section_1:step_1"
           paper:
-            content_blocks:
-              - "You chose paper! Let's see what the historical figure picked... 📄"
             ai_feedback:
-              tokens_for_ai: "Declare you move and then determine who wins the game and provide a witty fact from the historical figure's perspective."
+              tokens_for_ai: "Declare your move and then determine who wins the game and provide a witty fact from the historical figure's perspective."
+            metadata_add:
+              attempts: "n+1"
             metadata_tmp_add:
-              #user_choice: "the-users-response"
               user_choice: "paper"
             metadata_tmp_random:
               ai_rock: true
@@ -52,20 +59,27 @@ sections:
               ai_scissors: true
             next_section_and_step: "section_1:step_1"
           scissors:
-            content_blocks:
-              - "You chose scissors! Let's see what the historical figure picked... ✂️"
             ai_feedback:
-              tokens_for_ai: "Declare you move and Determine who wins the game and provide a witty fact from the historical figure's perspective."
+              tokens_for_ai: "Declare your move and determine who wins the game and provide a witty fact from the historical figure's perspective."
+            metadata_add:
+              attempts: "n+1"
             metadata_tmp_add:
-              #user_choice: "the-users-response"
               user_choice: "scissors"
             metadata_tmp_random:
               ai_rock: true
               ai_paper: true
               ai_scissors: true
             next_section_and_step: "section_1:step_1"
+          set_language:
+            content_blocks:
+              - "Language preference updated. Please continue in your preferred language."
+            ai_feedback:
+              tokens_for_ai: "Acknowledge the language change and confirm the update."
+            metadata_add:
+              language: "the-users-response"
+            counts_as_attempt: false
           exit:
-            next_section_and_step: "section_1:step_1"
+            next_section_and_step: "section_2:step_1"
 
   - section_id: "section_2"
     title: "Goodbye"
