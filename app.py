@@ -87,29 +87,60 @@ HELP_MESSAGE = """
 - `/help`: Display this help message.
 
 **Available Models:**
-- `gpt-3`: Use for GPT-3 model.
-- `gpt-4`: Use for GPT-4 model.
-- `gpt-4o-2024-08-06`: Use for the cheapest version of GPT-4o.
-- `gpt-mini`: Use for GPT-4o-mini model.
-- `claude-haiku`: Use for Claude-haiku model.
-- `claude-sonnet`: Use for Claude-sonnet model.
-- `claude-opus`: Use for Claude-opus model.
-- `mistral-tiny`: Use for Mistral-tiny model.
-- `mistral-small`: Use for Mistral-small model.
-- `mistral-medium`: Use for Mistral-medium model.
-- `mistral-large`: Use for Mistral-large model.
-- `together/openchat`: Use for Together OpenChat model.
-- `together/mistral`: Use for Together Mistral model.
-- `together/mixtral`: Use for Together Mixtral model.
-- `together/solar`: Use for Together Solar model.
-- `groq/mixtral`: Use for Groq Mixtral model.
-- `groq/llama2`: Use for Groq Llama-2 model.
-- `groq/llama3`: Use for Groq Llama-3 model.
-- `groq/gemma`: Use for Groq Gemma model.
-- `vllm/hermes-llama-3`: Use for vLLM Hermes model.
-- `dall-e-3`: Use for DALL-E 3 model.
+- `gpt-3`: For GPT-3, send a message with `gpt-3` and include your prompt.
+- `gpt-4`: For GPT-4, send a message with `gpt-4` and include your prompt.
+- `gpt-4o-2024-08-06`: For the cheapest version of GPT-4o, send a message with `gpt-4o-2024-08-06` and include your prompt.
+- `gpt-mini`: For GPT-4o-mini, send a message with `gpt-mini` and include your prompt.
+- `claude-haiku`: For Claude-haiku, send a message with `claude-haiku` and include your prompt.
+- `claude-sonnet`: For Claude-sonnet, send a message with `claude-sonnet` and include your prompt.
+- `claude-opus`: For Claude-opus, send a message with `claude-opus` and include your prompt.
+- `mistral-tiny`: For Mistral-tiny, send a message with `mistral-tiny` and include your prompt.
+- `mistral-small`: For Mistral-small, send a message with `mistral-small` and include your prompt.
+- `mistral-medium`: For Mistral-medium, send a message with `mistral-medium` and include your prompt.
+- `mistral-large`: For Mistral-large, send a message with `mistral-large` and include your prompt.
+- `together/openchat`: For Together OpenChat, send a message with `together/openchat` and include your prompt.
+- `together/mistral`: For Together Mistral, send a message with `together/mistral` and include your prompt.
+- `together/mixtral`: For Together Mixtral, send a message with `together/mixtral` and include your prompt.
+- `together/solar`: For Together Solar, send a message with `together/solar` and include your prompt.
+- `groq/mixtral`: For Groq Mixtral, send a message with `groq/mixtral` and include your prompt.
+- `groq/llama2`: For Groq Llama-2, send a message with `groq/llama2` and include your prompt.
+- `groq/llama3`: For Groq Llama-3, send a message with `groq/llama3` and include your prompt.
+- `groq/gemma`: For Groq Gemma, send a message with `groq/gemma` and include your prompt.
+- `vllm/hermes-llama-3`: For vLLM Hermes, send a message with `vllm/hermes-llama-3` and include your prompt.
+- `dall-e-3`: For Dall-e-3, send a message with `dall-e-3` and include your prompt.
 
-The system will process your message and provide a response from the selected language model.
+**Getting Started:**
+
+Welcome to the chatroom! Here, you can explore various AI models and engage in interactive activities. Here's how you can get started:
+
+1. **Explore the Chatroom:**
+   - Join a chatroom by navigating to its unique URL. You can see the list of available chatrooms on the main page.
+   - Once inside, you can start a conversation by typing your message in the chatbox.
+
+2. **Start an Activity:**
+   - To begin an educational activity, use the `/activity` command followed by the path to the activity YAML file. For example:
+     ```
+     /activity research/activity0.yaml
+     ```
+   - The AI will guide you through the activity, providing feedback and information as you progress.
+
+3. **Interact with AI Models:**
+   - To interact with a specific AI model, simply type the model's command followed by your prompt. For example:
+     ```
+     gpt-4 What is the capital of France?
+     ```
+   - The system will process your message and provide a response from the selected model.
+
+4. **Manage Files with S3:**
+   - Use the `/s3` commands to load, save, or list files in your S3 bucket. For example, to list all files, use:
+     ```
+     /s3 ls *
+     ```
+
+5. **Get Help:**
+   - If you need assistance or want to see a list of available commands, type `/help` to display this message.
+
+Feel free to explore and experiment with different commands and models. Enjoy your time in the chatroom!
 """
 
 
