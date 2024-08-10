@@ -70,6 +70,7 @@ system_users = [
     "mistral-7b-instruct-v0.2.Q3_K_L.gguf",
     "mistral-7b-instruct-v0.2-code-ft.Q3_K_L.gguf",
     "openhermes-2.5-mistral-7b.Q6_K.gguf",
+    "System",
 ]
 
 
@@ -2098,7 +2099,8 @@ def handle_activity_response(room_name, user_response, username):
                     transition,
                     category,
                     step["question"],
-                    step["tokens_for_ai"],
+                    #step["tokens_for_ai"],
+                    "",
                     user_response,
                     user_language,
                     username,
@@ -2447,7 +2449,7 @@ def provide_feedback(
 ):
     feedback = ""
     if "ai_feedback" in transition:
-        tokens_for_ai += f" Provide the feedback in {user_language}. {transition.get('ai_feedback',{}).get('tokens_for_ai', '')}."
+        tokens_for_ai += f" You must provide the feedback in the user's language: {user_language}. {transition['ai_feedback'].get('tokens_for_ai', '')}."
         ai_feedback = generate_ai_feedback(
             category,
             question,
