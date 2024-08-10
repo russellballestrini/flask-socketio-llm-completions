@@ -73,6 +73,45 @@ system_users = [
     "System",
 ]
 
+HELP_MESSAGE = """
+**Available Commands:**
+- `/activity [s3_file_path]`: Start an activity from the specified S3 file path.
+- `/activity cancel`: Cancel the current activity.
+- `/activity info`: Display information about the current activity.
+- `/activity metadata`: Display metadata for the current activity.
+- `/s3 ls [s3_file_path_pattern]`: List files in S3 matching the pattern.
+- `/s3 load [s3_file_path]`: Load a file from S3.
+- `/s3 save [s3_key_path]`: Save the most recent code block from the chatroom to S3.
+- `/title new`: Generates a new title which reflects conversation content for the current chatroom using gpt-4.
+- `/cancel`: Cancel the most recent chat completion from streaming into the chatroom.
+- `/help`: Display this help message.
+
+**Available Models:**
+- `gpt-3`: Use for GPT-3 model.
+- `gpt-4`: Use for GPT-4 model.
+- `gpt-4o-2024-08-06`: Use for the cheapest version of GPT-4o.
+- `gpt-mini`: Use for GPT-4o-mini model.
+- `claude-haiku`: Use for Claude-haiku model.
+- `claude-sonnet`: Use for Claude-sonnet model.
+- `claude-opus`: Use for Claude-opus model.
+- `mistral-tiny`: Use for Mistral-tiny model.
+- `mistral-small`: Use for Mistral-small model.
+- `mistral-medium`: Use for Mistral-medium model.
+- `mistral-large`: Use for Mistral-large model.
+- `together/openchat`: Use for Together OpenChat model.
+- `together/mistral`: Use for Together Mistral model.
+- `together/mixtral`: Use for Together Mixtral model.
+- `together/solar`: Use for Together Solar model.
+- `groq/mixtral`: Use for Groq Mixtral model.
+- `groq/llama2`: Use for Groq Llama-2 model.
+- `groq/llama3`: Use for Groq Llama-3 model.
+- `groq/gemma`: Use for Groq Gemma model.
+- `vllm/hermes-llama-3`: Use for vLLM Hermes model.
+- `dall-e-3`: Use for DALL-E 3 model.
+
+The system will process your message and provide a response from the selected language model.
+"""
+
 
 class Room(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -342,6 +381,18 @@ def handle_message(data):
     commands = data["message"].splitlines()
 
     for command in commands:
+        if command.startswith("/help"):
+            # Emit the help message
+            socketio.emit(
+                "message",
+                {
+                    "id": "tmp-1",
+                    "username": "System",
+                    "content": HELP_MESSAGE,
+                },
+                room=room_name,
+            )
+            return
         if command.startswith("/activity cancel"):
             gevent.spawn(cancel_activity, room_name, data["username"])
             # Exit early since we're canceling the activity
@@ -2099,7 +2150,7 @@ def handle_activity_response(room_name, user_response, username):
                     transition,
                     category,
                     step["question"],
-                    #step["tokens_for_ai"],
+                    # step["tokens_for_ai"],
                     "",
                     user_response,
                     user_language,
@@ -2473,7 +2524,7 @@ def translate_text(text, target_language):
     messages = [
         {
             "role": "system",
-            "content": f"Translate the following text to {target_language}."
+            "content": f"Translate the following text to {target_language}.",
         },
         {
             "role": "user",
