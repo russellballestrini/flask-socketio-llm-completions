@@ -18,7 +18,7 @@ sections:
           - "Python is a powerful tool for hackers due to its simplicity and extensive libraries."
           - "Think about why Python is favored in the hacking community. Consider aspects like ease of use, versatility, and community support."
         tokens_for_ai: "Guide the student to think about the reasons Python is popular among hackers. Be on the lookout for the user trying to change their language preference because it's never 'off_topic' to 'set_language'. Use the 'off_topic' category sparingly, focusing on guiding the user back to the topic if needed. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
-        feedback_tokens_for_ai: "Don't forget to let the user know how many they have answered correct."
+        feedback_tokens_for_ai: "Don't forget to let the user know how many they have answered correct. Give a detailed example of the tool or concept in Python."
         question: "Why do you think Python is a popular choice for hackers? 🤔"
         buckets:
           - correct
@@ -71,7 +71,7 @@ sections:
           - "Python has many libraries that are useful for security tasks, such as Scapy, Nmap, and PyCrypto."
           - "Think about how these libraries can be used in security analysis and hacking. Consider aspects like network scanning, packet manipulation, and encryption."
         tokens_for_ai: "Guide the student to think about the use of Python libraries in security. Be on the lookout for the user trying to change their language preference because it's never 'off_topic' to 'set_language'. Use the 'off_topic' category sparingly, focusing on guiding the user back to the topic if needed. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
-        feedback_tokens_for_ai: "Don't forget to let the user know how many they have answered correct."
+        feedback_tokens_for_ai: "Don't forget to let the user know how many they have answered correct. Give a detailed example of the tool or concept in Python."
         question: "How do you think Python libraries like Scapy and PyCrypto are used in security tasks? 🤔"
         buckets:
           - correct
@@ -127,7 +127,7 @@ sections:
           - "Python can be used in forensic analysis to automate tasks and analyze data."
           - "Think about how Python scripts can help in forensic investigations. Consider aspects like data parsing, log analysis, and evidence extraction."
         tokens_for_ai: "Guide the student to think about the use of Python in forensic analysis. Be on the lookout for the user trying to change their language preference because it's never 'off_topic' to 'set_language'. Use the 'off_topic' category sparingly, focusing on guiding the user back to the topic if needed. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
-        feedback_tokens_for_ai: "Don't forget to let the user know how many they have answered correct."
+        feedback_tokens_for_ai: "Don't forget to let the user know how many they have answered correct. Give a detailed example of the tool or concept in Python."
         question: "How do you think Python can be used in forensic analysis? 🤔"
         buckets:
           - correct
@@ -180,7 +180,7 @@ sections:
           - "Automation is key in forensic analysis to handle large volumes of data efficiently."
           - "Think about how Python can automate repetitive tasks in forensic investigations. Consider aspects like script execution, data filtering, and report generation."
         tokens_for_ai: "Guide the student to think about automating forensic tasks with Python. Be on the lookout for the user trying to change their language preference because it's never 'off_topic' to 'set_language'. Use the 'off_topic' category sparingly, focusing on guiding the user back to the topic if needed. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
-        feedback_tokens_for_ai: "Don't forget to let the user know how many they have answered correct."
+        feedback_tokens_for_ai: "Don't forget to let the user know how many they have answered correct. Give a detailed example of the tool or concept in Python."
         question: "How do you think Python can automate tasks in forensic investigations? 🤔"
         buckets:
           - correct
@@ -236,7 +236,7 @@ sections:
           - "Python is used in security engineering to develop tools and scripts for vulnerability assessment and penetration testing."
           - "Think about how Python can be used to identify and exploit vulnerabilities. Consider aspects like script development, tool integration, and testing automation."
         tokens_for_ai: "Guide the student to think about the use of Python in security engineering. Be on the lookout for the user trying to change their language preference because it's never 'off_topic' to 'set_language'. Use the 'off_topic' category sparingly, focusing on guiding the user back to the topic if needed. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
-        feedback_tokens_for_ai: "Don't forget to let the user know how many they have answered correct."
+        feedback_tokens_for_ai: "Don't forget to let the user know how many they have answered correct. Give a detailed example of the tool or concept in Python."
         question: "How do you think Python is used in security engineering? 🤔"
         buckets:
           - correct
@@ -289,7 +289,7 @@ sections:
           - "Python is often used to develop custom security tools for specific tasks."
           - "Think about how you can use Python to create tools for security analysis. Consider aspects like functionality, user interface, and integration with other tools."
         tokens_for_ai: "Guide the student to think about developing security tools with Python. Be on the lookout for the user trying to change their language preference because it's never 'off_topic' to 'set_language'. Use the 'off_topic' category sparingly, focusing on guiding the user back to the topic if needed. If any part of the user's answer is correct and on-topic, categorize it as 'correct'."
-        feedback_tokens_for_ai: "Don't forget to let the user know how many they have answered correct."
+        feedback_tokens_for_ai: "Don't forget to let the user know how many they have answered correct. Give a detailed example of the tool or concept in Python."
         question: "How do you think you can use Python to develop security tools? 🤔"
         buckets:
           - correct
