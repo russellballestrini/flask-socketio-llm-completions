@@ -111,7 +111,6 @@ To interact with the various language models, you can use the following commands
 - For Groq Llama-2, send a message with ``groq/llama2`` and include your prompt.
 - For Groq Llama-3, send a message with ``groq/llama3`` and include your prompt.
 - For Groq Gemma, send a message with ``groq/gemma`` and include your prompt.
-- For vLLM OpenChat, send a message with ``vllm/openchat`` and include your prompt.
 - For vLLM Hermes, send a message with ``vllm/hermes-llama-3`` and include your prompt.
 - For Dall-e-3, send a message with ``dall-e-3`` and include your prompt.
 
@@ -128,6 +127,7 @@ The application supports special commands for interacting with the chatroom:
 - ``/title new``: Generates a new title which reflects conversation content for the current chatroom using gpt-4.
 - ``/cancel``: Cancel the most recent chat completion from streaming into the chatroom.
 - ``/python``: Executes the most recent Python code block sent in the chatroom and returns the output or any errors.
+- ``/help``: Displays the list of commands and models to choose from.
 
 The ``/s3 ls`` command can be used to list files in the connected S3 bucket. You can specify a pattern to filter the files listed. For example:
 
