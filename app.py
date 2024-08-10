@@ -2168,9 +2168,9 @@ def handle_activity_response(room_name, user_response, username):
                             # Extract the numeric part c and apply the operation +/-
                             c = int(value[1:])
                             if value.startswith("n+"):
-                                value = metadata.get(key, 0) + c
+                                value = activity_state.dict_metadata.get(key, 0) + c
                             elif value.startswith("n-"):
-                                value = metadata.get(key, 0) - c
+                                value = activity_state.dict_metadata.get(key, 0) - c
                         new_metadata[key] = value
                         activity_state.add_metadata(key, value)
 
