@@ -191,10 +191,21 @@ def simulate_activity(yaml_file_path):
                     print(f"Current Metadata: {json.dumps(metadata, indent=2)}")
                     continue
 
+            # Print transition content blocks if they exist
+            if "content_blocks" in transition:
+                transition_content = "\n\n".join(transition["content_blocks"])
+                translated_transition_content = translate_text(
+                    transition_content, user_language
+                )
+                print(translated_transition_content)
+
             feedback = provide_feedback(
                 transition, category, question, user_response, user_language, step["tokens_for_ai"]
             )
             print(f"\nFeedback: {feedback}")
+
+            # Track temporary metadata keys
+            metadata_tmp_keys = []
 
             # Update metadata based on user actions
             if "metadata_add" in transition:
@@ -202,6 +213,13 @@ def simulate_activity(yaml_file_path):
                     if value == "the-users-response":
                         value = user_response
                     metadata[key] = value
+
+            if "metadata_tmp_add" in transition:
+                for key, value in transition["metadata_tmp_add"].items():
+                    if value == "the-users-response":
+                        value = user_response
+                    metadata[key] = value
+                    metadata_tmp_keys.append(key)  # Track temporary keys
 
             if "metadata_remove" in transition:
                 for key in transition["metadata_remove"]:
@@ -215,6 +233,14 @@ def simulate_activity(yaml_file_path):
                 )
                 random_value = transition["metadata_random"][random_key]
                 metadata[random_key] = random_value
+
+            if "metadata_tmp_random" in transition:
+                random_key = random.choice(
+                    list(transition["metadata_tmp_random"].keys())
+                )
+                random_value = transition["metadata_tmp_random"][random_key]
+                metadata[random_key] = random_value
+                metadata_tmp_keys.append(random_key)  # Track temporary keys
 
             print(f"\nMetadata: {json.dumps(metadata, indent=2)}")
 
@@ -232,6 +258,11 @@ def simulate_activity(yaml_file_path):
 
         if attempts == max_attempts:
             print("\nMaximum attempts reached. Moving to the next step.")
+
+        # Remove temporary metadata at the end of the step
+        for key in metadata_tmp_keys:
+            if key in metadata:
+                del metadata[key]
 
         # Access next_section_and_step directly from the transition
         next_section_and_step = transition.get("next_section_and_step", None)
