@@ -2188,6 +2188,22 @@ def handle_activity_response(room_name, user_response, username):
                     for key, value in transition["metadata_tmp_add"].items():
                         if value == "the-users-response":
                             value = user_response
+                        elif isinstance(value, str):
+                            if value.startswith("n+random(") and value.endswith(")"):
+                                # Extract the range and apply the random increment
+                                range_values = value[9:-1].split(",")
+                                if len(range_values) == 2:
+                                    x, y = map(int, range_values)
+                                    value = activity_state.dict_metadata.get(
+                                        key, 0
+                                    ) + random.randint(x, y)
+                            elif value.startswith("n+") or value.startswith("n-"):
+                                # Extract the numeric part c and apply the operation +/-
+                                c = int(value[1:])
+                                if value.startswith("n+"):
+                                    value = activity_state.dict_metadata.get(key, 0) + c
+                                elif value.startswith("n-"):
+                                    value = activity_state.dict_metadata.get(key, 0) - c
                         new_metadata[key] = value
                         metadata_tmp_keys.append(key)
                         activity_state.add_metadata(key, value)
@@ -2213,6 +2229,8 @@ def handle_activity_response(room_name, user_response, username):
                     new_metadata[random_key] = random_value
                     metadata_tmp_keys.append(random_key)
                     activity_state.add_metadata(random_key, random_value)
+
+                print(activity_state.dict_metadata)
 
                 # Commit the changes after the loop
                 db.session.add(activity_state)
