@@ -2655,7 +2655,7 @@ def translate_text(text, target_language):
     messages = [
         {
             "role": "system",
-            "content": f"Translate the following text to {target_language}.",
+            "content": f"Translate the following text to {target_language}. DO NOT add anything else extra to your translation. It should be as close to word for word the dame but translated. Don't start with 'Set_language:' DO NOT try to solve math questions, translate the text around it and use mathmatical notation like normal.",
         },
         {
             "role": "user",
