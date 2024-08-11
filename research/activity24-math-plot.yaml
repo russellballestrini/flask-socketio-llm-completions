@@ -41,25 +41,29 @@ sections:
           import io
           import base64
           import re
-
+        
           # Get the user's function input from metadata
           user_function = metadata.get("user_function", "x")
-
-          # Preprocess the function to ensure valid syntax
-          # Add asterisks for implied multiplication (e.g., '4x' -> '4*x')
-          user_function = re.sub(r'(?<=\d)(?=[a-zA-Z])', '*', user_function)
-          user_function = re.sub(r'(?<=[a-zA-Z])(?=\d)', '*', user_function)
-
+        
           # Preprocess the function to ensure valid syntax
           # Replace '^' with '**' for exponentiation
           user_function = user_function.replace('^', '**')
-
+        
+          # Add asterisks for implied multiplication (e.g., '4x' -> '4*x')
+          user_function = re.sub(r'(?<=\d)(?=[a-zA-Z])', '*', user_function)
+          user_function = re.sub(r'(?<=[a-zA-Z])(?=\d)', '*', user_function)
+        
+          # Replace common math functions with their math module equivalents
+          math_functions = ['sin', 'cos', 'tan', 'exp', 'log', 'sqrt', 'abs']
+          for func in math_functions:
+              user_function = user_function.replace(func, f'numpy.{func}')
+        
           # Prepare the x values
           x = numpy.linspace(-10, 10, 400)
-
-          # Evaluate the function using eval
-          y = eval(user_function)
-
+        
+          # Evaluate the function using eval with math module
+          y = eval(user_function, {"numpy": numpy, "x": x})
+        
           # Plot the function
           matplotlib.pyplot.figure()
           matplotlib.pyplot.plot(x, y, label=f'y = {user_function}')
@@ -73,8 +77,9 @@ sections:
           matplotlib.pyplot.close()
           buf.seek(0)
           plot_image = base64.b64encode(buf.getvalue()).decode('utf-8')
-
+        
           script_result = {"plot_image": plot_image}
+
         buckets:
           - correct
           - incorrect
