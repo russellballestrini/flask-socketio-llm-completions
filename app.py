@@ -1870,6 +1870,8 @@ def loop_through_steps_until_question(
         if not step:
             break
 
+        feedback_tokens_for_ai = step.get("feedback_tokens_for_ai", "")
+
         # Emit the current step content blocks
         if "content_blocks" in step:
             content = "\n\n".join(step["content_blocks"])
@@ -2077,6 +2079,8 @@ def handle_activity_response(room_name, user_response, username):
             step = next(
                 s for s in section["steps"] if s["step_id"] == activity_state.step_id
             )
+
+            feedback_tokens_for_ai = step.get("feedback_tokens_for_ai", "")
 
             # Check if the step has a question
             if "question" in step:
@@ -2288,7 +2292,7 @@ def handle_activity_response(room_name, user_response, username):
                     transition,
                     category,
                     step["question"],
-                    step.get("feedback_tokens_for_ai", ""),
+                    feedback_tokens_for_ai,
                     user_response,
                     user_language,
                     username,
