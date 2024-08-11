@@ -161,16 +161,22 @@ class Message(db.Model):
         self.username = username
         self.content = content
         self.room_id = room_id
-        self.token_count = self.count_tokens()
+        self.count_tokens()
 
     def count_tokens(self):
-        # Replace 'gpt-3.5-turbo' with the model you are using.
-        encoding = tiktoken.encoding_for_model("gpt-3.5-turbo")
-        self.token_count = len(encoding.encode(self.content))
+        if self.token_count is None:
+            if self.is_base64_image():
+                self.token_count = 0
+            else:
+                encoding = tiktoken.encoding_for_model("gpt-4")
+                self.token_count = len(encoding.encode(self.content))
         return self.token_count
 
     def is_base64_image(self):
-        return self.content.startswith('<img src="data:image/jpeg;base64,')
+        return (
+            '<img src="data:image/jpeg;base64,' in self.content
+            or '<img alt="Plot Image" src="data:image/png;base64,' in self.content
+        )
 
 
 class ActivityState(db.Model):
@@ -2049,7 +2055,10 @@ def display_activity_metadata(room_name, username):
 
 def execute_processing_script(metadata, script):
     # Prepare the local environment for the script
-    local_env = {"metadata": metadata, "script_result": None}
+    local_env = {
+        "metadata": metadata,
+        "script_result": None,
+    }
 
     # Execute the script
     exec(script, {}, local_env)
@@ -2253,6 +2262,31 @@ def handle_activity_response(room_name, user_response, username):
                     # Add the result to the temporary metadata for use in AI feedback
                     metadata_tmp_keys.append("processing_script_result")
                     activity_state.add_metadata("processing_script_result", result)
+
+                    # Check if the result contains a plot image
+                    if "plot_image" in result:
+                        plot_image_base64 = result["plot_image"]
+                        plot_image_html = f'<img alt="Plot Image" src="data:image/png;base64,{plot_image_base64}">'
+
+                        # Save the plot image to the database
+                        new_message = Message(
+                            username=username,
+                            content=plot_image_html,
+                            room_id=room.id,
+                        )
+                        db.session.add(new_message)
+                        db.session.commit()
+
+                        # Emit the plot image to the frontend
+                        socketio.emit(
+                            "message",
+                            {
+                                "id": new_message.id,
+                                "username": username,
+                                "content": plot_image_html,
+                            },
+                            room=room_name,
+                        )
 
                 print(activity_state.dict_metadata)
 

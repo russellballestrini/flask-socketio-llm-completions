@@ -1,0 +1,116 @@
+default_max_attempts_per_step: 3
+sections:
+  - section_id: "section_1"
+    title: "Math Plotter: Visualizing Functions"
+    steps:
+      - step_id: "step_1"
+        title: "Introduction to Plotting"
+        content_blocks:
+          - "Welcome to the Math Plotter activity! 📈"
+          - "In this activity, you'll learn how to plot mathematical functions and visualize them."
+        question: "Are you ready to start plotting? Type 'yes' to begin."
+        tokens_for_ai: |
+          Determine if the user's response is 'yes' to proceed.
+          If the user wants to change the language, categorize as 'set_language'.
+        buckets:
+          - proceed
+          - set_language
+        transitions:
+          proceed:
+            next_section_and_step: "section_1:step_2"
+          set_language:
+            content_blocks:
+              - "Language preference updated. Please continue in your preferred language."
+            metadata_add:
+              language: "the-users-response"
+            counts_as_attempt: false
+            next_section_and_step: "section_1:step_1"
+
+      - step_id: "step_2"
+        title: "Plotting Any Function"
+        content_blocks:
+          - "Now, you can plot any function you like!"
+          - "Enter a function of x (e.g., 'x**2 - 4*x + 3') to visualize it."
+        question: "Enter a function of x to plot and describe what you see."
+        tokens_for_ai: |
+          Check if the user describes the plot correctly based on the function they provided.
+          If the user wants to change the language, categorize as 'set_language'.
+        processing_script: |
+          import matplotlib.pyplot
+          import numpy
+          import io
+          import base64
+          import re
+
+          # Get the user's function input from metadata
+          user_function = metadata.get("user_function", "x")
+
+          # Preprocess the function to ensure valid syntax
+          # Add asterisks for implied multiplication (e.g., '4x' -> '4*x')
+          user_function = re.sub(r'(?<=\d)(?=[a-zA-Z])', '*', user_function)
+          user_function = re.sub(r'(?<=[a-zA-Z])(?=\d)', '*', user_function)
+
+          # Preprocess the function to ensure valid syntax
+          # Replace '^' with '**' for exponentiation
+          user_function = user_function.replace('^', '**')
+
+          # Prepare the x values
+          x = numpy.linspace(-10, 10, 400)
+
+          # Evaluate the function using eval
+          y = eval(user_function)
+
+          # Plot the function
+          matplotlib.pyplot.figure()
+          matplotlib.pyplot.plot(x, y, label=f'y = {user_function}')
+          matplotlib.pyplot.title(f'Plot of y = {user_function}')
+          matplotlib.pyplot.xlabel('x')
+          matplotlib.pyplot.ylabel('y')
+          matplotlib.pyplot.grid(True)
+          matplotlib.pyplot.legend()
+          buf = io.BytesIO()
+          matplotlib.pyplot.savefig(buf, format='png')
+          matplotlib.pyplot.close()
+          buf.seek(0)
+          plot_image = base64.b64encode(buf.getvalue()).decode('utf-8')
+
+          script_result = {"plot_image": plot_image}
+        buckets:
+          - correct
+          - incorrect
+          - set_language
+          - exit
+        transitions:
+          correct:
+            ai_feedback:
+              tokens_for_ai: "Great job! You correctly described the plot of your function."
+            metadata_add:
+              score: "n+1"
+              attempts: "n+1"
+              user_function: "the-users-response"
+            next_section_and_step: "section_1:step_2"
+          incorrect:
+            ai_feedback:
+              tokens_for_ai: "The description is not quite right. Try to describe the shape and behavior of the plot."
+            metadata_add:
+              attempts: "n+1"
+              user_function: "the-users-response"
+            next_section_and_step: "section_1:step_2"
+          set_language:
+            content_blocks:
+              - "Language preference updated. Please continue in your preferred language."
+            metadata_add:
+              language: "the-users-response"
+            counts_as_attempt: false
+            next_section_and_step: "section_1:step_2"
+          exit:
+            next_section_and_step: "section_2:step_1"
+
+  - section_id: "section_2"
+    title: "Plotting Complete"
+    steps:
+      - step_id: "step_1"
+        title: "Completion"
+        content_blocks:
+          - "Congratulations! You've completed the math plotter activity."
+          - "You've learned how to plot and visualize different types of functions."

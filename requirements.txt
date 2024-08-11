@@ -21,3 +21,7 @@ Flask-Migrate
 boto3
 
 pyyaml
+
+# if you want to plot charts.
+matplotlib
+numpy
