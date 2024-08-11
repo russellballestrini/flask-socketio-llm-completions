@@ -2642,7 +2642,9 @@ def provide_feedback(
 
 def translate_text(text, target_language):
     # Guard clause for default language
-    if " english" in target_language.lower():
+    target_language = target_language.lower().split()
+
+    if "english" in target_language:
         return text
 
     openai_client, model_name = get_openai_client_and_model()

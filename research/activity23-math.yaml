@@ -1,10 +1,10 @@
 default_max_attempts_per_step: 3
 sections:
   - section_id: "section_1"
-    title: "Math Quiz"
+    title: "Math Quiz: From Basics to Algebra"
     steps:
       - step_id: "step_1"
-        title: "Addition Problem"
+        title: "Basic Addition"
         content_blocks:
           - "Solve the following problem: 5 + 3"
           - "You can show your work and provide the final answer."
@@ -15,7 +15,7 @@ sections:
           If the answer is incorrect, categorize as 'incorrect'.
           If the user wants to change the language, categorize as 'set_language'.
         feedback_tokens_for_ai: |
-          Unless the user is correct, don't give them the answer when explaining the problem. Instead use a different contrived problem.
+          DO NOT answer or solve the question problem when explaining the problem. Instead use a different contrived problem.
         buckets:
           - correct
           - incorrect
@@ -24,7 +24,7 @@ sections:
         transitions:
           correct:
             ai_feedback:
-              tokens_for_ai: "Great job! You got the correct answer."
+              tokens_for_ai: "Great job! You got the correct answer. if 'correct' give the answer and solve the question problem showing all work and explain the problem."
             metadata_add:
               score: "n+1"
             next_section_and_step: "section_1:step_2"
@@ -36,7 +36,7 @@ sections:
             next_section_and_step: "section_1:step_1"
           show_work:
             ai_feedback:
-              tokens_for_ai: "Thanks for showing your work. Now, provide the final answer."
+              tokens_for_ai: "Thanks the user for showing work. Catch mistakes and suggest next steps. Remember give a separate example to show how to solve the answer, never reveal it."
             metadata_add:
               user_work: "the-users-response"
             next_section_and_step: "section_1:step_1"
@@ -49,7 +49,7 @@ sections:
             next_section_and_step: "section_1:step_1"
 
       - step_id: "step_2"
-        title: "Subtraction Problem"
+        title: "Basic Subtraction"
         content_blocks:
           - "Solve the following problem: 10 - 4"
           - "You can show your work and provide the final answer."
@@ -60,7 +60,7 @@ sections:
           If the answer is incorrect, categorize as 'incorrect'.
           If the user wants to change the language, categorize as 'set_language'.
         feedback_tokens_for_ai: |
-          Unless the user is correct, don't give them the answer when explaining the problem. Instead use a different contrived problem.
+          DO NOT answer or solve the question problem when explaining the problem. Instead use a different contrived problem.
         buckets:
           - correct
           - incorrect
@@ -69,7 +69,7 @@ sections:
         transitions:
           correct:
             ai_feedback:
-              tokens_for_ai: "Well done! You got the correct answer."
+              tokens_for_ai: "Great job! You got the correct answer. if 'correct' give the answer and solve the question problem showing all work and explain the problem."
             metadata_add:
               score: "n+1"
             next_section_and_step: "section_1:step_3"
@@ -81,7 +81,7 @@ sections:
             next_section_and_step: "section_1:step_2"
           show_work:
             ai_feedback:
-              tokens_for_ai: "Thanks for showing your work. Now, provide the final answer."
+              tokens_for_ai: "Thanks the user for showing work. Catch mistakes and suggest next steps. Remember give a separate example to show how to solve the answer, never reveal it."
             metadata_add:
               user_work: "the-users-response"
             next_section_and_step: "section_1:step_2"
@@ -94,7 +94,7 @@ sections:
             next_section_and_step: "section_1:step_2"
 
       - step_id: "step_3"
-        title: "Multiplication Problem"
+        title: "Basic Multiplication"
         content_blocks:
           - "Solve the following problem: 4 * 2"
           - "You can show your work and provide the final answer."
@@ -114,10 +114,10 @@ sections:
         transitions:
           correct:
             ai_feedback:
-              tokens_for_ai: "Excellent! You got the correct answer."
+              tokens_for_ai: "Great job! You got the correct answer. if 'correct' give the answer and solve the question problem showing all work and explain the problem."
             metadata_add:
               score: "n+1"
-            next_section_and_step: "section_2:step_1"
+            next_section_and_step: "section_1:step_4"
           incorrect:
             ai_feedback:
               tokens_for_ai: "That's not quite right. Try again."
@@ -126,7 +126,7 @@ sections:
             next_section_and_step: "section_1:step_3"
           show_work:
             ai_feedback:
-              tokens_for_ai: "Thanks for showing your work. Now, provide the final answer."
+              tokens_for_ai: "Thanks the user for showing work. Catch mistakes and suggest next steps. Remember give a separate example to show how to solve the answer, never reveal it."
             metadata_add:
               user_work: "the-users-response"
             next_section_and_step: "section_1:step_3"
@@ -137,6 +137,231 @@ sections:
               language: "the-users-response"
             counts_as_attempt: false
             next_section_and_step: "section_1:step_3"
+
+      - step_id: "step_4"
+        title: "Basic Division"
+        content_blocks:
+          - "Solve the following problem: 16 / 4"
+          - "You can show your work and provide the final answer."
+        question: "What is 16 / 4? Show your work and provide the answer."
+        tokens_for_ai: |
+          Determine if the user's response is correct by checking if the final answer is 4.
+          If the user shows their work but doesn't provide a final answer, categorize as 'show_work'.
+          If the answer is incorrect, categorize as 'incorrect'.
+          If the user wants to change the language, categorize as 'set_language'.
+        feedback_tokens_for_ai: |
+          DO NOT answer or solve the question problem when explaining the problem. Instead use a different contrived problem.
+        buckets:
+          - correct
+          - incorrect
+          - show_work
+          - set_language
+        transitions:
+          correct:
+            ai_feedback:
+              tokens_for_ai: "Great job! You got the correct answer. if 'correct' give the answer and solve the question problem showing all work and explain the problem."
+            metadata_add:
+              score: "n+1"
+            next_section_and_step: "section_1:step_5"
+          incorrect:
+            ai_feedback:
+              tokens_for_ai: "That's not quite right. Try again."
+            metadata_add:
+              attempts: "n+1"
+            next_section_and_step: "section_1:step_4"
+          show_work:
+            ai_feedback:
+              tokens_for_ai: "Thanks the user for showing work. Catch mistakes and suggest next steps. Remember give a separate example to show how to solve the answer, never reveal it."
+            metadata_add:
+              user_work: "the-users-response"
+            next_section_and_step: "section_1:step_4"
+          set_language:
+            ai_feedback:
+              tokens_for_ai: "Language preference updated. Please continue in your preferred language."
+            metadata_add:
+              language: "the-users-response"
+            counts_as_attempt: false
+            next_section_and_step: "section_1:step_4"
+
+      - step_id: "step_5"
+        title: "Introduction to Variables"
+        content_blocks:
+          - "Solve for x: x + 5 = 10"
+          - "You can show your work and provide the final answer."
+        question: "What is the value of x in the equation x + 5 = 10? Show your work and provide the answer."
+        tokens_for_ai: |
+          Determine if the user's response is correct by checking if the final answer is x = 5.
+          If the user shows their work but doesn't provide a final answer, categorize as 'show_work'.
+          If the answer is incorrect, categorize as 'incorrect'.
+          If the user wants to change the language, categorize as 'set_language'.
+        feedback_tokens_for_ai: |
+          DO NOT answer or solve the question problem when explaining the problem. Instead use a different contrived problem.
+        buckets:
+          - correct
+          - incorrect
+          - show_work
+          - set_language
+        transitions:
+          correct:
+            ai_feedback:
+              tokens_for_ai: "Great job! You got the correct answer for x. if 'correct' give the answer and solve the question problem showing all work and explain the problem."
+            metadata_add:
+              score: "n+1"
+            next_section_and_step: "section_1:step_6"
+          incorrect:
+            ai_feedback:
+              tokens_for_ai: "That's not quite right. Try again."
+            metadata_add:
+              attempts: "n+1"
+            next_section_and_step: "section_1:step_5"
+          show_work:
+            ai_feedback:
+              tokens_for_ai: "Thanks the user for showing work. Catch mistakes and suggest next steps. Remember give a separate example to show how to solve the answer, never reveal it."
+            metadata_add:
+              user_work: "the-users-response"
+            next_section_and_step: "section_1:step_5"
+          set_language:
+            ai_feedback:
+              tokens_for_ai: "Language preference updated. Please continue in your preferred language."
+            metadata_add:
+              language: "the-users-response"
+            counts_as_attempt: false
+            next_section_and_step: "section_1:step_5"
+
+      - step_id: "step_6"
+        title: "Solving Linear Equations"
+        content_blocks:
+          - "Solve for x: 2x + 3 = 11"
+          - "You can show your work and provide the final answer."
+        question: "What is the value of x in the equation 2x + 3 = 11? Show your work and provide the answer."
+        tokens_for_ai: |
+          Determine if the user's response is correct by checking if the final answer is x = 4.
+          If the user shows their work but doesn't provide a final answer, categorize as 'show_work'.
+          If the answer is incorrect, categorize as 'incorrect'.
+          If the user wants to change the language, categorize as 'set_language'.
+        feedback_tokens_for_ai: |
+          DO NOT answer or solve the question problem when explaining the problem. Instead use a different contrived problem.
+        buckets:
+          - correct
+          - incorrect
+          - show_work
+          - set_language
+        transitions:
+          correct:
+            ai_feedback:
+              tokens_for_ai: "Great job! You got the correct answer for x. if 'correct' give the answer and solve the question problem showing all work and explain the problem."
+            metadata_add:
+              score: "n+1"
+            next_section_and_step: "section_1:step_7"
+          incorrect:
+            ai_feedback:
+              tokens_for_ai: "That's not quite right. Try again."
+            metadata_add:
+              attempts: "n+1"
+            next_section_and_step: "section_1:step_6"
+          show_work:
+            ai_feedback:
+              tokens_for_ai: "Thanks the user for showing work. Catch mistakes and suggest next steps. Remember give a separate example to show how to solve the answer, never reveal it."
+            metadata_add:
+              user_work: "the-users-response"
+            next_section_and_step: "section_1:step_6"
+          set_language:
+            ai_feedback:
+              tokens_for_ai: "Language preference updated. Please continue in your preferred language."
+            metadata_add:
+              language: "the-users-response"
+            counts_as_attempt: false
+            next_section_and_step: "section_1:step_6"
+
+      - step_id: "step_7"
+        title: "Quadratic Equations"
+        content_blocks:
+          - "Solve the quadratic equation: x^2 - 5x + 6 = 0"
+          - "You can show your work and provide the final answer."
+        question: "What are the values of x in the equation x^2 - 5x + 6 = 0? Show your work and provide the answers."
+        tokens_for_ai: |
+          Determine if the user's response is correct by checking if the final answers are x = 2 and x = 3.
+          If the user shows their work but doesn't provide final answers, categorize as 'show_work'.
+          If the answers are incorrect, categorize as 'incorrect'.
+          If the user wants to change the language, categorize as 'set_language'.
+        feedback_tokens_for_ai: |
+          DO NOT answer or solve the question problem when explaining the problem. Instead use a different contrived problem.
+        buckets:
+          - correct
+          - incorrect
+          - show_work
+          - set_language
+        transitions:
+          correct:
+            ai_feedback:
+              tokens_for_ai: "Well done! You found the correct roots of the equation. if 'correct' give the answer and solve the question problem showing all work and explain the problem."
+            metadata_add:
+              score: "n+1"
+            next_section_and_step: "section_1:step_8"
+          incorrect:
+            ai_feedback:
+              tokens_for_ai: "That's not quite right. Try again."
+            metadata_add:
+              attempts: "n+1"
+            next_section_and_step: "section_1:step_7"
+          show_work:
+            ai_feedback:
+              tokens_for_ai: "Thanks the user for showing work. Catch mistakes and suggest next steps. Remember give a separate example to show how to solve the answer, never reveal it."
+            metadata_add:
+              user_work: "the-users-response"
+            next_section_and_step: "section_1:step_7"
+          set_language:
+            ai_feedback:
+              tokens_for_ai: "Language preference updated. Please continue in your preferred language."
+            metadata_add:
+              language: "the-users-response"
+            counts_as_attempt: false
+            next_section_and_step: "section_1:step_7"
+
+      - step_id: "step_8"
+        title: "Simplifying Expressions"
+        content_blocks:
+          - "Simplify the expression: 3(x + 2) - 4x"
+          - "You can show your work and provide the final answer."
+        question: "What is the simplified form of the expression 3(x + 2) - 4x? Show your work and provide the answer."
+        tokens_for_ai: |
+          Determine if the user's response is correct by checking if the final answer is 2 - x.
+          If the user shows their work but doesn't provide a final answer, categorize as 'show_work'.
+          If the answer is incorrect, categorize as 'incorrect'.
+          If the user wants to change the language, categorize as 'set_language'.
+        feedback_tokens_for_ai: |
+          DO NOT answer or solve the question problem when explaining the problem. Instead use a different contrived problem.
+        buckets:
+          - correct
+          - incorrect
+          - show_work
+          - set_language
+        transitions:
+          correct:
+            ai_feedback:
+              tokens_for_ai: "Excellent! You simplified the expression correctly. if 'correct' give the answer and solve the question problem showing all work and explain the problem."
+            metadata_add:
+              score: "n+1"
+            next_section_and_step: "section_2:step_1"
+          incorrect:
+            ai_feedback:
+              tokens_for_ai: "That's not quite right. Try again."
+            metadata_add:
+              attempts: "n+1"
+            next_section_and_step: "section_1:step_8"
+          show_work:
+            ai_feedback:
+              tokens_for_ai: "Thanks the user for showing work. Catch mistakes and suggest next steps. Remember give a separate example to show how to solve the answer, never reveal it."
+            metadata_add:
+              user_work: "the-users-response"
+            next_section_and_step: "section_1:step_8"
+          set_language:
+            ai_feedback:
+              tokens_for_ai: "Language preference updated. Please continue in your preferred language."
+            metadata_add:
+              language: "the-users-response"
+            counts_as_attempt: false
+            next_section_and_step: "section_1:step_8"
 
   - section_id: "section_2"
     title: "Quiz Complete"
