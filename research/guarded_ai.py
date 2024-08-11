@@ -43,7 +43,7 @@ def categorize_response(question, response, buckets, tokens_for_ai):
 
 
 # Generate AI feedback using gpt-4o-mini
-def generate_ai_feedback(category, question, user_response, tokens_for_ai):
+def generate_ai_feedback(category, question, user_response, tokens_for_ai, metadata):
     messages = [
         {
             "role": "system",
@@ -51,7 +51,7 @@ def generate_ai_feedback(category, question, user_response, tokens_for_ai):
         },
         {
             "role": "user",
-            "content": f"Question: {question}\nResponse: {user_response}\nCategory: {category}",
+            "content": f"Question: {question}\nResponse: {user_response}\nCategory: {category},\nMetadata: {metadata}",
         },
     ]
 
@@ -67,17 +67,34 @@ def generate_ai_feedback(category, question, user_response, tokens_for_ai):
 
 # Provide feedback based on the category
 def provide_feedback(
-    transition, category, question, user_response, user_language, tokens_for_ai
+    transition,
+    category,
+    question,
+    user_response,
+    user_language,
+    tokens_for_ai,
+    metadata,
 ):
     feedback = ""
     if "ai_feedback" in transition:
         tokens_for_ai += f" Provide the feedback in {user_language}. {transition['ai_feedback'].get('tokens_for_ai', '')}."
         ai_feedback = generate_ai_feedback(
-            category, question, user_response, tokens_for_ai
+            category, question, user_response, tokens_for_ai, metadata
         )
         feedback += f"\n\nAI Feedback: {ai_feedback}"
 
     return feedback
+
+
+def execute_processing_script(metadata, script):
+    # Prepare the local environment for the script
+    local_env = {"metadata": metadata, "script_result": None}
+
+    # Execute the script
+    exec(script, {}, local_env)
+
+    # Return the result from the script
+    return local_env["script_result"]
 
 
 def get_next_section_and_step(activity_content, current_section_id, current_step_id):
@@ -208,16 +225,6 @@ def simulate_activity(yaml_file_path):
                 )
                 print(translated_transition_content)
 
-            feedback = provide_feedback(
-                transition,
-                category,
-                question,
-                user_response,
-                user_language,
-                step["tokens_for_ai"],
-            )
-            print(f"\nFeedback: {feedback}")
-
             # Track temporary metadata keys
             metadata_tmp_keys = []
 
@@ -246,6 +253,20 @@ def simulate_activity(yaml_file_path):
                 for key, value in transition["metadata_tmp_add"].items():
                     if value == "the-users-response":
                         value = user_response
+                    elif isinstance(value, str):
+                        if value.startswith("n+random(") and value.endswith(")"):
+                            # Extract the range and apply the random increment
+                            range_values = value[9:-1].split(",")
+                            if len(range_values) == 2:
+                                x, y = map(int, range_values)
+                                value = random.randint(x, y)
+                        elif value.startswith("n+") or value.startswith("n-"):
+                            # Extract the numeric part c and apply the operation +/-
+                            c = int(value[1:])
+                            if value.startswith("n+"):
+                                value = metadata.get(key, 0) + c
+                            elif value.startswith("n-"):
+                                value = metadata.get(key, 0) - c
                     metadata[key] = value
                     metadata_tmp_keys.append(key)  # Track temporary keys
 
@@ -268,7 +289,25 @@ def simulate_activity(yaml_file_path):
                 metadata[random_key] = random_value
                 metadata_tmp_keys.append(random_key)  # Track temporary keys
 
+            # Execute the processing script if it exists
+            if "processing_script" in step:
+                result = execute_processing_script(metadata, step["processing_script"])
+                metadata["processing_script_result"] = result
+                metadata_tmp_keys.append("processing_script_result")
+
             print(f"\nMetadata: {json.dumps(metadata, indent=2)}")
+
+            # Provide feedback based on the category
+            feedback = provide_feedback(
+                transition,
+                category,
+                question,
+                user_response,
+                user_language,
+                step.get("feedback_tokens_for_ai", ""),
+                metadata,
+            )
+            print(f"\nFeedback: {feedback}")
 
             if category not in [
                 "partial_understanding",

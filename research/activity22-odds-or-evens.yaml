@@ -1,0 +1,101 @@
+default_max_attempts_per_step: 30
+sections:
+  - section_id: "section_1"
+    title: "Odds and Evens with History"
+    steps:
+
+      - step_id: "step_0"
+        title: "Challenge a Historical Figure"
+        content_blocks:
+          - "Welcome to the Odds and Evens challenge! 🎮"
+          - "You will be playing against a random historical figure."
+
+      - step_id: "step_1"
+        title: "Throw Your Fingers"
+        tokens_for_ai: |
+          Careful to check if user is trying to 'set_language' and do that first. Otherwise, figure out if they are picking a number between 0 and 5.
+        feedback_tokens_for_ai: |
+          Important, you do not have to calculate the winner, we have
+          under processing_script_result for you that determines the winner.
+
+          Important, you do not pick a random move, it was selected for you:
+
+           * 'ai_choice_finger': it's your number of fingers up that you will announce to the user.
+           * 'ai_choice': it's your guess of odd or even that you will announce to the user.
+
+          Speaking in first person as a historical figure, first always announce the move
+          selected for you and then move to a new line.
+
+          The rules are simple, the processing_script_result to determines winner or tie.
+
+          * Sum the numbers.
+          * If the sum of the fingers is even, the player who chose "even" wins.
+          * If the sum is odd, the player who chose "odd" wins.
+          * If both players are wrong or right about "odd" or "even" it's a tie.
+          * A user cannot win unless they have a match with the game name "odd" or "even"
+
+          Careful it's easy to add wrong or say a number is odd when it's even and vice versa.
+
+          Finally, continue to provide a witty fact as the figure. Don't ever mention AI.
+          The figure should also comment on the 'attempts' number and how many times played!
+          If you feel like it, jeer at the player about an early 'exit' & suggest they quit.
+
+        processing_script: |
+          user_input = metadata["user_choice"].split()
+          user_fingers = None
+          user_choice = None
+          for item in user_input:
+              if item.isdigit():
+                  user_fingers = int(item)
+              elif item in ["odd", "even"]:
+                  user_choice = item
+          ai_fingers = int(metadata["ai_choice_finger"])  # Ensure ai_fingers is an integer
+          ai_choice = metadata["ai_choice"]
+          total_fingers = user_fingers + ai_fingers
+          result = "even" if total_fingers % 2 == 0 else "odd"
+          user_wins = (result == user_choice)
+          ai_wins = (result == ai_choice)
+          if user_wins and not ai_wins:
+              winner = "User wins!"
+          elif ai_wins and not user_wins:
+              winner = "AI wins!"
+          else:
+              winner = "It's a tie!"
+          script_result = {"sum": total_fingers, "result": result, "winner": winner}
+
+        question: "How many fingers do you throw? (Choose a number between 0 and 5 & either even or odd.) 🤔"
+        buckets:
+          - throw_fingers
+          - set_language
+          - exit
+        transitions:
+          throw_fingers:
+            ai_feedback:
+              tokens_for_ai: "Declare your move and then determine who wins the game and provide a witty fact from the historical figure's perspective."
+            metadata_add:
+              attempts: "n+1"
+            metadata_tmp_add:
+              user_choice: "the-users-response"
+              ai_choice_finger: "n+random(0,5)"
+            metadata_tmp_random:
+              ai_choice: odd
+              ai_choice: even
+            next_section_and_step: "section_1:step_1"
+          set_language:
+            content_blocks:
+              - "Language preference updated. Please continue in your preferred language."
+            ai_feedback:
+              tokens_for_ai: "Acknowledge the language change and confirm the update."
+            metadata_add:
+              language: "the-users-response"
+            counts_as_attempt: false
+          exit:
+            next_section_and_step: "section_2:step_1"
+
+  - section_id: "section_2"
+    title: "Goodbye"
+    steps:
+      - step_id: "step_1"
+        title: "Exit"
+        content_blocks:
+          - "Thank you for playing! We hope you enjoyed the game. Have a great day! 🌟"

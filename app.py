@@ -2045,6 +2045,17 @@ def display_activity_metadata(room_name, username):
         )
 
 
+def execute_processing_script(metadata, script):
+    # Prepare the local environment for the script
+    local_env = {"metadata": metadata, "script_result": None}
+
+    # Execute the script
+    exec(script, {}, local_env)
+
+    # Return the result from the script
+    return local_env["script_result"]
+
+
 def handle_activity_response(room_name, user_response, username):
     with app.app_context():
         room = get_room(room_name)
@@ -2229,6 +2240,15 @@ def handle_activity_response(room_name, user_response, username):
                     new_metadata[random_key] = random_value
                     metadata_tmp_keys.append(random_key)
                     activity_state.add_metadata(random_key, random_value)
+
+                # Execute the processing script if it exists
+                if "processing_script" in step:
+                    result = execute_processing_script(
+                        activity_state.dict_metadata, step["processing_script"]
+                    )
+                    # Add the result to the temporary metadata for use in AI feedback
+                    metadata_tmp_keys.append("processing_script_result")
+                    activity_state.add_metadata("processing_script_result", result)
 
                 print(activity_state.dict_metadata)
 
