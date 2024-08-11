@@ -1,0 +1,148 @@
+default_max_attempts_per_step: 3
+sections:
+  - section_id: "section_1"
+    title: "Math Quiz"
+    steps:
+      - step_id: "step_1"
+        title: "Addition Problem"
+        content_blocks:
+          - "Solve the following problem: 5 + 3"
+          - "You can show your work and provide the final answer."
+        question: "What is 5 + 3? Show your work and provide the answer."
+        tokens_for_ai: |
+          Determine if the user's response is correct by checking if the final answer is 8.
+          If the user shows their work but doesn't provide a final answer, categorize as 'show_work'.
+          If the answer is incorrect, categorize as 'incorrect'.
+          If the user wants to change the language, categorize as 'set_language'.
+        feedback_tokens_for_ai: |
+          Unless the user is correct, don't give them the answer when explaining the problem. Instead use a different contrived problem.
+        buckets:
+          - correct
+          - incorrect
+          - show_work
+          - set_language
+        transitions:
+          correct:
+            ai_feedback:
+              tokens_for_ai: "Great job! You got the correct answer."
+            metadata_add:
+              score: "n+1"
+            next_section_and_step: "section_1:step_2"
+          incorrect:
+            ai_feedback:
+              tokens_for_ai: "That's not quite right. Try again."
+            metadata_add:
+              attempts: "n+1"
+            next_section_and_step: "section_1:step_1"
+          show_work:
+            ai_feedback:
+              tokens_for_ai: "Thanks for showing your work. Now, provide the final answer."
+            metadata_add:
+              user_work: "the-users-response"
+            next_section_and_step: "section_1:step_1"
+          set_language:
+            ai_feedback:
+              tokens_for_ai: "Language preference updated. Please continue in your preferred language."
+            metadata_add:
+              language: "the-users-response"
+            counts_as_attempt: false
+            next_section_and_step: "section_1:step_1"
+
+      - step_id: "step_2"
+        title: "Subtraction Problem"
+        content_blocks:
+          - "Solve the following problem: 10 - 4"
+          - "You can show your work and provide the final answer."
+        question: "What is 10 - 4? Show your work and provide the answer."
+        tokens_for_ai: |
+          Determine if the user's response is correct by checking if the final answer is 6.
+          If the user shows their work but doesn't provide a final answer, categorize as 'show_work'.
+          If the answer is incorrect, categorize as 'incorrect'.
+          If the user wants to change the language, categorize as 'set_language'.
+        feedback_tokens_for_ai: |
+          Unless the user is correct, don't give them the answer when explaining the problem. Instead use a different contrived problem.
+        buckets:
+          - correct
+          - incorrect
+          - show_work
+          - set_language
+        transitions:
+          correct:
+            ai_feedback:
+              tokens_for_ai: "Well done! You got the correct answer."
+            metadata_add:
+              score: "n+1"
+            next_section_and_step: "section_1:step_3"
+          incorrect:
+            ai_feedback:
+              tokens_for_ai: "That's not quite right. Try again."
+            metadata_add:
+              attempts: "n+1"
+            next_section_and_step: "section_1:step_2"
+          show_work:
+            ai_feedback:
+              tokens_for_ai: "Thanks for showing your work. Now, provide the final answer."
+            metadata_add:
+              user_work: "the-users-response"
+            next_section_and_step: "section_1:step_2"
+          set_language:
+            ai_feedback:
+              tokens_for_ai: "Language preference updated. Please continue in your preferred language."
+            metadata_add:
+              language: "the-users-response"
+            counts_as_attempt: false
+            next_section_and_step: "section_1:step_2"
+
+      - step_id: "step_3"
+        title: "Multiplication Problem"
+        content_blocks:
+          - "Solve the following problem: 4 * 2"
+          - "You can show your work and provide the final answer."
+        question: "What is 4 * 2? Show your work and provide the answer."
+        tokens_for_ai: |
+          Determine if the user's response is correct by checking if the final answer is 8.
+          If the user shows their work but doesn't provide a final answer, categorize as 'show_work'.
+          If the answer is incorrect, categorize as 'incorrect'.
+          If the user wants to change the language, categorize as 'set_language'.
+        feedback_tokens_for_ai: |
+          DO NOT answer or solve the question problem when explaining the problem. Instead use a different contrived problem.
+        buckets:
+          - correct
+          - incorrect
+          - show_work
+          - set_language
+        transitions:
+          correct:
+            ai_feedback:
+              tokens_for_ai: "Excellent! You got the correct answer."
+            metadata_add:
+              score: "n+1"
+            next_section_and_step: "section_2:step_1"
+          incorrect:
+            ai_feedback:
+              tokens_for_ai: "That's not quite right. Try again."
+            metadata_add:
+              attempts: "n+1"
+            next_section_and_step: "section_1:step_3"
+          show_work:
+            ai_feedback:
+              tokens_for_ai: "Thanks for showing your work. Now, provide the final answer."
+            metadata_add:
+              user_work: "the-users-response"
+            next_section_and_step: "section_1:step_3"
+          set_language:
+            ai_feedback:
+              tokens_for_ai: "Language preference updated. Please continue in your preferred language."
+            metadata_add:
+              language: "the-users-response"
+            counts_as_attempt: false
+            next_section_and_step: "section_1:step_3"
+
+  - section_id: "section_2"
+    title: "Quiz Complete"
+    steps:
+      - step_id: "step_1"
+        title: "Completion"
+        content_blocks:
+          - "Congratulations! You've completed the math quiz."
+          - "Your final score will be displayed at the end."
