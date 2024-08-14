@@ -54,9 +54,12 @@ sections:
           user_function = re.sub(r'(?<=[a-zA-Z])(?=\d)', '*', user_function)
         
           # Replace common math functions with their math module equivalents
-          math_functions = ['sin', 'cos', 'tan', 'exp', 'log', 'sqrt', 'abs']
+          math_functions = [
+              'sin', 'cos', 'tan', 'exp', 'log', 'sqrt', 'abs', 'pi', 'e', 'inf',
+              'sinh', 'cosh', 'tanh', 'arctan',
+          ]
           for func in math_functions:
-              user_function = user_function.replace(func, f'numpy.{func}')
+              user_function = re.sub(r'\b' + func + r'\b', f'numpy.{func}', user_function)
         
           # Prepare the x values
           x = numpy.linspace(-10, 10, 400)
