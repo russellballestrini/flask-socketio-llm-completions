@@ -2101,12 +2101,24 @@ def handle_activity_response(room_name, user_response, username):
                     step.get("tokens_for_ai", ""),
                 )
 
+                # Initialize transition to None
+                transition = None
+
+                # Determine the transition based on the category
                 if category in step["transitions"]:
                     transition = step["transitions"][category]
-                elif int(category) in step["transitions"]:
+                elif category.isdigit() and int(category) in step["transitions"]:
                     transition = step["transitions"][int(category)]
                 else:
-                    # Emit an error message and return early
+                    if category.lower() in ["yes", "true"]:
+                        category = True
+                    elif category.lower() in ["no", "false"]:
+                        category = False
+                    if category in step["transitions"]:
+                        transition = step["transitions"][category]
+
+                # Emit an error message if no valid transition was found
+                if transition is None:
                     socketio.emit(
                         "message",
                         {
@@ -2188,6 +2200,8 @@ def handle_activity_response(room_name, user_response, username):
                     for key, value in transition["metadata_add"].items():
                         if value == "the-users-response":
                             value = user_response
+                        elif value == "the-llms-response":
+                            continue
                         elif isinstance(value, str):
                             if value.startswith("n+random(") and value.endswith(")"):
                                 # Extract the range and apply the random increment
@@ -2212,6 +2226,8 @@ def handle_activity_response(room_name, user_response, username):
                     for key, value in transition["metadata_tmp_add"].items():
                         if value == "the-users-response":
                             value = user_response
+                        elif value == "the-llms-response":
+                            continue
                         elif isinstance(value, str):
                             if value.startswith("n+random(") and value.endswith(")"):
                                 # Extract the range and apply the random increment
@@ -2231,6 +2247,59 @@ def handle_activity_response(room_name, user_response, username):
                         new_metadata[key] = value
                         metadata_tmp_keys.append(key)
                         activity_state.add_metadata(key, value)
+
+                # Update metadata by appending values to lists
+                if "metadata_append" in transition:
+                    for key, value in transition["metadata_append"].items():
+                        # Determine the value to append
+                        if value == "the-users-response":
+                            value_to_append = user_response
+                        elif value == "the-llms-response":
+                            continue  # Handle this after feedback
+                        else:
+                            value_to_append = value
+
+                        # Ensure the key exists and is a list
+                        current_value = activity_state.dict_metadata.get(key, [])
+                        if not isinstance(current_value, list):
+                            current_value = [current_value]
+
+                        # Append the value to the list
+                        if isinstance(value_to_append, list):
+                            current_value.extend(value_to_append)
+                        else:
+                            current_value.append(value_to_append)
+
+                        # Update the metadata
+                        activity_state.add_metadata(key, current_value)
+
+                # Update temporary metadata by appending values to lists
+                if "metadata_tmp_append" in transition:
+                    for key, value in transition["metadata_tmp_append"].items():
+                        # Determine the value to append
+                        if value == "the-users-response":
+                            value_to_append = user_response
+                        elif value == "the-llms-response":
+                            continue  # Handle this after feedback
+                        else:
+                            value_to_append = value
+
+                        # Ensure the key exists and is a list
+                        current_value = activity_state.dict_metadata.get(key, [])
+                        if not isinstance(current_value, list):
+                            current_value = [current_value]
+
+                        # Append the value to the list
+                        if isinstance(value_to_append, list):
+                            current_value.extend(value_to_append)
+                        else:
+                            current_value.append(value_to_append)
+
+                        # Update the metadata
+                        activity_state.add_metadata(key, current_value)
+
+                        # Track temporary metadata keys
+                        metadata_tmp_keys.append(key)
 
                 if "metadata_remove" in transition:
                     for key in transition["metadata_remove"]:
@@ -2352,6 +2421,22 @@ def handle_activity_response(room_name, user_response, username):
                         },
                         room=room_name,
                     )
+
+                    # Add or append the LLM's response to the metadata
+                    for key, value in transition.get("metadata_add", {}).items():
+                        if value == "the-llms-response":
+                            activity_state.add_metadata(key, feedback)
+
+                    for key, value in transition.get("metadata_append", {}).items():
+                        if value == "the-llms-response":
+                            # Ensure the key exists and is a list
+                            current_value = activity_state.dict_metadata.get(key, [])
+                            if not isinstance(current_value, list):
+                                current_value = [current_value]
+
+                            # Append the feedback to the list
+                            current_value.append(feedback)
+                            activity_state.add_metadata(key, current_value)
 
                 if (
                     category
@@ -2654,9 +2739,9 @@ def provide_feedback(
     transition,
     category,
     question,
+    tokens_for_ai,
     user_response,
     user_language,
-    tokens_for_ai,
     username,
     json_metadata,
     json_new_metadata,

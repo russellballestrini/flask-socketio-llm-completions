@@ -1,0 +1,720 @@
+default_max_attempts_per_step: 20
+sections:
+  - section_id: "section_1"
+    title: "20 Questions Game"
+    steps:
+      - step_id: "step_1"
+        title: "Introduction"
+        content_blocks:
+          - "Welcome to the 20 Questions Game! 🤔"
+          - "Think of an object, and I'll try to guess what it is by asking yes or no questions."
+          - "Let's get started!"
+        question: "Are you ready to begin? Type 'yes' to start."
+        tokens_for_ai: |
+          Determine if the user's response is 'yes' to proceed.
+          If the user wants to change the language, categorize as 'set_language'.
+        buckets:
+          - proceed
+          - set_language
+        transitions:
+          proceed:
+            metadata_add:
+              question_1: "Are you ready to begin?"
+              question_1_response: "yes"
+            next_section_and_step: "section_1:step_2"
+          set_language:
+            content_blocks:
+              - "Language preference updated. Please continue in your preferred language."
+            metadata_add:
+              language: "the-users-response"
+            counts_as_attempt: false
+            next_section_and_step: "section_1:step_1"
+
+      - step_id: "step_2"
+        title: "Questioning"
+        content_blocks:
+          - "I'll ask you a series of yes or no questions to figure out what you're thinking of."
+        question: "Is it a living thing?"
+        tokens_for_ai: |
+          Use the user's response to narrow down the possibilities.
+          If the user answers 'yes', categorize as 'yes'.
+          If the user answers 'no', categorize as 'no'.
+          If the user wants to change the language, categorize as 'set_language'.
+        buckets:
+          - yes
+          - no
+          - set_language
+        transitions:
+          yes:
+            metadata_add:
+              question_2: "Is it a living thing?"
+              question_2_response: "yes"
+            ai_feedback:
+              tokens_for_ai: "Great! Let's narrow it down further. Is it an animal?"
+            next_section_and_step: "section_1:step_3"
+          no:
+            metadata_add:
+              question_2: "Is it a living thing?"
+              question_2_response: "no"
+            ai_feedback:
+              tokens_for_ai: "Okay, it's not a living thing. Is it something you can hold in your hand?"
+            next_section_and_step: "section_1:step_4"
+          set_language:
+            content_blocks:
+              - "Language preference updated. Please continue in your preferred language."
+            metadata_add:
+              language: "the-users-response"
+            counts_as_attempt: false
+            next_section_and_step: "section_1:step_2"
+
+      - step_id: "step_3"
+        title: "Animal Questioning"
+        question: "Is it a mammal?"
+        tokens_for_ai: |
+          Use the user's response to narrow down the possibilities.
+          If the user answers 'yes', categorize as 'yes'.
+          If the user answers 'no', categorize as 'no'.
+          If the user wants to change the language, categorize as 'set_language'.
+        buckets:
+          - yes
+          - no
+          - set_language
+        transitions:
+          yes:
+            metadata_add:
+              question_3: "Is it a mammal?"
+              question_3_response: "yes"
+            ai_feedback:
+              tokens_for_ai: "Interesting! Is it a domestic animal?"
+            next_section_and_step: "section_1:step_5"
+          no:
+            metadata_add:
+              question_3: "Is it a mammal?"
+              question_3_response: "no"
+            ai_feedback:
+              tokens_for_ai: "Is it a bird?"
+            next_section_and_step: "section_1:step_6"
+          set_language:
+            content_blocks:
+              - "Language preference updated. Please continue in your preferred language."
+            metadata_add:
+              language: "the-users-response"
+            counts_as_attempt: false
+            next_section_and_step: "section_1:step_3"
+
+      - step_id: "step_4"
+        title: "Non-Living Questioning"
+        question: "Is it electronic?"
+        tokens_for_ai: |
+          Use the user's response to narrow down the possibilities.
+          If the user answers 'yes', categorize as 'yes'.
+          If the user answers 'no', categorize as 'no'.
+          If the user wants to change the language, categorize as 'set_language'.
+        buckets:
+          - yes
+          - no
+          - set_language
+        transitions:
+          yes:
+            metadata_add:
+              question_4: "Is it electronic?"
+              question_4_response: "yes"
+            ai_feedback:
+              tokens_for_ai: "Is it a device you use daily?"
+            next_section_and_step: "section_1:step_7"
+          no:
+            metadata_add:
+              question_4: "Is it electronic?"
+              question_4_response: "no"
+            ai_feedback:
+              tokens_for_ai: "Is it made of metal?"
+            next_section_and_step: "section_1:step_8"
+          set_language:
+            content_blocks:
+              - "Language preference updated. Please continue in your preferred language."
+            metadata_add:
+              language: "the-users-response"
+            counts_as_attempt: false
+            next_section_and_step: "section_1:step_4"
+
+      - step_id: "step_5"
+        title: "Question 5"
+        question: "Is it larger than a breadbox?"
+        tokens_for_ai: |
+          Use the user's response to narrow down the possibilities.
+          If the user answers 'yes', categorize as 'yes'.
+          If the user answers 'no', categorize as 'no'.
+          If the user wants to change the language, categorize as 'set_language'.
+        buckets:
+          - yes
+          - no
+          - set_language
+        transitions:
+          yes:
+            metadata_add:
+              question_5: "Is it larger than a breadbox?"
+              question_5_response: "yes"
+            next_section_and_step: "section_1:step_6"
+          no:
+            metadata_add:
+              question_5: "Is it larger than a breadbox?"
+              question_5_response: "no"
+            next_section_and_step: "section_1:step_6"
+          set_language:
+            content_blocks:
+              - "Language preference updated. Please continue in your preferred language."
+            metadata_add:
+              language: "the-users-response"
+            counts_as_attempt: false
+            next_section_and_step: "section_1:step_5"
+
+      - step_id: "step_6"
+        title: "Question 6"
+        question: "Is it something you can eat?"
+        tokens_for_ai: |
+          Use the user's response to narrow down the possibilities.
+          If the user answers 'yes', categorize as 'yes'.
+          If the user answers 'no', categorize as 'no'.
+          If the user wants to change the language, categorize as 'set_language'.
+        buckets:
+          - yes
+          - no
+          - set_language
+        transitions:
+          yes:
+            metadata_add:
+              question_6: "Is it something you can eat?"
+              question_6_response: "yes"
+            next_section_and_step: "section_1:step_7"
+          no:
+            metadata_add:
+              question_6: "Is it something you can eat?"
+              question_6_response: "no"
+            next_section_and_step: "section_1:step_7"
+          set_language:
+            content_blocks:
+              - "Language preference updated. Please continue in your preferred language."
+            metadata_add:
+              language: "the-users-response"
+            counts_as_attempt: false
+            next_section_and_step: "section_1:step_6"
+
+      - step_id: "step_7"
+        title: "Question 7"
+        question: "Is it found indoors?"
+        tokens_for_ai: |
+          Use the user's response to narrow down the possibilities.
+          If the user answers 'yes', categorize as 'yes'.
+          If the user answers 'no', categorize as 'no'.
+          If the user wants to change the language, categorize as 'set_language'.
+        buckets:
+          - yes
+          - no
+          - set_language
+        transitions:
+          yes:
+            metadata_add:
+              question_7: "Is it found indoors?"
+              question_7_response: "yes"
+            next_section_and_step: "section_1:step_8"
+          no:
+            metadata_add:
+              question_7: "Is it found indoors?"
+              question_7_response: "no"
+            next_section_and_step: "section_1:step_8"
+          set_language:
+            content_blocks:
+              - "Language preference updated. Please continue in your preferred language."
+            metadata_add:
+              language: "the-users-response"
+            counts_as_attempt: false
+            next_section_and_step: "section_1:step_7"
+
+      - step_id: "step_8"
+        title: "Question 8"
+        question: "Is it used for entertainment?"
+        tokens_for_ai: |
+          Use the user's response to narrow down the possibilities.
+          If the user answers 'yes', categorize as 'yes'.
+          If the user answers 'no', categorize as 'no'.
+          If the user wants to change the language, categorize as 'set_language'.
+        buckets:
+          - yes
+          - no
+          - set_language
+        transitions:
+          yes:
+            metadata_add:
+              question_8: "Is it used for entertainment?"
+              question_8_response: "yes"
+            next_section_and_step: "section_1:step_9"
+          no:
+            metadata_add:
+              question_8: "Is it used for entertainment?"
+              question_8_response: "no"
+            next_section_and_step: "section_1:step_9"
+          set_language:
+            content_blocks:
+              - "Language preference updated. Please continue in your preferred language."
+            metadata_add:
+              language: "the-users-response"
+            counts_as_attempt: false
+            next_section_and_step: "section_1:step_8"
+
+      - step_id: "step_9"
+        title: "Question 9"
+        question: "Is it something you wear?"
+        tokens_for_ai: |
+          Use the user's response to narrow down the possibilities.
+          If the user answers 'yes', categorize as 'yes'.
+          If the user answers 'no', categorize as 'no'.
+          If the user wants to change the language, categorize as 'set_language'.
+        buckets:
+          - yes
+          - no
+          - set_language
+        transitions:
+          yes:
+            metadata_add:
+              question_9: "Is it something you wear?"
+              question_9_response: "yes"
+            next_section_and_step: "section_1:step_10"
+          no:
+            metadata_add:
+              question_9: "Is it something you wear?"
+              question_9_response: "no"
+            next_section_and_step: "section_1:step_10"
+          set_language:
+            content_blocks:
+              - "Language preference updated. Please continue in your preferred language."
+            metadata_add:
+              language: "the-users-response"
+            counts_as_attempt: false
+            next_section_and_step: "section_1:step_9"
+
+      - step_id: "step_10"
+        title: "Question 10"
+        question: "Is it a tool?"
+        tokens_for_ai: |
+          Use the user's response to narrow down the possibilities.
+          If the user answers 'yes', categorize as 'yes'.
+          If the user answers 'no', categorize as 'no'.
+          If the user wants to change the language, categorize as 'set_language'.
+        buckets:
+          - yes
+          - no
+          - set_language
+        transitions:
+          yes:
+            metadata_add:
+              question_10: "Is it a tool?"
+              question_10_response: "yes"
+            next_section_and_step: "section_1:step_11"
+          no:
+            metadata_add:
+              question_10: "Is it a tool?"
+              question_10_response: "no"
+            next_section_and_step: "section_1:step_11"
+          set_language:
+            content_blocks:
+              - "Language preference updated. Please continue in your preferred language."
+            metadata_add:
+              language: "the-users-response"
+            counts_as_attempt: false
+            next_section_and_step: "section_1:step_10"
+
+      - step_id: "step_11"
+        title: "Question 11"
+        question: "Is it something you can read?"
+        tokens_for_ai: |
+          Use the user's response to narrow down the possibilities.
+          If the user answers 'yes', categorize as 'yes'.
+          If the user answers 'no', categorize as 'no'.
+          If the user wants to change the language, categorize as 'set_language'.
+        buckets:
+          - yes
+          - no
+          - set_language
+        transitions:
+          yes:
+            metadata_add:
+              question_11: "Is it something you can read?"
+              question_11_response: "yes"
+            next_section_and_step: "section_1:step_12"
+          no:
+            metadata_add:
+              question_11: "Is it something you can read?"
+              question_11_response: "no"
+            next_section_and_step: "section_1:step_12"
+          set_language:
+            content_blocks:
+              - "Language preference updated. Please continue in your preferred language."
+            metadata_add:
+              language: "the-users-response"
+            counts_as_attempt: false
+            next_section_and_step: "section_1:step_11"
+
+      - step_id: "step_12"
+        title: "Question 12"
+        question: "Is it something you can drive?"
+        tokens_for_ai: |
+          Use the user's response to narrow down the possibilities.
+          If the user answers 'yes', categorize as 'yes'.
+          If the user answers 'no', categorize as 'no'.
+          If the user wants to change the language, categorize as 'set_language'.
+        buckets:
+          - yes
+          - no
+          - set_language
+        transitions:
+          yes:
+            metadata_add:
+              question_12: "Is it something you can drive?"
+              question_12_response: "yes"
+            next_section_and_step: "section_1:step_13"
+          no:
+            metadata_add:
+              question_12: "Is it something you can drive?"
+              question_12_response: "no"
+            next_section_and_step: "section_1:step_13"
+          set_language:
+            content_blocks:
+              - "Language preference updated. Please continue in your preferred language."
+            metadata_add:
+              language: "the-users-response"
+            counts_as_attempt: false
+            next_section_and_step: "section_1:step_12"
+
+      - step_id: "step_13"
+        title: "Question 13"
+        question: "Is it something you can play?"
+        tokens_for_ai: |
+          Use the user's response to narrow down the possibilities.
+          If the user answers 'yes', categorize as 'yes'.
+          If the user answers 'no', categorize as 'no'.
+          If the user wants to change the language, categorize as 'set_language'.
+        buckets:
+          - yes
+          - no
+          - set_language
+        transitions:
+          yes:
+            metadata_add:
+              question_13: "Is it something you can play?"
+              question_13_response: "yes"
+            next_section_and_step: "section_1:step_14"
+          no:
+            metadata_add:
+              question_13: "Is it something you can play?"
+              question_13_response: "no"
+            next_section_and_step: "section_1:step_14"
+          set_language:
+            content_blocks:
+              - "Language preference updated. Please continue in your preferred language."
+            metadata_add:
+              language: "the-users-response"
+            counts_as_attempt: false
+            next_section_and_step: "section_1:step_13"
+
+      - step_id: "step_14"
+        title: "Question 14"
+        question: "Is it something you can write with?"
+        tokens_for_ai: |
+          Use the user's response to narrow down the possibilities.
+          If the user answers 'yes', categorize as 'yes'.
+          If the user answers 'no', categorize as 'no'.
+          If the user wants to change the language, categorize as 'set_language'.
+        buckets:
+          - yes
+          - no
+          - set_language
+        transitions:
+          yes:
+            metadata_add:
+              question_14: "Is it something you can write with?"
+              question_14_response: "yes"
+            next_section_and_step: "section_1:step_15"
+          no:
+            metadata_add:
+              question_14: "Is it something you can write with?"
+              question_14_response: "no"
+            next_section_and_step: "section_1:step_15"
+          set_language:
+            content_blocks:
+              - "Language preference updated. Please continue in your preferred language."
+            metadata_add:
+              language: "the-users-response"
+            counts_as_attempt: false
+            next_section_and_step: "section_1:step_14"
+
+      - step_id: "step_15"
+        title: "Question 15"
+        question: "Is it something you can listen to?"
+        tokens_for_ai: |
+          Use the user's response to narrow down the possibilities.
+          If the user answers 'yes', categorize as 'yes'.
+          If the user answers 'no', categorize as 'no'.
+          If the user wants to change the language, categorize as 'set_language'.
+        buckets:
+          - yes
+          - no
+          - set_language
+        transitions:
+          yes:
+            metadata_add:
+              question_15: "Is it something you can listen to?"
+              question_15_response: "yes"
+            next_section_and_step: "section_1:step_16"
+          no:
+            metadata_add:
+              question_15: "Is it something you can listen to?"
+              question_15_response: "no"
+            next_section_and_step: "section_1:step_16"
+          set_language:
+            content_blocks:
+              - "Language preference updated. Please continue in your preferred language."
+            metadata_add:
+              language: "the-users-response"
+            counts_as_attempt: false
+            next_section_and_step: "section_1:step_15"
+
+      - step_id: "step_16"
+        title: "Question 16"
+        question: "Is it something you can watch?"
+        tokens_for_ai: |
+          Use the user's response to narrow down the possibilities.
+          If the user answers 'yes', categorize as 'yes'.
+          If the user answers 'no', categorize as 'no'.
+          If the user wants to change the language, categorize as 'set_language'.
+        buckets:
+          - yes
+          - no
+          - set_language
+        transitions:
+          yes:
+            metadata_add:
+              question_16: "Is it something you can watch?"
+              question_16_response: "yes"
+            next_section_and_step: "section_1:step_17"
+          no:
+            metadata_add:
+              question_16: "Is it something you can watch?"
+              question_16_response: "no"
+            next_section_and_step: "section_1:step_17"
+          set_language:
+            content_blocks:
+              - "Language preference updated. Please continue in your preferred language."
+            metadata_add:
+              language: "the-users-response"
+            counts_as_attempt: false
+            next_section_and_step: "section_1:step_16"
+
+      - step_id: "step_17"
+        title: "Question 17"
+        question: "Is it something you can smell?"
+        tokens_for_ai: |
+          Use the user's response to narrow down the possibilities.
+          If the user answers 'yes', categorize as 'yes'.
+          If the user answers 'no', categorize as 'no'.
+          If the user wants to change the language, categorize as 'set_language'.
+        buckets:
+          - yes
+          - no
+          - set_language
+        transitions:
+          yes:
+            metadata_add:
+              question_17: "Is it something you can smell?"
+              question_17_response: "yes"
+            next_section_and_step: "section_1:step_18"
+          no:
+            metadata_add:
+              question_17: "Is it something you can smell?"
+              question_17_response: "no"
+            next_section_and_step: "section_1:step_18"
+          set_language:
+            content_blocks:
+              - "Language preference updated. Please continue in your preferred language."
+            metadata_add:
+              language: "the-users-response"
+            counts_as_attempt: false
+            next_section_and_step: "section_1:step_17"
+
+      - step_id: "step_18"
+        title: "Question 18"
+        question: "Is it something you can touch?"
+        tokens_for_ai: |
+          Use the user's response to narrow down the possibilities.
+          If the user answers 'yes', categorize as 'yes'.
+          If the user answers 'no', categorize as 'no'.
+          If the user wants to change the language, categorize as 'set_language'.
+        buckets:
+          - yes
+          - no
+          - set_language
+        transitions:
+          yes:
+            metadata_add:
+              question_18: "Is it something you can touch?"
+              question_18_response: "yes"
+            next_section_and_step: "section_1:step_19"
+          no:
+            metadata_add:
+              question_18: "Is it something you can touch?"
+              question_18_response: "no"
+            next_section_and_step: "section_1:step_19"
+          set_language:
+            content_blocks:
+              - "Language preference updated. Please continue in your preferred language."
+            metadata_add:
+              language: "the-users-response"
+            counts_as_attempt: false
+            next_section_and_step: "section_1:step_18"
+
+      - step_id: "step_19"
+        title: "Question 19"
+        question: "Is it something you can taste?"
+        tokens_for_ai: |
+          Use the user's response to narrow down the possibilities.
+          If the user answers 'yes', categorize as 'yes'.
+          If the user answers 'no', categorize as 'no'.
+          If the user wants to change the language, categorize as 'set_language'.
+        buckets:
+          - yes
+          - no
+          - set_language
+        transitions:
+          yes:
+            metadata_add:
+              question_19: "Is it something you can taste?"
+              question_19_response: "yes"
+            next_section_and_step: "section_1:step_20"
+          no:
+            metadata_add:
+              question_19: "Is it something you can taste?"
+              question_19_response: "no"
+            next_section_and_step: "section_1:step_20"
+          set_language:
+            content_blocks:
+              - "Language preference updated. Please continue in your preferred language."
+            metadata_add:
+              language: "the-users-response"
+            counts_as_attempt: false
+            next_section_and_step: "section_1:step_19"
+
+      - step_id: "step_20"
+        title: "Final Question"
+        question: "Is it something you use every day?"
+        tokens_for_ai: |
+          Use the user's response to narrow down the possibilities.
+          If the user answers 'yes', categorize as 'yes'.
+          If the user answers 'no', categorize as 'no'.
+          If the user wants to change the language, categorize as 'set_language'.
+        buckets:
+          - yes
+          - no
+          - set_language
+        transitions:
+          yes:
+            metadata_add:
+              question_20: "Is it something you use every day?"
+              question_20_response: "yes"
+            next_section_and_step: "section_2:step_1"
+          no:
+            metadata_add:
+              question_20: "Is it something you use every day?"
+              question_20_response: "no"
+            next_section_and_step: "section_2:step_1"
+          set_language:
+            content_blocks:
+              - "Language preference updated. Please continue in your preferred language."
+            metadata_add:
+              language: "the-users-response"
+            counts_as_attempt: false
+            next_section_and_step: "section_1:step_20"
+       
+  - section_id: "section_2"
+    title: "Conclusion"
+    steps:
+      - step_id: "step_1"
+        title: "Ready for the Guess?"
+        content_blocks:
+          - "I've asked all my questions."
+          - "Are you ready for my guess?"
+        question: "Are you ready for my guess?"
+        tokens_for_ai: |
+          Determine if the user's response is 'yes' to proceed with the guess.
+          If the user answers 'no', provide an option to continue or end the game.
+          If the user wants to change the language, categorize as 'set_language'.
+        buckets:
+          - yes
+          - no
+          - set_language
+        transitions:
+          yes:
+            ai_feedback:
+              tokens_for_ai: |
+                Based on the users answers, in first person briefly explain and then make your guess.
+                Keep your previous answers in mind when selecting a follow up guess.
+                Don't make the same guess twice.
+                Put your answer in **bold** using Markdown.
+                Use the metadata to determine the most likely object the user is thinking of.
+            metadata_append:
+              ai_guesses: "the-llms-response"
+            next_section_and_step: "section_2:step_2"
+          no:
+            ai_feedback:
+              tokens_for_ai: "No worries! Let me know when you're ready for my guess."
+            next_section_and_step: "section_2:step_1"
+          set_language:
+            content_blocks:
+              - "Language preference updated. Please continue in your preferred language."
+            metadata_add:
+              language: "the-users-response"
+            counts_as_attempt: false
+            next_section_and_step: "section_2:step_1"
+
+      - step_id: "step_2"
+        title: "Guessing"
+        content_blocks:
+          - "I think I know what you're thinking of!"
+          - "Based on your answers, my guess is:"
+        question: "Did I guess correctly?"
+        tokens_for_ai: |
+          Determine if the user's response is 'yes' or 'no'.
+          If the user wants to change the language, categorize as 'set_language'.
+        feedback_tokens_for_ai: |
+          Use the metadata to determine the most likely object the user is thinking of.
+          Consider the responses to questions like "Is it a living thing?" and "Is it electronic?" to narrow down the possibilities.
+          Formulate a guess based on the pattern of responses.
+          Provide feedback based on whether the guess was correct or not.
+        buckets:
+          - yes
+          - no
+          - set_language
+        transitions:
+          yes:
+            metadata_add:
+              final_guess: "correct"
+            ai_feedback:
+              tokens_for_ai: "Great! I'm glad I guessed it right. Thanks for playing!"
+            next_section_and_step: "section_2:step_3"
+          no:
+            metadata_add:
+              final_guess: "incorrect"
+            ai_feedback:
+              tokens_for_ai: "Oh no! I'll try to do better next time. Let's continue with more questions."
+            next_section_and_step: "section_2:step_1"
+          set_language:
+            content_blocks:
+              - "Language preference updated. Please continue in your preferred language."
+            metadata_add:
+              language: "the-users-response"
+            counts_as_attempt: false
+            next_section_and_step: "section_2:step_2"
+
+      - step_id: "step_3"
+        title: "End"
+        content_blocks:
+          - "Thank you for playing the 20 Questions Game! 🎉"
+          - "Feel free to play again anytime."
