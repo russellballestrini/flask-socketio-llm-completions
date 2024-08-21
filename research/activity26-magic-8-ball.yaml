@@ -1,0 +1,74 @@
+default_max_attempts_per_step: 1
+sections:
+  - section_id: "section_1"
+    title: "Magic 8 Ball"
+    steps:
+      - step_id: "step_0"
+        title: "Introduction"
+        content_blocks:
+          - "Welcome to the Magic 8 Ball! 🎱"
+          - "Think of a yes or no question and ask the Magic 8 Ball."
+
+      - step_id: "step_1"
+        title: "Ask the Magic 8 Ball"
+        question: "What is your question for the Magic 8 Ball?"
+        tokens_for_ai: |
+          Provide a random response from the Magic 8 Ball's set of answers.
+          If the user wants to change the language, categorize as 'set_language'.
+          If the user wants to exit, categorize as 'exit'.
+        feedback_tokens_for_ai: |
+          Use the user's question to provide a random Magic 8 Ball response.
+          Consider the tone and style of traditional Magic 8 Ball answers.
+        buckets:
+          - ask_question
+          - set_language
+          - exit
+        transitions:
+          ask_question:
+            ai_feedback:
+              tokens_for_ai: |
+                Here is your answer: [random Magic 8 Ball response].
+                Use the user's question to provide a random Magic 8 Ball response.
+                Use emoji at the end of the response to relate.
+                On a new line write two sentences making a joke or relating to the question and the result.
+            metadata_tmp_random:
+              magic_8_ball_response:
+                # Positive answers
+                - "It is certain."
+                - "Without a doubt."
+                - "You may rely on it."
+                - "Yes, definitely."
+                - "As I see it, yes."
+                - "Most likely."
+                - "Outlook good."
+                - "Yes."
+                - "Signs point to yes."
+                - "Absolutely."
+                # Negative answers
+                - "Don't count on it."
+                - "My reply is no."
+                - "My sources say no."
+                - "Outlook not so good."
+                - "Very doubtful."
+                # Vague answers
+                - "Reply hazy, try again."
+                - "Ask again later."
+                - "Better not tell you now."
+                - "Cannot predict now."
+                - "Concentrate and ask again."
+            next_section_and_step: "section_1:step_1"
+          set_language:
+            content_blocks:
+              - "Language preference updated. Please continue in your preferred language."
+            metadata_add:
+              language: "the-users-response"
+            counts_as_attempt: false
+            next_section_and_step: "section_1:step_1"
+          exit:
+            next_section_and_step: "section_1:step_2"
+
+      - step_id: "step_2"
+        title: "Goodbye"
+        content_blocks:
+          - "Thank you for playing with the Magic 8 Ball! 🎉"
+          - "Feel free to come back anytime to ask more questions."

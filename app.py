@@ -1876,8 +1876,6 @@ def loop_through_steps_until_question(
         if not step:
             break
 
-        feedback_tokens_for_ai = step.get("feedback_tokens_for_ai", "")
-
         # Emit the current step content blocks
         if "content_blocks" in step:
             content = "\n\n".join(step["content_blocks"])
@@ -1927,9 +1925,9 @@ def loop_through_steps_until_question(
         )
 
         if next_step:
+            activity_state.attempts = 0
             activity_state.section_id = next_section["section_id"]
             activity_state.step_id = next_step["step_id"]
-            activity_state.attempts = 0
 
             db.session.add(activity_state)
             db.session.commit()
@@ -2471,9 +2469,9 @@ def handle_activity_response(room_name, user_response, username):
                         )
 
                     if next_step:
+                        activity_state.attempts = 0
                         activity_state.section_id = next_section["section_id"]
                         activity_state.step_id = next_step["step_id"]
-                        activity_state.attempts = 0
 
                         db.session.add(activity_state)
                         db.session.commit()
