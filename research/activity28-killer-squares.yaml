@@ -1,0 +1,254 @@
+default_max_attempts_per_step: 9
+sections:
+  - section_id: "section_1"
+    title: "Killer Squares"
+    steps:
+      - step_id: "step_0"
+        title: "Introduction"
+        content_blocks:
+          - |
+            Welcome to Killer Squares! 🎮
+            In this game, both you and the AI will secretly choose a square.
+            Then, you will attempt to "kill" a square. If you hit the AI's secret spot, you win!
+            If the AI hits your secret spot, you lose. If nobody hits, the game continues.
+
+            The board positions are numbered 0 to 8 as follows:
+
+            ```
+            0 | 1 | 2
+            ---------
+            3 | 4 | 5
+            ---------
+            6 | 7 | 8
+            ``` 
+
+      - step_id: "step_1"
+        title: "Choose Your Secret Spot"
+        question: "Choose a secret spot (0-8) for this round."
+        tokens_for_ai: |
+          If the user wants to exit, categorize as 'exit'.
+          If the move is valid, categorize as 'valid_move'.
+          If the move is invalid, categorize as 'invalid_move'.
+        feedback_tokens_for_ai: |
+          If there is an error in the metadata the move was likely invalid.
+          Always speak in first person. DO NOT START WITH "ai_move:".
+          On a new line, provide feedback on the user's move.
+          If the move is valid, proceed to the next step.
+          If the move is invalid, prompt the user to try again.
+        processing_script: |
+          import random
+
+          # Initialize or retrieve the game state
+          user_secret = metadata.get("user_secret", None)
+          ai_secret = random.randint(0, 8)
+
+          # Get the user's secret spot
+          try:
+              user_secret = int(metadata.get("user_secret"))
+          except (IndexError, ValueError) as e:
+              user_secret = -1
+
+          # Check if the move is valid
+          if 0 <= user_secret < 9:
+              script_result = {
+                  "metadata": {
+                      "user_secret": user_secret,
+                      "ai_secret": ai_secret,
+                  }
+              }
+          else:
+              script_result = {
+                  "error": f"Invalid secret spot: {metadata.get('user_secret')}",
+                  "metadata": {}
+              }
+
+        buckets:
+          - valid_move
+          - invalid_move
+          - exit
+        transitions:
+          valid_move:
+            run_processing_script: True
+            ai_feedback:
+              tokens_for_ai: "You've chosen your secret spot. Now, let's move to the killing round."
+            metadata_add:
+              user_secret: "the-users-response"
+            next_section_and_step: "section_1:step_2"
+          invalid_move:
+            ai_feedback:
+              tokens_for_ai: "That move is invalid. Please choose a position between 0 and 8."
+            metadata_add:
+              user_secret: "the-users-response"
+            next_section_and_step: "section_1:step_1"
+          exit:
+            next_section_and_step: "section_1:step_3"
+
+      - step_id: "step_2"
+        title: "Kill a Square"
+        question: "Choose a square to kill (0-8)."
+        tokens_for_ai: |
+          If the user wants to exit, categorize as 'exit'.
+          If the move is valid, categorize as 'valid_move'.
+          If the move is invalid, categorize as 'invalid_move'.
+        feedback_tokens_for_ai: |
+          DO NOT TELL THE AI SECRET UNTIL THE game_over = True
+          If there is an error in the metadata the move was likely invalid.
+          Always speak in first person. DO NOT START WITH "ai_move:".
+          On a new line, provide feedback on the user's move.
+          If the move is valid, check if the AI's secret spot is hit.
+          If the move is invalid, prompt the user to try again.
+        processing_script: |
+          import random
+          import matplotlib.pyplot as plt
+          import io
+          import base64
+
+          # Retrieve the game state
+          user_secret = metadata.get("user_secret")
+          ai_secret = metadata.get("ai_secret")
+          user_kills = metadata.get("user_kills", [])
+          ai_kills = metadata.get("ai_kills", [])
+          game_over = metadata.get("game_over", False)
+
+
+          # Get the user's kill move
+          try:
+              user_kill = int(metadata.get("user_kill"))
+          except (IndexError, ValueError) as e:
+              user_kill = -1
+
+          if game_over:
+              script_result = {}
+          elif 0 <= user_kill < 9:
+              # the move is valid.
+              user_kills.append(user_kill)
+              if user_kill == ai_secret:
+                  game_over = True
+                  user_wins = True
+                  ai_wins = False
+                  draw = False
+                  user_title = "You Win!"
+                  ai_title = "AI's Moves"
+              else:
+                  # AI makes a move, avoiding its own secret spot
+                  available_positions = []
+                  for i in range(9):
+                      if i not in ai_kills and i != ai_secret:
+                          available_positions.append(i)
+                  ai_kill = random.choice(available_positions) if available_positions else None
+                  if ai_kill is not None:
+                      ai_kills.append(ai_kill)
+                      if ai_kill == user_secret:
+                          game_over = True
+                          user_wins = False
+                          ai_wins = True
+                          draw = False
+                          user_title = "Your Moves"
+                          ai_title = "AI Wins!"
+                      else:
+                          game_over = False
+                          user_wins = False
+                          ai_wins = False
+                          draw = False
+                          user_title = "Your Moves"
+                          ai_title = "AI's Moves"
+                  else:
+                      game_over = True
+                      user_wins = False
+                      ai_wins = False
+                      draw = True
+                      user_title = "Your Moves"
+                      ai_title = "It's a Draw!"
+
+              # Plot the boards
+              fig, axs = plt.subplots(1, 2, figsize=(6, 3))
+              fig.suptitle("Killer Squares", fontsize=16)
+              fig.tight_layout(h_pad=4)
+
+              # User's board
+              axs[0].set_xlim(0, 3)
+              axs[0].set_ylim(0, 3)
+              axs[0].set_xticks([])
+              axs[0].set_yticks([])
+              axs[0].grid(True)
+              axs[0].set_title(user_title, fontsize=12)
+
+              for i in range(9):
+                  x = i % 3
+                  y = 2 - i // 3
+                  axs[0].text(x + 0.5, y + 0.5, str(i), fontsize=12, ha='center', va='center', color='gray')
+
+              for user_kill in user_kills:
+                  ux, uy = user_kill % 3, 2 - user_kill // 3
+                  axs[0].text(ux + 0.5, uy + 0.5, 'X', fontsize=24, ha='center', va='center', color='red')
+
+              # AI's board
+              axs[1].set_xlim(0, 3)
+              axs[1].set_ylim(0, 3)
+              axs[1].set_xticks([])
+              axs[1].set_yticks([])
+              axs[1].grid(True)
+              axs[1].set_title(ai_title, fontsize=12)
+
+              for i in range(9):
+                  x = i % 3
+                  y = 2 - i // 3
+                  axs[1].text(x + 0.5, y + 0.5, str(i), fontsize=12, ha='center', va='center', color='gray')
+
+              for ai_kill in ai_kills:
+                  axx, axy = ai_kill % 3, 2 - ai_kill // 3
+                  axs[1].text(axx + 0.5, axy + 0.5, 'X', fontsize=24, ha='center', va='center', color='blue')
+
+              buf = io.BytesIO()
+              plt.savefig(buf, format='png', bbox_inches='tight', pad_inches=0.1)
+              plt.close(fig)
+              buf.seek(0)
+              plot_image = base64.b64encode(buf.getvalue()).decode('utf-8')
+
+              script_result = {
+                  "plot_image": plot_image,
+                  "metadata": {
+                      "user_secret": user_secret,
+                      "ai_secret": ai_secret,
+                      "user_kills": user_kills,
+                      "ai_kills": ai_kills,
+                      "game_over": game_over,
+                      "user_wins": user_wins,
+                      "ai_wins": ai_wins,
+                      "draw": draw,
+                  }
+              }
+          else:
+              script_result = {
+                  "error": f"Invalid kill move: {metadata.get('user_kill')}",
+                  "metadata": {}
+              }
+
+        buckets:
+          - valid_move
+          - invalid_move
+          - exit
+        transitions:
+          valid_move:
+            run_processing_script: True
+            ai_feedback:
+              tokens_for_ai: |
+                If somebody wins explain the move that triggered the kill shot.
+                If game_over is True reveal the ai secret spot number
+            metadata_tmp_add:
+              user_kill: "the-users-response"
+            next_section_and_step: "section_1:step_2"
+          invalid_move:
+            ai_feedback:
+              tokens_for_ai: "That move is invalid. Please choose a position between 0 and 8."
+            metadata_tmp_add:
+              user_kill: "the-users-response"
+            next_section_and_step: "section_1:step_2"
+          exit:
+            next_section_and_step: "section_1:step_3"
+
+      - step_id: "step_3"
+        title: "Goodbye"
+        content_blocks:
+          - "Thank you for playing Killer Squares! 🎉"
+          - "Feel free to come back anytime for another game."
