@@ -2326,7 +2326,7 @@ def handle_activity_response(room_name, user_response, username):
                     activity_state.add_metadata(random_key, random_value)
 
                 # Execute the processing script if it exists
-                if "processing_script" in step:
+                if "processing_script" in step and transition.get("run_processing_script", False):
                     result = execute_processing_script(
                         activity_state.dict_metadata, step["processing_script"]
                     )

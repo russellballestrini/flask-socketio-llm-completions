@@ -70,6 +70,7 @@ sections:
           - exit
         transitions:
           throw_fingers:
+            run_processing_script: True
             ai_feedback:
               tokens_for_ai: "Declare your move and then determine who wins the game and provide a witty fact from the historical figure's perspective."
             metadata_add:

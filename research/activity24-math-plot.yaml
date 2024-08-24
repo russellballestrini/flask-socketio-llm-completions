@@ -90,6 +90,7 @@ sections:
           - exit
         transitions:
           correct:
+            run_processing_script: True
             ai_feedback:
               tokens_for_ai: "Great job! You correctly described the plot of your function."
             metadata_add:

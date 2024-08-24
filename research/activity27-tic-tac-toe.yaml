@@ -55,7 +55,7 @@ sections:
           ai_moves = metadata.get("ai_moves", [])
           ai_move = None
           board = [" "] * 9
-          for move in user_moves[:-1]:
+          for move in user_moves:
               board[int(move)] = "X"
           for move in ai_moves:
               board[int(move)] = "O"
@@ -70,6 +70,7 @@ sections:
           # Check if the move is valid
           if 0 <= user_move < 9 and board[user_move] == " ":
               board[user_move] = "X"
+              user_moves.append(user_move)
 
               user_wins = check_win(board, "X")
 
@@ -108,7 +109,7 @@ sections:
               }
 
           # Debugging: Print the current board state
-          #print("Current board state:", board)
+          print("Current board state:", board)
 
         buckets:
           - valid_move
@@ -116,6 +117,7 @@ sections:
           - exit
         transitions:
           valid_move:
+            run_processing_script: True
             ai_feedback:
               tokens_for_ai: |
                 Use the processing_script metadata to update the board!
@@ -135,22 +137,14 @@ sections:
 
             metadata_tmp_add:
               user_move: "the-users-response"
-            metadata_append:
-              user_moves: "the-users-response"
             next_section_and_step: "section_1:step_1"
           invalid_move:
             ai_feedback:
               tokens_for_ai: "That move is invalid. Please choose an empty position between 0 and 8."
             metadata_tmp_add:
               user_move: "the-users-response"
-            metadata_append:
-              user_moves: "the-users-response"
             next_section_and_step: "section_1:step_1"
           exit:
-            metadata_tmp_add:
-              user_move: "the-users-response"
-            metadata_append:
-              user_moves: "the-users-response"
             next_section_and_step: "section_1:step_2"
 
       - step_id: "step_2"

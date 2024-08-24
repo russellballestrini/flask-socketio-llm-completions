@@ -290,10 +290,14 @@ def simulate_activity(yaml_file_path):
                 metadata_tmp_keys.append(random_key)  # Track temporary keys
 
             # Execute the processing script if it exists
-            if "processing_script" in step:
+            if "processing_script" in step and transition.get("run_processing_script", False):
                 result = execute_processing_script(metadata, step["processing_script"])
                 metadata["processing_script_result"] = result
                 metadata_tmp_keys.append("processing_script_result")
+
+                # Update metadata with results from the processing script
+                for key, value in result.get("metadata", {}).items():
+                    metadata[key] = value
 
             print(f"\nMetadata: {json.dumps(metadata, indent=2)}")
 
