@@ -27,7 +27,7 @@ sections:
           ask_question:
             ai_feedback:
               tokens_for_ai: |
-                Here is your answer: [random Magic 8 Ball response].
+                Your answer for the user is in the metadata.
                 Use the user's question to provide a random Magic 8 Ball response.
                 Use emoji at the end of the response to relate.
                 On a new line write two sentences making a joke or relating to the question and the result.
