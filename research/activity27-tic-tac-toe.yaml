@@ -31,10 +31,12 @@ sections:
           If the move is valid, categorize as 'valid_move'.
           If the move is invalid, categorize as 'invalid_move'.
         feedback_tokens_for_ai: |
-          If there is an error in the metadata the move was likely invalid.
           Always speak in first person. DO NOT START WITH "ai_move:".
+          Player is always X, You the AI are always O.
+          If there is an error in the metadata the move was likely invalid.
           On a new line, provide feedback on the user's move.
-          If the move is valid, update the board and check for a win or draw.
+          Only announce a winner or tie if game_over is True.
+          The player makes the first and last move.
           If the move is invalid, prompt the user to try again.
           If the move is invalid, give a list of valid moves.
           If the move is valid & no errors say your move on the last line (ai_move) for example: I move to 8 and draw a O".
@@ -49,6 +51,33 @@ sections:
                   [0, 4, 8], [2, 4, 6]              # diagonals
               ]
               return any(all(board[i] == player for i in condition) for condition in win_conditions)
+
+          def plot_board(board):
+              import io
+              import base64
+              import matplotlib.pyplot as plt
+
+              fig, ax = plt.subplots(figsize=(3, 3))
+              ax.set_xlim(0, 3)
+              ax.set_ylim(0, 3)
+              ax.set_xticks([])
+              ax.set_yticks([])
+              ax.grid(True)
+
+              for i, mark in enumerate(board):
+                  x = i % 3
+                  y = 2 - i // 3
+                  if mark != " ":
+                      ax.text(x + 0.5, y + 0.5, mark, fontsize=24, ha='center', va='center')
+                  else:
+                      # Plot the cell number if the cell is empty
+                      ax.text(x + 0.5, y + 0.5, str(i), fontsize=12, ha='center', va='center', color='gray')
+
+              buf = io.BytesIO()
+              plt.savefig(buf, format='png')
+              plt.close(fig)
+              buf.seek(0)
+              return base64.b64encode(buf.getvalue()).decode('utf-8')
 
           # Reconstruct the board from moves
           user_moves = metadata.get("user_moves", [])
@@ -83,10 +112,12 @@ sections:
                       ai_moves.append(ai_move)
 
               ai_wins = check_win(board, "O")
-              is_draw = all(x != " " for x in board)
+              if not user_wins or not ai_wins:
+                  is_draw = all(x != " " for x in board)
               game_over = any([ai_wins, user_wins, is_draw])
 
               script_result = {
+                  "plot_image": plot_board(board),
                   "ai_move": ai_move,
                   "user_move": user_move,
                   "metadata": { 
@@ -120,21 +151,10 @@ sections:
             run_processing_script: True
             ai_feedback:
               tokens_for_ai: |
-                Use the processing_script metadata to update the board!
-                When drawing the game board always use fenced code block with multiple newlines above and below.
-
-                Always draw the game board.
-                Only draw the game board once at the end of your message.
-                Here is a reminder of the layout, please carefully place all moves.
-
-                ```
-                0 | 1 | 2
-                ---------
-                3 | 4 | 5
-                ---------
-                6 | 7 | 8
-                ```
-
+                at first glance it seems like a valid user_move.
+                DO NOT:
+                 * DRAW THE GAME BOARD
+                 * DESCRIBE THE GAME BOARD
             metadata_tmp_add:
               user_move: "the-users-response"
             next_section_and_step: "section_1:step_1"
