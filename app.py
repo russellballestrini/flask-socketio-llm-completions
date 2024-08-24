@@ -17,8 +17,12 @@ import boto3
 import tiktoken
 import together
 from flask import Flask, render_template, request, send_from_directory
+
 from flask_socketio import SocketIO, emit, join_room
+
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.exc import InvalidRequestError
+
 from groq import Groq
 from mistralai.client import MistralClient
 from mistralai.models.chat_completion import ChatMessage
@@ -2330,6 +2334,10 @@ def handle_activity_response(room_name, user_response, username):
                     metadata_tmp_keys.append("processing_script_result")
                     activity_state.add_metadata("processing_script_result", result)
 
+                    # Update metadata with results from the processing script
+                    for key, value in result.get("metadata", {}).items():
+                        activity_state.add_metadata(key, value)
+
                     # Check if the result contains a plot image
                     if "plot_image" in result:
                         plot_image_base64 = result["plot_image"]
@@ -2511,7 +2519,7 @@ def handle_activity_response(room_name, user_response, username):
                     )
 
                 # Check if the activity state still exists before removing temporary metadata
-                if ActivityState.query.filter_by(room_id=room.id).first():
+                try:
                     # Remove temporary metadata at the end of the turn
                     for key in metadata_tmp_keys:
                         activity_state.remove_metadata(key)
@@ -2519,6 +2527,11 @@ def handle_activity_response(room_name, user_response, username):
                     # Commit the changes after removing temporary metadata
                     db.session.add(activity_state)
                     db.session.commit()
+
+                except InvalidRequestError:
+                    # Handle the case where the activity state was deleted
+                    # print("Activity state was deleted before commit.")
+                    db.session.rollback()
 
             else:
                 # Handle steps without a question

@@ -1,0 +1,160 @@
+default_max_attempts_per_step: 9
+sections:
+  - section_id: "section_1"
+    title: "Tic Tac Toe"
+    steps:
+      - step_id: "step_0"
+        title: "Introduction"
+        content_blocks:
+          - |
+            Welcome to Tic Tac Toe! 🎮
+            You will be playing against the AI. You are 'X' and the AI is 'O'.
+            The board positions are numbered 0 to 8 as follows:
+
+            ```
+            0 | 1 | 2
+            ---------
+            3 | 4 | 5
+            ---------
+            6 | 7 | 8
+            ``` 
+
+      - step_id: "step_1"
+        title: "Your Move"
+        question: "Enter a position number (0-8) to place your 'X'. Or exit to quit."
+        tokens_for_ai: |
+          Using the metadata, determine if the game is over and exit.
+          If ai_wins or user_wins or is_draw is true, categorize as 'exit'.
+          If the user wants to exit, categorize as 'exit'.
+          If the game_over is True categorize as 'exit'.
+          Finally check:
+          If the move is valid, categorize as 'valid_move'.
+          If the move is invalid, categorize as 'invalid_move'.
+        feedback_tokens_for_ai: |
+          If there is an error in the metadata the move was likely invalid.
+          Always speak in first person. DO NOT START WITH "ai_move:".
+          On a new line, provide feedback on the user's move.
+          If the move is valid, update the board and check for a win or draw.
+          If the move is invalid, prompt the user to try again.
+          If the move is invalid, give a list of valid moves.
+          If the move is valid & no errors say your move on the last line (ai_move) for example: I move to 8 and draw a O".
+        processing_script: |
+          import random
+
+          def check_win(board, player):
+              # Check for win or draw
+              win_conditions = [
+                  [0, 1, 2], [3, 4, 5], [6, 7, 8],  # rows
+                  [0, 3, 6], [1, 4, 7], [2, 5, 8],  # columns
+                  [0, 4, 8], [2, 4, 6]              # diagonals
+              ]
+              return any(all(board[i] == player for i in condition) for condition in win_conditions)
+
+          # Reconstruct the board from moves
+          user_moves = metadata.get("user_moves", [])
+          ai_moves = metadata.get("ai_moves", [])
+          ai_move = None
+          board = [" "] * 9
+          for move in user_moves[:-1]:
+              board[int(move)] = "X"
+          for move in ai_moves:
+              board[int(move)] = "O"
+
+          # Get the user's latest move
+          try:
+              user_move = int(metadata.get("user_move"))
+          except (IndexError, ValueError) as e:
+              # Remove the invalid move from user_moves
+              user_move = -1
+
+          # Check if the move is valid
+          if 0 <= user_move < 9 and board[user_move] == " ":
+              board[user_move] = "X"
+
+              user_wins = check_win(board, "X")
+
+              if not user_wins:
+                  # ai makes a move.
+                  available_positions = [i for i, x in enumerate(board) if x == " "]
+                  if available_positions:
+                      ai_move = random.choice(available_positions)
+                      board[ai_move] = "O"
+                      ai_moves.append(ai_move)
+
+              ai_wins = check_win(board, "O")
+              is_draw = all(x != " " for x in board)
+              game_over = any([ai_wins, user_wins, is_draw])
+
+              script_result = {
+                  "ai_move": ai_move,
+                  "user_move": user_move,
+                  "metadata": { 
+                      "user_moves": user_moves,
+                      "ai_moves": ai_moves,
+                      "board": board,
+                      "game_over": game_over,
+                      "ai_wins": ai_wins,
+                      "user_wins": user_wins,
+                      "is_draw": is_draw
+                  }
+              }
+          else:
+              invalid_move = user_moves.pop()
+              script_result = {
+                  "error": f"Invalid move: {metadata.get('user_move')}",
+                  "metadata": {
+                      "user_moves": user_moves,
+                  },
+              }
+
+          # Debugging: Print the current board state
+          #print("Current board state:", board)
+
+        buckets:
+          - valid_move
+          - invalid_move
+          - exit
+        transitions:
+          valid_move:
+            ai_feedback:
+              tokens_for_ai: |
+                Use the processing_script metadata to update the board!
+                When drawing the game board always use fenced code block with multiple newlines above and below.
+
+                Always draw the game board.
+                Only draw the game board once at the end of your message.
+                Here is a reminder of the layout, please carefully place all moves.
+
+                ```
+                0 | 1 | 2
+                ---------
+                3 | 4 | 5
+                ---------
+                6 | 7 | 8
+                ```
+
+            metadata_tmp_add:
+              user_move: "the-users-response"
+            metadata_append:
+              user_moves: "the-users-response"
+            next_section_and_step: "section_1:step_1"
+          invalid_move:
+            ai_feedback:
+              tokens_for_ai: "That move is invalid. Please choose an empty position between 0 and 8."
+            metadata_tmp_add:
+              user_move: "the-users-response"
+            metadata_append:
+              user_moves: "the-users-response"
+            next_section_and_step: "section_1:step_1"
+          exit:
+            metadata_tmp_add:
+              user_move: "the-users-response"
+            metadata_append:
+              user_moves: "the-users-response"
+            next_section_and_step: "section_1:step_2"
+
+      - step_id: "step_2"
+        title: "Goodbye"
+        content_blocks:
+          - "Thank you for playing Tic Tac Toe! 🎉"
+          - "Feel free to come back anytime for another game."
