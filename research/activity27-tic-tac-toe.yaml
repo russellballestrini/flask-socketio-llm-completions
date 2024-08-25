@@ -21,12 +21,13 @@ sections:
 
       - step_id: "step_1"
         title: "Your Move"
-        question: "Enter a position number (0-8) to place your 'X'. Or exit to quit."
+        question: "Enter a position number (0-8) to place your 'X'. Say restart or exit to quit."
         tokens_for_ai: |
-          Using the metadata, determine if the game is over and exit.
-          If ai_wins or user_wins or is_draw is true, categorize as 'exit'.
+          Using the metadata, determine if the game is over and 'restart'.
+          If the user wants to restart or play again, categorize as 'restart'
+          If ai_wins or user_wins or is_draw is true, categorize as 'restart'.
           If the user wants to exit, categorize as 'exit'.
-          If the game_over is True categorize as 'exit'.
+          If the game_over is True categorize as 'restart'.
           Finally check:
           If the move is valid, categorize as 'valid_move'.
           If the move is invalid, categorize as 'invalid_move'.
@@ -131,7 +132,6 @@ sections:
                   }
               }
           else:
-              invalid_move = user_moves.pop()
               script_result = {
                   "error": f"Invalid move: {metadata.get('user_move')}",
                   "metadata": {
@@ -145,6 +145,7 @@ sections:
         buckets:
           - valid_move
           - invalid_move
+          - restart
           - exit
         transitions:
           valid_move:
@@ -166,6 +167,11 @@ sections:
             next_section_and_step: "section_1:step_1"
           exit:
             next_section_and_step: "section_1:step_2"
+          restart:
+            ai_feedback:
+              tokens_for_ai: "Restarting the game. Let's start fresh!"
+            metadata_clear: True
+            next_section_and_step: "section_1:step_0"
 
       - step_id: "step_2"
         title: "Goodbye"

@@ -212,6 +212,8 @@ class ActivityState(db.Model):
             del metadata[key]
         self.dict_metadata = metadata
 
+    def clear_metadata(self):
+        self.dict_metadata = {}
 
 def get_room(room_name):
     """Utility function to get room from room name."""
@@ -2362,6 +2364,9 @@ def handle_activity_response(room_name, user_response, username):
                             },
                             room=room_name,
                         )
+
+                if "metadata_clear" in transition and transition["metadata_clear"] == True:
+                    activity_state.clear_metadata()
 
                 print(activity_state.dict_metadata)
 

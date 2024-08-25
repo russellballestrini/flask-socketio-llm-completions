@@ -30,6 +30,7 @@ sections:
           If the move is valid, categorize as 'valid_move'.
           If the move is invalid, categorize as 'invalid_move'.
         feedback_tokens_for_ai: |
+          DO NOT TELL THE AI SECRET.
           If there is an error in the metadata the move was likely invalid.
           Always speak in first person. DO NOT START WITH "ai_move:".
           On a new line, provide feedback on the user's move.
@@ -65,6 +66,7 @@ sections:
         buckets:
           - valid_move
           - invalid_move
+          - restart
           - exit
         transitions:
           valid_move:
@@ -87,16 +89,26 @@ sections:
         title: "Kill a Square"
         question: "Choose a square to kill (0-8)."
         tokens_for_ai: |
+          If the user wants to restart or play again, categorize as 'restart'.
           If the user wants to exit, categorize as 'exit'.
           If the move is valid, categorize as 'valid_move'.
           If the move is invalid, categorize as 'invalid_move'.
         feedback_tokens_for_ai: |
-          DO NOT TELL THE AI SECRET UNTIL THE game_over = True
-          If there is an error in the metadata the move was likely invalid.
-          Always speak in first person. DO NOT START WITH "ai_move:".
-          On a new line, provide feedback on the user's move.
-          If the move is valid, check if the AI's secret spot is hit.
+          DO NOT reveal the AI's secret spot until game_over = True.
+          ALWAYS speak in first person. DO NOT START WITH "ai_move:".
+          If there is an error in the metadata, the move was likely invalid.
+          On a new line, provide feedback on the user's move:
+          - If the move is valid, check if the user's shot hit my (AI's) secret spot (ai_secret).
+          - If the user's shot hits my secret spot, say: "You hit my secret spot!"
+          - If the user's shot misses, say: "You missed my secret spot."
           If the move is invalid, prompt the user to try again.
+          My move is the last item in the ai_shots list. For example, if ai_shots = [5, 3], my move is 3.
+          Announce my move: "I shoot at position [my move]."
+          If game_over = True, determine the winner:
+          - If user_wins = True, say: "Congratulations! You hit my secret spot and won the round!"
+          - If ai_wins = True, say: "I hit your secret spot and won the round!"
+          If game_over = True, describe the carnage of the final strike.
+          If game_over = True, suggest: "Would you like to restart and play again, or would you prefer to exit?"
         processing_script: |
           import random
           import matplotlib.pyplot as plt
@@ -106,8 +118,8 @@ sections:
           # Retrieve the game state
           user_secret = metadata.get("user_secret")
           ai_secret = metadata.get("ai_secret")
-          user_kills = metadata.get("user_kills", [])
-          ai_kills = metadata.get("ai_kills", [])
+          user_shots = metadata.get("user_shots", [])
+          ai_shots = metadata.get("ai_shots", [])
           game_over = metadata.get("game_over", False)
 
 
@@ -121,7 +133,7 @@ sections:
               script_result = {}
           elif 0 <= user_kill < 9:
               # the move is valid.
-              user_kills.append(user_kill)
+              user_shots.append(user_kill)
               if user_kill == ai_secret:
                   game_over = True
                   user_wins = True
@@ -133,11 +145,11 @@ sections:
                   # AI makes a move, avoiding its own secret spot
                   available_positions = []
                   for i in range(9):
-                      if i not in ai_kills and i != ai_secret:
+                      if i not in ai_shots and i != ai_secret:
                           available_positions.append(i)
                   ai_kill = random.choice(available_positions) if available_positions else None
                   if ai_kill is not None:
-                      ai_kills.append(ai_kill)
+                      ai_shots.append(ai_kill)
                       if ai_kill == user_secret:
                           game_over = True
                           user_wins = False
@@ -178,7 +190,7 @@ sections:
                   y = 2 - i // 3
                   axs[0].text(x + 0.5, y + 0.5, str(i), fontsize=12, ha='center', va='center', color='gray')
 
-              for user_kill in user_kills:
+              for user_kill in user_shots:
                   ux, uy = user_kill % 3, 2 - user_kill // 3
                   axs[0].text(ux + 0.5, uy + 0.5, 'X', fontsize=24, ha='center', va='center', color='red')
 
@@ -195,7 +207,7 @@ sections:
                   y = 2 - i // 3
                   axs[1].text(x + 0.5, y + 0.5, str(i), fontsize=12, ha='center', va='center', color='gray')
 
-              for ai_kill in ai_kills:
+              for ai_kill in ai_shots:
                   axx, axy = ai_kill % 3, 2 - ai_kill // 3
                   axs[1].text(axx + 0.5, axy + 0.5, 'X', fontsize=24, ha='center', va='center', color='blue')
 
@@ -210,8 +222,8 @@ sections:
                   "metadata": {
                       "user_secret": user_secret,
                       "ai_secret": ai_secret,
-                      "user_kills": user_kills,
-                      "ai_kills": ai_kills,
+                      "user_shots": user_shots,
+                      "ai_shots": ai_shots,
                       "game_over": game_over,
                       "user_wins": user_wins,
                       "ai_wins": ai_wins,
@@ -234,7 +246,7 @@ sections:
             ai_feedback:
               tokens_for_ai: |
                 If somebody wins explain the move that triggered the kill shot.
-                If game_over is True reveal the ai secret spot number
+                Only if game_over is True reveal the ai secret spot number otherwise never tell the player the secret!
             metadata_tmp_add:
               user_kill: "the-users-response"
             next_section_and_step: "section_1:step_2"
@@ -246,6 +258,11 @@ sections:
             next_section_and_step: "section_1:step_2"
           exit:
             next_section_and_step: "section_1:step_3"
+          restart:
+            ai_feedback:
+              tokens_for_ai: "Restarting the game. Let's start fresh!"
+            metadata_clear: True
+            next_section_and_step: "section_1:step_0"
 
       - step_id: "step_3"
         title: "Goodbye"
