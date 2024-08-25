@@ -1,0 +1,301 @@
+default_max_attempts_per_step: 9
+sections:
+  - section_id: "section_1"
+    title: "Battleship"
+    steps:
+      - step_id: "step_0"
+        title: "Introduction"
+        content_blocks:
+          - |
+            Welcome to Battleship! 🚢
+            In this game, both you and the AI have a fleet of ships placed randomly on a 10x10 grid.
+            The grid positions are numbered 0 to 99.
+
+            Your goal is to sink all of the AI's ships before it sinks yours.
+            Let's get started!
+
+      - step_id: "step_1"
+        title: "Start Game"
+        question: "Are you ready to start the game?"
+        tokens_for_ai: |
+          If the user wants to start, categorize as 'start_game'.
+          If the user wants to exit, categorize as 'exit'.
+        feedback_tokens_for_ai: |
+          If the user is ready, proceed to the next step.
+          If the user wants to exit, thank them for their time.
+        processing_script: |
+          import random
+
+          def place_ships():
+              import random
+              # Define ship sizes and names
+              ships = {
+                  "Carrier": 5,
+                  "Battleship": 4,
+                  "Cruiser": 3,
+                  "Submarine": 3,
+                  "Destroyer": 2
+              }
+
+              board = [-1] * 100
+              for ship, size in ships.items():
+                  placed = False
+                  while not placed:
+                      orientation = random.choice(['horizontal', 'vertical'])
+                      if orientation == 'horizontal':
+                          row = random.randint(0, 9)
+                          col = random.randint(0, 9 - size)
+                          start = row * 10 + col
+                          if all(board[start + i] == -1 for i in range(size)):
+                              for i in range(size):
+                                  board[start + i] = ship
+                              placed = True
+                      else:
+                          row = random.randint(0, 9 - size)
+                          col = random.randint(0, 9)
+                          start = row * 10 + col
+                          if all(board[start + i * 10] == -1 for i in range(size)):
+                              for i in range(size):
+                                  board[start + i * 10] = ship
+                              placed = True
+              return board
+
+          user_board = place_ships()
+          ai_board = place_ships()
+
+          script_result = {
+              "metadata": {
+                  "user_board": user_board,
+                  "ai_board": ai_board,
+                  "user_shots": [],
+                  "ai_shots": [],
+                  "user_hits": [],
+                  "ai_hits": [],
+                  "game_over": False
+              }
+          }
+
+        buckets:
+          - start_game
+          - exit
+        transitions:
+          start_game:
+            run_processing_script: True
+            ai_feedback:
+              tokens_for_ai: "Great! Let's begin the battle."
+            next_section_and_step: "section_1:step_2"
+          exit:
+            next_section_and_step: "section_1:step_3"
+
+      - step_id: "step_2"
+        title: "Take a Shot"
+        question: "Choose a position to fire at (0-99)."
+        tokens_for_ai: |
+          If the user wants to restart or play again, categorize as 'restart'.
+          If the user wants to exit, categorize as 'exit'.
+          If the move is valid, categorize as 'valid_move'.
+          If the move is invalid, categorize as 'invalid_move'.
+        feedback_tokens_for_ai: |
+          If there is an error in the metadata, the move was likely invalid.
+          On a new line, provide feedback on the user's move:
+          - The user's latest shot was a [user_hit_result].
+          - If user_hit_result is "hit", say: "You hit an AI ship!"
+          - If user_hit_result is "miss", say: "You missed."
+          - The AI's latest shot was a [ai_hit_result].
+          - If ai_hit_result is "hit", say: "AI hit your ship!"
+          - If ai_hit_result is "miss", say: "AI missed."
+          Announce the AI's move: "AI fires at position [ai_shot]."
+          If game_over = True, determine the winner:
+          - If user_wins = True, say: "Congratulations! You sank all AI ships and won the game!"
+          - If ai_wins = True, say: "AI sank all your ships and won the game!"
+          If game_over = True, suggest: "Would you like to restart and play again, or would you prefer to exit?"
+        processing_script: |
+          import random
+          import matplotlib.pyplot as plt
+          import io
+          import base64
+
+          # Define colors for ships
+          colors = {
+              "Carrier": "blue",
+              "Battleship": "green",
+              "Cruiser": "orange",
+              "Submarine": "purple",
+              "Destroyer": "pink"
+          }
+
+          # Retrieve the game state
+          user_board = metadata.get("user_board")
+          ai_board = metadata.get("ai_board")
+          user_shots = metadata.get("user_shots", [])
+          ai_shots = metadata.get("ai_shots", [])
+          user_hits = metadata.get("user_hits", [])
+          ai_hits = metadata.get("ai_hits", [])
+          game_over = metadata.get("game_over", False)
+          user_wins = False
+          ai_wins = False
+          user_hit_result = "miss"
+          ai_hit_result = "miss"
+
+          # Get the user's shot
+          try:
+              user_shot = int(metadata.get("user_shot"))
+          except (IndexError, ValueError) as e:
+              user_shot = -1
+
+          if game_over:
+              script_result = {}
+          elif 0 <= user_shot < 100 and user_shot not in user_shots:
+              # The move is valid
+              user_shots.append(user_shot)
+              user_hit_result = "miss"
+              if ai_board[user_shot] != -1:
+                  user_hits.append(user_shot)
+                  user_hit_result = "hit"
+                  # Check if all AI ships are hit
+                  all_ai_ships_hit = True
+                  for pos in range(100):
+                      if ai_board[pos] != -1 and pos not in user_hits:
+                          all_ai_ships_hit = False
+                          break
+                  if all_ai_ships_hit:
+                      game_over = True
+                      user_wins = True
+                      ai_wins = False
+
+              # AI makes a move
+              available_positions = []
+              for i in range(100):
+                  if i not in ai_shots:
+                      available_positions.append(i)
+
+              ai_shot = random.choice(available_positions)
+              ai_shots.append(ai_shot)
+              ai_hit_result = "miss"
+              if user_board[ai_shot] != -1:
+                  ai_hits.append(ai_shot)
+                  ai_hit_result = "hit"
+                  # Check if all User ships are hit
+                  all_user_ships_hit = True
+                  for pos in range(100):
+                      if user_board[pos] != -1 and pos not in ai_hits:
+                          all_user_ships_hit = False
+                          break
+                  if all_user_ships_hit:
+                      game_over = True
+                      user_wins = False
+                      ai_wins = True
+
+              # Plot the boards
+              fig, axs = plt.subplots(1, 2, figsize=(12, 6))
+              fig.suptitle("Battleship", fontsize=16)
+
+              # User's view of AI's board
+              axs[0].set_xlim(0, 10)
+              axs[0].set_ylim(0, 10)
+              axs[0].set_xticks([])
+              axs[0].set_yticks([])
+              axs[0].grid(True)
+              axs[0].set_title("Your Shots", fontsize=12)
+
+              # Plot user shots on AI's board
+              for i in range(100):
+                  x, y = i % 10, 9 - i // 10
+                  if i in user_shots:
+                      if i in user_hits:
+                          axs[0].text(x + 0.5, y + 0.5, 'X', fontsize=12, ha='center', va='center', color='red')
+                      else:
+                          axs[0].text(x + 0.5, y + 0.5, 'O', fontsize=12, ha='center', va='center', color='black')
+                  axs[0].text(x + 0.5, y + 0.5, str(i), fontsize=8, ha='center', va='center', color='gray')
+
+              # AI's view of User's board
+              axs[1].set_xlim(0, 10)
+              axs[1].set_ylim(0, 10)
+              axs[1].set_xticks([])
+              axs[1].set_yticks([])
+              axs[1].grid(True)
+              axs[1].set_title("Your Ships", fontsize=12)
+
+              # Plot user ships
+              for i, ship in enumerate(user_board):
+                  x, y = i % 10, 9 - i // 10
+                  if ship != -1:
+                      axs[1].add_patch(plt.Rectangle((x, y), 1, 1, color=colors[ship], alpha=0.5))
+
+              # Plot AI shots on User's board
+              for i in range(100):
+                  x, y = i % 10, 9 - i // 10
+                  if i in ai_shots:
+                      if i in ai_hits:
+                          axs[1].text(x + 0.5, y + 0.5, 'X', fontsize=12, ha='center', va='center', color='red')
+                      else:
+                          axs[1].text(x + 0.5, y + 0.5, 'O', fontsize=12, ha='center', va='center', color='black')
+                  axs[1].text(x + 0.5, y + 0.5, str(i), fontsize=8, ha='center', va='center', color='gray')
+
+              # Add legend
+              handles = []
+              for color in colors.values():
+                  handles.append(plt.Rectangle((0, 0), 1, 1, color=color, alpha=0.5))
+              axs[1].legend(handles, colors.keys(), loc='upper right', fontsize=8)
+
+              buf = io.BytesIO()
+              plt.savefig(buf, format='png', bbox_inches='tight', pad_inches=0.1)
+              plt.close(fig)
+              buf.seek(0)
+              plot_image = base64.b64encode(buf.getvalue()).decode('utf-8')
+
+              script_result = {
+                  "plot_image": plot_image,
+                  "metadata": {
+                      "user_board": user_board,
+                      "ai_board": ai_board,
+                      "user_shots": user_shots,
+                      "ai_shots": ai_shots,
+                      "user_hits": user_hits,
+                      "ai_hits": ai_hits,
+                      "game_over": game_over,
+                      "user_wins": user_wins,
+                      "ai_wins": ai_wins,
+                      "user_hit_result": user_hit_result,
+                      "ai_hit_result": ai_hit_result
+                  }
+              }
+          else:
+              script_result = {
+                  "error": f"Invalid shot: {metadata.get('user_shot')}",
+                  "metadata": {}
+              }
+
+        buckets:
+          - valid_move
+          - invalid_move
+          - exit
+          - restart
+        transitions:
+          valid_move:
+            run_processing_script: True
+            ai_feedback:
+              tokens_for_ai: |
+                the user_shot seems valid.
+            metadata_tmp_add:
+              user_shot: "the-users-response"
+            next_section_and_step: "section_1:step_2"
+          invalid_move:
+            ai_feedback:
+              tokens_for_ai: "That move is invalid. Please choose a position between 0 and 99."
+            metadata_tmp_add:
+              user_shot: "the-users-response"
+            next_section_and_step: "section_1:step_2"
+          exit:
+            next_section_and_step: "section_1:step_3"
+          restart:
+            ai_feedback:
+              tokens_for_ai: "Restarting the game. Let's start fresh!"
+            metadata_clear: True
+            next_section_and_step: "section_1:step_0"
+
+      - step_id: "step_3"
+        title: "Goodbye"
+        content_blocks:
+          - "Thank you for playing Battleship! 🎉"
+          - "Feel free to come back anytime for another game."
