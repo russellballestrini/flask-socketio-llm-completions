@@ -2588,6 +2588,7 @@ def display_activity_info(room_name, username):
                     "content": msg.content,
                 }
                 for msg in all_messages
+                if not msg.is_base64_image()
             ]
 
             # Prepare the rubric for grading
