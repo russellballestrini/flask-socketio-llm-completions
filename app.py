@@ -382,12 +382,12 @@ def on_join(data):
     # Broadcast to all clients in the room that a new user has joined.
     # Here, `room=room` ensures the message is sent to everyone in that specific room.
     emit(
-        "message",
+        "chat_message",
         {"id": None, "content": f"{data['username']} has joined the room."},
         room=room.name,
     )
     emit(
-        "message",
+        "chat_message",
         {
             "id": None,
             "content": f"Estimated {total_token_count} total tokens in conversation.",
@@ -396,7 +396,7 @@ def on_join(data):
     )
 
 
-@socketio.on("message")
+@socketio.on("chat_message")
 def handle_message(data):
     room_name = data["room_name"]
     room = get_room(room_name)
@@ -411,7 +411,7 @@ def handle_message(data):
     db.session.commit()
 
     emit(
-        "message",
+        "chat_message",
         {
             "id": new_message.id,
             "username": data["username"],
@@ -427,7 +427,7 @@ def handle_message(data):
         if command.startswith("/help"):
             # Emit the help message
             socketio.emit(
-                "message",
+                "chat_message",
                 {
                     "id": "tmp-1",
                     "username": "System",
@@ -503,7 +503,7 @@ def handle_message(data):
     ):
         # Emit a temporary message indicating that the llm is processing
         emit(
-            "message",
+            "chat_message",
             {"id": None, "content": "<span id='processing'>Processing...</span>"},
             room=room.name,
         )
@@ -850,7 +850,7 @@ def chat_claude(
                 db.session.add(new_message)
                 db.session.commit()
         socketio.emit(
-            "message",
+            "chat_message",
             {
                 "id": msg_id,
                 "username": model_name,
@@ -941,7 +941,7 @@ def chat_gpt(username, room_name, model_name="gpt-4o-mini"):
                 db.session.add(new_message)
                 db.session.commit()
         socketio.emit(
-            "message",
+            "chat_message",
             {
                 "id": msg_id,
                 "username": model_name,
@@ -1097,7 +1097,7 @@ def chat_mistral(username, room_name, model_name="mistral-tiny"):
                 db.session.add(new_message)
                 db.session.commit()
         socketio.emit(
-            "message",
+            "chat_message",
             {
                 "id": msg_id,
                 "username": model_name,
@@ -1221,7 +1221,7 @@ def chat_together(
                 db.session.add(new_message)
                 db.session.commit()
         socketio.emit(
-            "message",
+            "chat_message",
             {
                 "id": msg_id,
                 "username": model_name,
@@ -1327,7 +1327,7 @@ def chat_groq(username, room_name, model_name="mixtral-8x7b-32768"):
                 db.session.add(new_message)
                 db.session.commit()
         socketio.emit(
-            "message",
+            "chat_message",
             {
                 "id": msg_id,
                 "username": model_name,
@@ -1404,7 +1404,7 @@ def chat_llama(username, room_name, model_name="mistral-7b-instruct-v0.2.Q3_K_L.
                 db.session.add(new_message)
                 db.session.commit()
         socketio.emit(
-            "message",
+            "chat_message",
             {
                 "id": msg_id,
                 "username": model_name,
@@ -1527,7 +1527,7 @@ def generate_new_title(room_name, username):
         db.session.add(new_message)
         db.session.commit()
         socketio.emit(
-            "message",
+            "chat_message",
             {
                 "id": new_message.id,
                 "username": username,
@@ -1539,7 +1539,7 @@ def generate_new_title(room_name, username):
 
 def generate_dalle_image(room_name, message, username):
     socketio.emit(
-        "message",
+        "chat_message",
         {"id": None, "content": "Processing..."},
         room=room_name,
     )
@@ -1582,7 +1582,7 @@ def generate_dalle_image(room_name, message, username):
 
         # Emit the message with the content to the frontend
         socketio.emit(
-            "message",
+            "chat_message",
             {"id": new_message.id, "username": username, "content": content},
             room=room_name,
         )
@@ -1674,7 +1674,7 @@ def save_code_block_to_s3(room_name, s3_key_path, username):
 
             # Emit the message to the frontend with the new message ID
             socketio.emit(
-                "message",
+                "chat_message",
                 {
                     "id": new_message.id,
                     "username": username,
@@ -1719,7 +1719,7 @@ def load_s3_file(room_name, s3_file_path, username):
 
         # Emit the message to the chatroom with the message ID
         socketio.emit(
-            "message",
+            "chat_message",
             {
                 "id": new_message.id,
                 "username": username,
@@ -1799,7 +1799,7 @@ def list_s3_files(room_name, s3_file_path_pattern, username):
 
             # Emit the message to the chatroom with the message ID
             socketio.emit(
-                "message",
+                "chat_message",
                 {
                     "id": new_message.id,
                     "username": username,
@@ -1825,7 +1825,7 @@ def cancel_generation(room_name):
         cancellation_requests[latest_message.id] = True
         # Optionally, inform the user that the generation has been canceled
         socketio.emit(
-            "message",
+            "chat_message",
             {
                 "id": None,
                 "username": "System",
@@ -1893,7 +1893,7 @@ def loop_through_steps_until_question(
             db.session.commit()
 
             socketio.emit(
-                "message",
+                "chat_message",
                 {
                     "id": new_message.id,
                     "username": "System",
@@ -1901,6 +1901,7 @@ def loop_through_steps_until_question(
                 },
                 room=room_name,
             )
+            socketio.sleep(0.1)
 
         # Check if the current step has a question
         if "question" in step:
@@ -1915,7 +1916,7 @@ def loop_through_steps_until_question(
             db.session.commit()
 
             socketio.emit(
-                "message",
+                "chat_message",
                 {
                     "id": new_message.id,
                     "username": "System",
@@ -1923,6 +1924,7 @@ def loop_through_steps_until_question(
                 },
                 room=room_name,
             )
+            socketio.sleep(0.1)
             break
 
         # Move to the next step
@@ -1949,7 +1951,7 @@ def loop_through_steps_until_question(
             db.session.delete(activity_state)
             db.session.commit()
             socketio.emit(
-                "message",
+                "chat_message",
                 {
                     "id": None,
                     "username": "System",
@@ -1992,7 +1994,7 @@ def cancel_activity(room_name, username):
 
         if not activity_state:
             socketio.emit(
-                "message",
+                "chat_message",
                 {
                     "id": None,
                     "username": "System",
@@ -2008,7 +2010,7 @@ def cancel_activity(room_name, username):
 
         # Emit a message indicating the activity has been canceled
         socketio.emit(
-            "message",
+            "chat_message",
             {
                 "id": None,
                 "username": "System",
@@ -2025,7 +2027,7 @@ def display_activity_metadata(room_name, username):
 
         if not activity_state:
             socketio.emit(
-                "message",
+                "chat_message",
                 {
                     "id": None,
                     "username": "System",
@@ -2047,7 +2049,7 @@ def display_activity_metadata(room_name, username):
         db.session.commit()
 
         socketio.emit(
-            "message",
+            "chat_message",
             {
                 "id": new_message.id,
                 "username": "System",
@@ -2124,7 +2126,7 @@ def handle_activity_response(room_name, user_response, username):
                 # Emit an error message if no valid transition was found
                 if transition is None:
                     socketio.emit(
-                        "message",
+                        "chat_message",
                         {
                             "id": None,
                             "username": "System",
@@ -2139,7 +2141,7 @@ def handle_activity_response(room_name, user_response, username):
 
                 # Emit the category to the frontend
                 socketio.emit(
-                    "message",
+                    "chat_message",
                     {
                         "id": None,
                         "username": "System",
@@ -2147,6 +2149,7 @@ def handle_activity_response(room_name, user_response, username):
                     },
                     room=room_name,
                 )
+                socketio.sleep(0.1)
 
                 # Check metadata conditions for the current step
                 if "metadata_conditions" in transition:
@@ -2157,7 +2160,7 @@ def handle_activity_response(room_name, user_response, username):
                     if not conditions_met:
                         # Emit a message indicating the conditions are not met
                         socketio.emit(
-                            "message",
+                            "chat_message",
                             {
                                 "id": None,
                                 "username": "System",
@@ -2182,7 +2185,7 @@ def handle_activity_response(room_name, user_response, username):
                             db.session.commit()
 
                             socketio.emit(
-                                "message",
+                                "chat_message",
                                 {
                                     "id": new_message.id,
                                     "username": "System",
@@ -2345,25 +2348,30 @@ def handle_activity_response(room_name, user_response, username):
                         plot_image_base64 = result["plot_image"]
                         plot_image_html = f'<img alt="Plot Image" src="data:image/png;base64,{plot_image_base64}">'
 
-                        # Save the plot image to the database
-                        new_message = Message(
-                            username=username,
-                            content=plot_image_html,
-                            room_id=room.id,
-                        )
-                        db.session.add(new_message)
-                        db.session.commit()
+                        if result.get("set_background", False):
+                            socketio.emit("set_background", {"image_data": plot_image_base64})
+                            socketio.sleep(0.1)
+                        else:
+                            # Save the plot image to the database
+                            new_message = Message(
+                                username=username,
+                                content=plot_image_html,
+                                room_id=room.id,
+                            )
+                            db.session.add(new_message)
+                            db.session.commit()
 
-                        # Emit the plot image to the frontend
-                        socketio.emit(
-                            "message",
-                            {
-                                "id": new_message.id,
-                                "username": username,
-                                "content": plot_image_html,
-                            },
-                            room=room_name,
-                        )
+                            # Emit the plot image to the frontend
+                            socketio.emit(
+                                "chat_message",
+                                {
+                                    "id": new_message.id,
+                                    "username": username,
+                                    "content": plot_image_html,
+                                },
+                                room=room_name,
+                            )
+                            socketio.sleep(0.1)
 
                 if "metadata_clear" in transition and transition["metadata_clear"] == True:
                     activity_state.clear_metadata()
@@ -2391,7 +2399,7 @@ def handle_activity_response(room_name, user_response, username):
                     db.session.commit()
 
                     socketio.emit(
-                        "message",
+                        "chat_message",
                         {
                             "id": new_message.id,
                             "username": "System",
@@ -2399,6 +2407,7 @@ def handle_activity_response(room_name, user_response, username):
                         },
                         room=room_name,
                     )
+                    socketio.sleep(0.1)
 
                 # if "correct" or max_attempts reached.
                 # Provide feedback based on the category
@@ -2424,7 +2433,7 @@ def handle_activity_response(room_name, user_response, username):
                     db.session.commit()
 
                     socketio.emit(
-                        "message",
+                        "chat_message",
                         {
                             "id": new_message.id,
                             "username": "System",
@@ -2432,6 +2441,7 @@ def handle_activity_response(room_name, user_response, username):
                         },
                         room=room_name,
                     )
+                    socketio.sleep(0.1)
 
                     # Add or append the LLM's response to the metadata
                     for key, value in transition.get("metadata_add", {}).items():
@@ -2514,7 +2524,7 @@ def handle_activity_response(room_name, user_response, username):
                     db.session.commit()
 
                     socketio.emit(
-                        "message",
+                        "chat_message",
                         {
                             "id": new_message.id,
                             "username": "System",
@@ -2522,6 +2532,7 @@ def handle_activity_response(room_name, user_response, username):
                         },
                         room=room_name,
                     )
+                    socketio.sleep(0.1)
 
                 # Check if the activity state still exists before removing temporary metadata
                 try:
@@ -2549,7 +2560,7 @@ def handle_activity_response(room_name, user_response, username):
 
             msg = traceback.format_exc()
             socketio.emit(
-                "message",
+                "chat_message",
                 {
                     "id": None,
                     "username": "System",
@@ -2566,7 +2577,7 @@ def display_activity_info(room_name, username):
 
         if not activity_state:
             socketio.emit(
-                "message",
+                "chat_message",
                 {
                     "id": None,
                     "username": "System",
@@ -2624,7 +2635,7 @@ def display_activity_info(room_name, username):
             db.session.commit()
 
             socketio.emit(
-                "message",
+                "chat_message",
                 {
                     "id": new_message.id,
                     "username": "System",
@@ -2635,7 +2646,7 @@ def display_activity_info(room_name, username):
 
         except Exception as e:
             socketio.emit(
-                "message",
+                "chat_message",
                 {
                     "id": None,
                     "username": "System",

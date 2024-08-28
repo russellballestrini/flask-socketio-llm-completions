@@ -96,7 +96,6 @@ sections:
           If the move is valid, categorize as 'valid_move'.
           If the move is invalid, categorize as 'invalid_move'.
         feedback_tokens_for_ai: |
-          If there is an error in the metadata, the move was likely invalid.
           On a new line, provide feedback on the user's move:
           - The user's latest shot was a [user_hit_result].
           - If user_hit_result is "hit", say: "You hit an AI ship!"
@@ -104,11 +103,12 @@ sections:
           - The AI's latest shot was a [ai_hit_result].
           - If ai_hit_result is "hit", say: "AI hit your ship!"
           - If ai_hit_result is "miss", say: "AI missed."
-          Announce the AI's move: "AI fires at position [ai_shot]."
+          Announce the AI's move [ai_shot] and whether it was a hit or miss.
           If game_over = True, determine the winner:
-          - If user_wins = True, say: "Congratulations! You sank all AI ships and won the game!"
-          - If ai_wins = True, say: "AI sank all your ships and won the game!"
-          If game_over = True, suggest: "Would you like to restart and play again, or would you prefer to exit?"
+            - If user_wins = True, say: "Congratulations! You sank all AI ships and won the game!"
+            - If ai_wins = True, say: "AI sank all your ships and won the game!"
+          If game_over = True ,
+            - suggest "Would you like to restart and play again, or would you prefer to exit?"
         processing_script: |
           import random
           import matplotlib.pyplot as plt
@@ -246,6 +246,7 @@ sections:
 
               script_result = {
                   "plot_image": plot_image,
+                  "set_background": True,
                   "metadata": {
                       "user_board": user_board,
                       "ai_board": ai_board,
@@ -281,16 +282,16 @@ sections:
               user_shot: "the-users-response"
             next_section_and_step: "section_1:step_2"
           invalid_move:
-            ai_feedback:
-              tokens_for_ai: "That move is invalid. Please choose a position between 0 and 99."
+            content_blocks:
+              - "That move is invalid. Please choose a position between 0 and 99."
             metadata_tmp_add:
               user_shot: "the-users-response"
             next_section_and_step: "section_1:step_2"
           exit:
             next_section_and_step: "section_1:step_3"
           restart:
-            ai_feedback:
-              tokens_for_ai: "Restarting the game. Let's start fresh!"
+            content_blocks:
+              - "Restarting the game. Let's start fresh!"
             metadata_clear: True
             next_section_and_step: "section_1:step_0"
 

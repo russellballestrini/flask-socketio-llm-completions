@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 function sendMessage() {
     const message = document.getElementById("message").value;
     if (message.trim() !== "") {  // Ensure we're not sending empty messages
-        socket.emit("message", {"username": username, "message": message, "room_name": room_name});
+        socket.emit("chat_message", {"username": username, "message": message, "room_name": room_name});
         document.getElementById("message").value = "";
     }
 }
@@ -90,7 +90,7 @@ socket.on("connect", () => {
 });
 
 // Socket event for receiving a new message
-socket.on("message", (data) => {
+socket.on("chat_message", (data) => {
     const messageWrapper = document.createElement("div");
     messageWrapper.className = "message-wrapper";
     messageWrapper.id = "message-" + data.id;
@@ -478,5 +478,15 @@ function addLineNumbers(block) {
     }
     block.appendChild(lineNumbersWrapper);
 }
+
+// Socket event for setting the chat background
+socket.on("set_background", (data) => {
+    const chat = document.getElementById("chat");
+    chat.style.backgroundImage = `url('data:image/png;base64,${data.image_data}')`;
+    chat.style.backgroundRepeat = "no-repeat";
+    chat.style.backgroundPosition = "right center";
+    chat.style.backgroundSize = "auto"; // Ensures the image is not stretched
+});
+
 </script>
 {% endblock %}
