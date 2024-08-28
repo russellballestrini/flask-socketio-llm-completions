@@ -11,13 +11,7 @@ sections:
             You will be playing against the AI. You are 'X' and the AI is 'O'.
             The board positions are numbered 0 to 8 as follows:
 
-            ```
-            0 | 1 | 2
-            ---------
-            3 | 4 | 5
-            ---------
-            6 | 7 | 8
-            ``` 
+            <img src="/static/images/tic-tac-toe.png">
 
       - step_id: "step_1"
         title: "Your Move"
@@ -119,6 +113,7 @@ sections:
 
               script_result = {
                   "plot_image": plot_board(board),
+                  "set_background": True,
                   "ai_move": ai_move,
                   "user_move": user_move,
                   "metadata": { 

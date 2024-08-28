@@ -215,6 +215,7 @@ class ActivityState(db.Model):
     def clear_metadata(self):
         self.dict_metadata = {}
 
+
 def get_room(room_name):
     """Utility function to get room from room name."""
     room = Room.query.filter_by(name=room_name).first()
@@ -2331,7 +2332,9 @@ def handle_activity_response(room_name, user_response, username):
                     activity_state.add_metadata(random_key, random_value)
 
                 # Execute the processing script if it exists
-                if "processing_script" in step and transition.get("run_processing_script", False):
+                if "processing_script" in step and transition.get(
+                    "run_processing_script", False
+                ):
                     result = execute_processing_script(
                         activity_state.dict_metadata, step["processing_script"]
                     )
@@ -2349,7 +2352,11 @@ def handle_activity_response(room_name, user_response, username):
                         plot_image_html = f'<img alt="Plot Image" src="data:image/png;base64,{plot_image_base64}">'
 
                         if result.get("set_background", False):
-                            socketio.emit("set_background", {"image_data": plot_image_base64})
+                            socketio.emit(
+                                "set_background",
+                                {"image_data": plot_image_base64},
+                                room=room_name,
+                            )
                             socketio.sleep(0.1)
                         else:
                             # Save the plot image to the database
@@ -2373,7 +2380,10 @@ def handle_activity_response(room_name, user_response, username):
                             )
                             socketio.sleep(0.1)
 
-                if "metadata_clear" in transition and transition["metadata_clear"] == True:
+                if (
+                    "metadata_clear" in transition
+                    and transition["metadata_clear"] == True
+                ):
                     activity_state.clear_metadata()
 
                 print(activity_state.dict_metadata)
