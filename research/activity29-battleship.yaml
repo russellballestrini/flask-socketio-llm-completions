@@ -96,25 +96,37 @@ sections:
           If the move is valid, categorize as 'valid_move'.
           If the move is invalid, categorize as 'invalid_move'.
         feedback_tokens_for_ai: |
-          On a new line, provide feedback on the user's move:
-          - The user's latest shot was a [user_hit_result].
-          - If user_hit_result is "hit", say: "You hit an AI ship!"
-          - If user_hit_result is "miss", say: "You missed."
-          - The AI's latest shot was a [ai_hit_result].
-          - If ai_hit_result is "hit", say: "AI hit your ship!"
-          - If ai_hit_result is "miss", say: "AI missed."
-          Announce the AI's move [ai_shot] and whether it was a hit or miss.
+          Important: Use the metadata to fill in the brackets and provide a conversational tone.
+
+          On a new line, announce the user's move and provide feedback.
+
+          The user's latest shot was [user_hit_result]:
+          - If user_hit_result is "hit", consider saying: "Great shot! [user_name] hit an AI ship!"
+          - If user_hit_result is "miss", consider saying: "Oh no, [user_name] missed the shot. Better luck next time!"
+        
+          On a new line, announce the AI's move: "The AI fired at position [ai_shot] and it was a [ai_hit_result]."
+
+          The AI's latest shot was a [ai_hit_result]:
+          - If ai_hit_result is "hit", consider saying: "The AI hit one of [user_name]'s ships!"
+          - If ai_hit_result is "miss", consider saying: "The AI missed [user_name]'s ships this time."
+        
+          If either [user_sunk_ship_this_round] or [ai_sunk_ship_this_round] is not None,
+          announce the destruction in a LOT of detail, use many sentences:
+          - If user_sunk_ship_this_round is not None, consider saying: "The user has sunk the AI's [user_sunk_ship_this_round]!"
+          - If ai_sunk_ship_this_round is not None, consider saying: "The AI has sunk the [user_name]'s [ai_sunk_ship_this_round]!"
+        
           If game_over = True, determine the winner:
-            - If user_wins = True, say: "Congratulations! You sank all AI ships and won the game!"
-            - If ai_wins = True, say: "AI sank all your ships and won the game!"
-          If game_over = True ,
-            - suggest "Would you like to restart and play again, or would you prefer to exit?"
+            - If user_wins = True, consider saying: "Congratulations! The [user_name] has sunk all AI ships and won the game!"
+            - If ai_wins = True, consider saying: "The AI has sunk all [user_name] ships and won the game!"
+        
+          If game_over = True, suggest: "Would you like to restart and play again, or would you prefer to exit?"
+
         processing_script: |
           import random
           import matplotlib.pyplot as plt
           import io
           import base64
-
+       
           # Define colors for ships
           colors = {
               "Carrier": "blue",
@@ -123,7 +135,7 @@ sections:
               "Submarine": "purple",
               "Destroyer": "pink"
           }
-
+       
           # Retrieve the game state
           user_board = metadata.get("user_board")
           ai_board = metadata.get("ai_board")
@@ -136,13 +148,50 @@ sections:
           ai_wins = False
           user_hit_result = "miss"
           ai_hit_result = "miss"
+          user_sunk_ships = metadata.get("user_sunk_ships", [])
+          ai_sunk_ships = metadata.get("ai_sunk_ships", [])
+          user_sunk_ship_this_round = None
+          ai_sunk_ship_this_round = None
+       
+          # Function to check if a ship is sunk
+          def check_sunk(board, hits, ship_name):
+              ship_positions = []
+              for i, ship in enumerate(board):
+                  if ship == ship_name:
+                      ship_positions.append(i)
+              for pos in ship_positions:
+                  if pos not in hits:
+                      return False
+              return True
 
+          # Function to draw a line across a sunken ship
+          def draw_line(ax, board, ship_name):
+              ship_positions = []
+              for i, ship in enumerate(board):
+                  if ship == ship_name:
+                      ship_positions.append(i)
+              if not ship_positions:
+                  return
+        
+              # Determine if the ship is horizontal or vertical
+              first_pos = ship_positions[0]
+              last_pos = ship_positions[-1]
+              if last_pos - first_pos < 10:  # Horizontal
+                  x_start, y_start = first_pos % 10 + 0.5, 9 - first_pos // 10 + 0.5
+                  x_end, y_end = last_pos % 10 + 0.5, 9 - last_pos // 10 + 0.5
+              else:  # Vertical
+                  x_start, y_start = first_pos % 10 + 0.5, 9 - first_pos // 10 + 0.5
+                  x_end, y_end = first_pos % 10 + 0.5, 9 - last_pos // 10 + 0.5
+        
+              ax.plot([x_start, x_end], [y_start, y_end], color='red', linewidth=2)
+ 
           # Get the user's shot
           try:
               user_shot = int(metadata.get("user_shot"))
+              ai_shot = None
           except (IndexError, ValueError) as e:
               user_shot = -1
-
+       
           if game_over:
               script_result = {}
           elif 0 <= user_shot < 100 and user_shot not in user_shots:
@@ -152,44 +201,57 @@ sections:
               if ai_board[user_shot] != -1:
                   user_hits.append(user_shot)
                   user_hit_result = "hit"
-                  # Check if all AI ships are hit
-                  all_ai_ships_hit = True
-                  for pos in range(100):
-                      if ai_board[pos] != -1 and pos not in user_hits:
-                          all_ai_ships_hit = False
-                          break
-                  if all_ai_ships_hit:
-                      game_over = True
-                      user_wins = True
-                      ai_wins = False
-
+       
               # AI makes a move
               available_positions = []
               for i in range(100):
                   if i not in ai_shots:
                       available_positions.append(i)
-
               ai_shot = random.choice(available_positions)
               ai_shots.append(ai_shot)
               ai_hit_result = "miss"
               if user_board[ai_shot] != -1:
                   ai_hits.append(ai_shot)
                   ai_hit_result = "hit"
-                  # Check if all User ships are hit
-                  all_user_ships_hit = True
-                  for pos in range(100):
-                      if user_board[pos] != -1 and pos not in ai_hits:
-                          all_user_ships_hit = False
-                          break
-                  if all_user_ships_hit:
-                      game_over = True
-                      user_wins = False
-                      ai_wins = True
-
+       
+              # Check if any AI ship is sunk
+              for ship_name in colors.keys():
+                  if check_sunk(ai_board, user_hits, ship_name) and ship_name not in user_sunk_ships:
+                      user_sunk_ships.append(ship_name)
+                      user_sunk_ship_this_round = ship_name
+       
+              # Check if any User ship is sunk
+              for ship_name in colors.keys():
+                  if check_sunk(user_board, ai_hits, ship_name) and ship_name not in ai_sunk_ships:
+                      ai_sunk_ships.append(ship_name)
+                      ai_sunk_ship_this_round = ship_name
+       
+              # Check if all AI ships are hit
+              all_ai_ships_hit = True
+              for pos in range(100):
+                  if ai_board[pos] != -1 and pos not in user_hits:
+                      all_ai_ships_hit = False
+                      break
+              if all_ai_ships_hit:
+                  game_over = True
+                  user_wins = True
+                  ai_wins = False
+       
+              # Check if all User ships are hit
+              all_user_ships_hit = True
+              for pos in range(100):
+                  if user_board[pos] != -1 and pos not in ai_hits:
+                      all_user_ships_hit = False
+                      break
+              if all_user_ships_hit:
+                  game_over = True
+                  user_wins = False
+                  ai_wins = True
+       
               # Plot the boards
               fig, axs = plt.subplots(1, 2, figsize=(12, 6))
               fig.suptitle("Battleship", fontsize=16)
-
+       
               # User's view of AI's board
               axs[0].set_xlim(0, 10)
               axs[0].set_ylim(0, 10)
@@ -197,7 +259,7 @@ sections:
               axs[0].set_yticks([])
               axs[0].grid(True)
               axs[0].set_title("Your Shots", fontsize=12)
-
+       
               # Plot user shots on AI's board
               for i in range(100):
                   x, y = i % 10, 9 - i // 10
@@ -207,7 +269,7 @@ sections:
                       else:
                           axs[0].text(x + 0.5, y + 0.5, 'O', fontsize=12, ha='center', va='center', color='black')
                   axs[0].text(x + 0.5, y + 0.5, str(i), fontsize=8, ha='center', va='center', color='gray')
-
+       
               # AI's view of User's board
               axs[1].set_xlim(0, 10)
               axs[1].set_ylim(0, 10)
@@ -215,13 +277,13 @@ sections:
               axs[1].set_yticks([])
               axs[1].grid(True)
               axs[1].set_title("Your Ships", fontsize=12)
-
+       
               # Plot user ships
               for i, ship in enumerate(user_board):
                   x, y = i % 10, 9 - i // 10
                   if ship != -1:
                       axs[1].add_patch(plt.Rectangle((x, y), 1, 1, color=colors[ship], alpha=0.5))
-
+       
               # Plot AI shots on User's board
               for i in range(100):
                   x, y = i % 10, 9 - i // 10
@@ -232,24 +294,34 @@ sections:
                           axs[1].text(x + 0.5, y + 0.5, 'O', fontsize=12, ha='center', va='center', color='black')
                   axs[1].text(x + 0.5, y + 0.5, str(i), fontsize=8, ha='center', va='center', color='gray')
 
+              # Draw lines across sunk ships
+              for ship_name in user_sunk_ships:
+                  draw_line(axs[0], ai_board, ship_name)
+
+              for ship_name in ai_sunk_ships:
+                  draw_line(axs[1], user_board, ship_name)
+
               # Add legend
               handles = []
               for color in colors.values():
                   handles.append(plt.Rectangle((0, 0), 1, 1, color=color, alpha=0.5))
               axs[1].legend(handles, colors.keys(), loc='upper right', fontsize=8)
-
+       
               buf = io.BytesIO()
               plt.savefig(buf, format='png', bbox_inches='tight', pad_inches=0.1)
               plt.close(fig)
               buf.seek(0)
               plot_image = base64.b64encode(buf.getvalue()).decode('utf-8')
-
+       
+              # gpt-4: If "plot_image" is in the result, set it as the background image
               script_result = {
                   "plot_image": plot_image,
                   "set_background": True,
                   "metadata": {
                       "user_board": user_board,
                       "ai_board": ai_board,
+                      "user_shot": user_shot,
+                      "ai_shot": ai_shot,
                       "user_shots": user_shots,
                       "ai_shots": ai_shots,
                       "user_hits": user_hits,
@@ -258,7 +330,11 @@ sections:
                       "user_wins": user_wins,
                       "ai_wins": ai_wins,
                       "user_hit_result": user_hit_result,
-                      "ai_hit_result": ai_hit_result
+                      "ai_hit_result": ai_hit_result,
+                      "user_sunk_ships": user_sunk_ships,
+                      "ai_sunk_ships": ai_sunk_ships,
+                      "user_sunk_ship_this_round": user_sunk_ship_this_round,
+                      "ai_sunk_ship_this_round": ai_sunk_ship_this_round
                   }
               }
           else:
@@ -266,7 +342,7 @@ sections:
                   "error": f"Invalid shot: {metadata.get('user_shot')}",
                   "metadata": {}
               }
-
+ 
         buckets:
           - valid_move
           - invalid_move
