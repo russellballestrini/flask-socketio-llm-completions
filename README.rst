@@ -82,7 +82,15 @@ To start the application with socket.io run::
 
     python app.py
 
-Optionally pass ``python app.py --profile <aws-profile-name>`` 
+Optionally flags ``python app.py --local-activities --profile <aws-profile-name>``::
+
+    usage: app.py [-h] [--profile PROFILE] [--local-activities]
+    
+    options:
+      -h, --help          show this help message and exit
+      --profile PROFILE   AWS profile name
+      --local-activities  Use local activity files instead of S3
+
 
 The application will be available at ``http://127.0.0.1:5001`` by default.
 
@@ -174,6 +182,13 @@ The server expects to load the YAML file out of the S3 bucket you specify in you
 
     ``/activity cancel``
 
+
+5. **Battleship example**:
+
+    ``/activity research/activity29-battleship.yaml``
+
+    .. image:: flask-socketio-llm-completions-battleship.png
+        :align: center
 
 
 Contributing
