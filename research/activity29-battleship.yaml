@@ -15,19 +15,19 @@ sections:
             Let's get started!
 
       - step_id: "step_1"
-        title: "Start Game"
-        question: "Are you ready to start the game?"
+        title: "Choose AI Mode"
+        question: "Do you want to enable Hunter Mode for the AI? (yes/no)"
         tokens_for_ai: |
-          If the user wants to start, categorize as 'start_game'.
-          If the user wants to exit, categorize as 'exit'.
+          If the user wants Hunter Mode, categorize as 'enable_hunter_mode'.
+          If the user does not want Hunter Mode, categorize as 'disable_hunter_mode'.
         feedback_tokens_for_ai: |
-          If the user is ready, proceed to the next step.
-          If the user wants to exit, thank them for their time.
+          If the user chooses Hunter Mode, acknowledge the choice.
+          If the user does not choose Hunter Mode, acknowledge the choice.
         processing_script: |
           import random
 
           def place_ships():
-              import random
+              global random
               # Define ship sizes and names
               ships = {
                   "Carrier": 5,
@@ -66,26 +66,28 @@ sections:
           script_result = {
               "metadata": {
                   "user_board": user_board,
-                  "ai_board": ai_board,
-                  "user_shots": [],
-                  "ai_shots": [],
-                  "user_hits": [],
-                  "ai_hits": [],
-                  "game_over": False
+                  "ai_board": ai_board
               }
           }
 
         buckets:
-          - start_game
-          - exit
+          - enable_hunter_mode
+          - disable_hunter_mode
         transitions:
-          start_game:
+          enable_hunter_mode:
             run_processing_script: True
             ai_feedback:
-              tokens_for_ai: "Great! Let's begin the battle."
+              tokens_for_ai: "Hunter Mode enabled for the AI."
+            metadata_add:
+              hunter_mode: true
             next_section_and_step: "section_1:step_2"
-          exit:
-            next_section_and_step: "section_1:step_3"
+          disable_hunter_mode:
+            run_processing_script: True
+            ai_feedback:
+              tokens_for_ai: "Hunter Mode disabled for the AI."
+            metadata_add:
+              hunter_mode: false
+            next_section_and_step: "section_1:step_2"
 
       - step_id: "step_2"
         title: "Take a Shot"
@@ -126,7 +128,7 @@ sections:
           import matplotlib.pyplot as plt
           import io
           import base64
-       
+
           # Define colors for ships
           colors = {
               "Carrier": "blue",
@@ -135,7 +137,7 @@ sections:
               "Submarine": "purple",
               "Destroyer": "pink"
           }
-       
+
           # Retrieve the game state
           user_board = metadata.get("user_board")
           ai_board = metadata.get("ai_board")
@@ -152,7 +154,14 @@ sections:
           ai_sunk_ships = metadata.get("ai_sunk_ships", [])
           user_sunk_ship_this_round = None
           ai_sunk_ship_this_round = None
-       
+
+          # AI state variables
+          hunter_mode = metadata.get("hunter_mode", False)
+          hunt_mode_active = metadata.get("hunt_mode_active", False)
+          hunt_targets = metadata.get("hunt_targets", [])
+          last_hit = metadata.get("last_hit", None)
+          direction = metadata.get("direction", None)
+
           # Function to check if a ship is sunk
           def check_sunk(board, hits, ship_name):
               ship_positions = []
@@ -172,7 +181,7 @@ sections:
                       ship_positions.append(i)
               if not ship_positions:
                   return
-        
+
               # Determine if the ship is horizontal or vertical
               first_pos = ship_positions[0]
               last_pos = ship_positions[-1]
@@ -182,16 +191,76 @@ sections:
               else:  # Vertical
                   x_start, y_start = first_pos % 10 + 0.5, 9 - first_pos // 10 + 0.5
                   x_end, y_end = first_pos % 10 + 0.5, 9 - last_pos // 10 + 0.5
-        
+
               ax.plot([x_start, x_end], [y_start, y_end], color='red', linewidth=2)
- 
+
+          # Function to generate hunt targets around a hit
+          def generate_hunt_targets(hit_position, ai_hits):
+              potential_targets = []
+              row, col = divmod(hit_position, 10)
+
+              # Up
+              if row > 0:
+                  potential_targets.append(hit_position - 10)
+              # Down
+              if row < 9:
+                  potential_targets.append(hit_position + 10)
+              # Left
+              if col > 0:
+                  potential_targets.append(hit_position - 1)
+              # Right
+              if col < 9:
+                  potential_targets.append(hit_position + 1)
+
+              # Filter out already hit positions
+              filtered_targets = []
+              for pos in potential_targets:
+                  if pos not in ai_hits:
+                      filtered_targets.append(pos)
+              return filtered_targets
+
+          # AI chooses a shot
+          def choose_ai_shot():
+              global generate_hunt_targets, hunter_mode, hunt_mode_active, hunt_targets, last_hit, direction, ai_shots, random, user_board, ai_hits, ai_hit_result
+
+              if hunt_mode_active and hunt_targets:
+                  # Choose the next target from hunt targets
+                  ai_shot = hunt_targets.pop(0)
+              else:
+                  # Randomly select a position from available positions
+                  available_positions = []
+                  for i in range(100):
+                      if i not in ai_shots:
+                          available_positions.append(i)
+                  ai_shot = random.choice(available_positions)
+
+              # Update AI state after the shot
+              if user_board[ai_shot] != -1:
+                  ai_hits.append(ai_shot)
+                  ai_hit_result = "hit"
+
+                  # Switch to hunt mode
+                  hunt_mode_active = True
+                  last_hit = ai_shot
+                  hunt_targets.extend(generate_hunt_targets(last_hit, ai_hits))
+
+                  # Confirm direction if not already set
+                  if direction is None and last_hit is not None:
+                      if ai_shot == last_hit + 1 or ai_shot == last_hit - 1:
+                          direction = "horizontal"
+                      elif ai_shot == last_hit + 10 or ai_shot == last_hit - 10:
+                          direction = "vertical"
+              else:
+                  ai_hit_result = "miss"
+
+              return ai_shot
+
           # Get the user's shot
           try:
               user_shot = int(metadata.get("user_shot"))
-              ai_shot = None
           except (IndexError, ValueError) as e:
               user_shot = -1
-       
+
           if game_over:
               script_result = {}
           elif 0 <= user_shot < 100 and user_shot not in user_shots:
@@ -201,31 +270,23 @@ sections:
               if ai_board[user_shot] != -1:
                   user_hits.append(user_shot)
                   user_hit_result = "hit"
-       
+
               # AI makes a move
-              available_positions = []
-              for i in range(100):
-                  if i not in ai_shots:
-                      available_positions.append(i)
-              ai_shot = random.choice(available_positions)
+              ai_shot = choose_ai_shot()
               ai_shots.append(ai_shot)
-              ai_hit_result = "miss"
-              if user_board[ai_shot] != -1:
-                  ai_hits.append(ai_shot)
-                  ai_hit_result = "hit"
-       
+
               # Check if any AI ship is sunk
               for ship_name in colors.keys():
                   if check_sunk(ai_board, user_hits, ship_name) and ship_name not in user_sunk_ships:
                       user_sunk_ships.append(ship_name)
                       user_sunk_ship_this_round = ship_name
-       
+
               # Check if any User ship is sunk
               for ship_name in colors.keys():
                   if check_sunk(user_board, ai_hits, ship_name) and ship_name not in ai_sunk_ships:
                       ai_sunk_ships.append(ship_name)
                       ai_sunk_ship_this_round = ship_name
-       
+
               # Check if all AI ships are hit
               all_ai_ships_hit = True
               for pos in range(100):
@@ -236,7 +297,7 @@ sections:
                   game_over = True
                   user_wins = True
                   ai_wins = False
-       
+
               # Check if all User ships are hit
               all_user_ships_hit = True
               for pos in range(100):
@@ -247,11 +308,11 @@ sections:
                   game_over = True
                   user_wins = False
                   ai_wins = True
-       
+
               # Plot the boards
               fig, axs = plt.subplots(1, 2, figsize=(12, 6))
               fig.suptitle("Battleship", fontsize=16)
-       
+
               # User's view of AI's board
               axs[0].set_xlim(0, 10)
               axs[0].set_ylim(0, 10)
@@ -259,7 +320,7 @@ sections:
               axs[0].set_yticks([])
               axs[0].grid(True)
               axs[0].set_title("Your Shots", fontsize=12)
-       
+
               # Plot user shots on AI's board
               for i in range(100):
                   x, y = i % 10, 9 - i // 10
@@ -269,7 +330,7 @@ sections:
                       else:
                           axs[0].text(x + 0.5, y + 0.5, 'O', fontsize=12, ha='center', va='center', color='black')
                   axs[0].text(x + 0.5, y + 0.5, str(i), fontsize=8, ha='center', va='center', color='gray')
-       
+
               # AI's view of User's board
               axs[1].set_xlim(0, 10)
               axs[1].set_ylim(0, 10)
@@ -277,13 +338,13 @@ sections:
               axs[1].set_yticks([])
               axs[1].grid(True)
               axs[1].set_title("Your Ships", fontsize=12)
-       
+
               # Plot user ships
               for i, ship in enumerate(user_board):
                   x, y = i % 10, 9 - i // 10
                   if ship != -1:
                       axs[1].add_patch(plt.Rectangle((x, y), 1, 1, color=colors[ship], alpha=0.5))
-       
+
               # Plot AI shots on User's board
               for i in range(100):
                   x, y = i % 10, 9 - i // 10
@@ -306,13 +367,13 @@ sections:
               for color in colors.values():
                   handles.append(plt.Rectangle((0, 0), 1, 1, color=color, alpha=0.5))
               axs[1].legend(handles, colors.keys(), loc='upper right', fontsize=8)
-       
+
               buf = io.BytesIO()
               plt.savefig(buf, format='png', bbox_inches='tight', pad_inches=0.1)
               plt.close(fig)
               buf.seek(0)
               plot_image = base64.b64encode(buf.getvalue()).decode('utf-8')
-       
+
               # gpt-4: If "plot_image" is in the result, set it as the background image
               script_result = {
                   "plot_image": plot_image,
@@ -334,7 +395,12 @@ sections:
                       "user_sunk_ships": user_sunk_ships,
                       "ai_sunk_ships": ai_sunk_ships,
                       "user_sunk_ship_this_round": user_sunk_ship_this_round,
-                      "ai_sunk_ship_this_round": ai_sunk_ship_this_round
+                      "ai_sunk_ship_this_round": ai_sunk_ship_this_round,
+                      "hunter_mode": hunter_mode,
+                      "hunt_mode_active": hunt_mode_active,
+                      "hunt_targets": hunt_targets,
+                      "last_hit": last_hit,
+                      "direction": direction
                   }
               }
           else:
@@ -342,7 +408,7 @@ sections:
                   "error": f"Invalid shot: {metadata.get('user_shot')}",
                   "metadata": {}
               }
- 
+
         buckets:
           - valid_move
           - invalid_move
@@ -353,7 +419,7 @@ sections:
             run_processing_script: True
             ai_feedback:
               tokens_for_ai: |
-                the user_shot seems valid.
+                The user shot seems valid.
             metadata_tmp_add:
               user_shot: "the-users-response"
             next_section_and_step: "section_1:step_2"
