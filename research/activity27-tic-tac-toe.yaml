@@ -38,16 +38,25 @@ sections:
         processing_script: |
           import random
 
-          def check_win(board, player):
-              # Check for win or draw
-              win_conditions = [
-                  [0, 1, 2], [3, 4, 5], [6, 7, 8],  # rows
-                  [0, 3, 6], [1, 4, 7], [2, 5, 8],  # columns
-                  [0, 4, 8], [2, 4, 6]              # diagonals
-              ]
-              return any(all(board[i] == player for i in condition) for condition in win_conditions)
+          win_conditions = [
+              [0, 1, 2], [3, 4, 5], [6, 7, 8],  # rows
+              [0, 3, 6], [1, 4, 7], [2, 5, 8],  # columns
+              [0, 4, 8], [2, 4, 6]              # diagonals
+          ]
 
-          def plot_board(board):
+          def check_win(board, player, win_conditions):
+              # Check for win and return the winning condition if there is one
+              for condition in win_conditions:
+                  win = True
+                  for i in condition:
+                      if board[i] != player:
+                          win = False
+                          break
+                  if win:
+                      return condition
+              return None
+
+          def plot_board(board, win_line=None):
               import io
               import base64
               import matplotlib.pyplot as plt
@@ -67,6 +76,16 @@ sections:
                   else:
                       # Plot the cell number if the cell is empty
                       ax.text(x + 0.5, y + 0.5, str(i), fontsize=12, ha='center', va='center', color='gray')
+
+
+              # Draw the winning line if there is one
+              if win_line:
+                  for i in range(len(win_line) - 1):
+                      start = win_line[i]
+                      end = win_line[i + 1]
+                      x_start, y_start = start % 3 + 0.5, 2 - start // 3 + 0.5
+                      x_end, y_end = end % 3 + 0.5, 2 - end // 3 + 0.5
+                      ax.plot([x_start, x_end], [y_start, y_end], 'r-', linewidth=2)
 
               buf = io.BytesIO()
               plt.savefig(buf, format='png')
@@ -95,25 +114,33 @@ sections:
           if 0 <= user_move < 9 and board[user_move] == " ":
               board[user_move] = "X"
               user_moves.append(user_move)
-
-              user_wins = check_win(board, "X")
-
-              if not user_wins:
+          
+              user_win_line = check_win(board, "X", win_conditions)
+          
+              if not user_win_line:
                   # ai makes a move.
-                  available_positions = [i for i, x in enumerate(board) if x == " "]
+                  available_positions = []
+                  for i in range(len(board)):
+                      if board[i] == " ":
+                          available_positions.append(i)
                   if available_positions:
                       ai_move = random.choice(available_positions)
                       board[ai_move] = "O"
                       ai_moves.append(ai_move)
-
-              ai_wins = check_win(board, "O")
-              if not user_wins or not ai_wins:
-                  is_draw = all(x != " " for x in board)
-              game_over = any([ai_wins, user_wins, is_draw])
+          
+              ai_win_line = check_win(board, "O", win_conditions)
+              is_draw = True
+              for x in board:
+                  if x == " ":
+                      is_draw = False
+                      break
+              game_over = any([user_win_line, ai_win_line, is_draw])
+          
+              win_line = user_win_line if user_win_line else ai_win_line
 
               script_result = {
-                  "plot_image": plot_board(board),
-                  "set_background": True,
+                  "plot_image": plot_board(board, win_line),
+                  "set_background": not game_over,
                   "ai_move": ai_move,
                   "user_move": user_move,
                   "metadata": { 
@@ -121,8 +148,8 @@ sections:
                       "ai_moves": ai_moves,
                       "board": board,
                       "game_over": game_over,
-                      "ai_wins": ai_wins,
-                      "user_wins": user_wins,
+                      "ai_wins": ai_win_line is not None,
+                      "user_wins": user_win_line is not None,
                       "is_draw": is_draw
                   }
               }
