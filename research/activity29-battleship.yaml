@@ -16,13 +16,15 @@ sections:
 
       - step_id: "step_1"
         title: "Choose AI Mode"
-        question: "Do you want to enable Hunter Mode for the AI? (yes/no)"
+        question: "Choose the AI mode: Random, Hunter, or Super Human Hunter?"
         tokens_for_ai: |
-          If the user wants Hunter Mode, categorize as 'enable_hunter_mode'.
-          If the user does not want Hunter Mode, categorize as 'disable_hunter_mode'.
+          If the user chooses Random, categorize as 'random_mode'.
+          If the user chooses Hunter, categorize as 'hunter_mode'.
+          If the user chooses Super Human Hunter, categorize as 'super_hunter_mode'.
         feedback_tokens_for_ai: |
-          If the user chooses Hunter Mode, acknowledge the choice.
-          If the user does not choose Hunter Mode, acknowledge the choice.
+          If the user chooses Random, acknowledge the choice.
+          If the user chooses Hunter, acknowledge the choice.
+          If the user chooses Super Human Hunter, acknowledge the choice.
         processing_script: |
           import random
 
@@ -71,22 +73,30 @@ sections:
           }
 
         buckets:
-          - enable_hunter_mode
-          - disable_hunter_mode
+          - random_mode
+          - hunter_mode
+          - super_hunter_mode
         transitions:
-          enable_hunter_mode:
+          random_mode:
+            run_processing_script: True
+            ai_feedback:
+              tokens_for_ai: "Random Mode enabled for the AI."
+            metadata_add:
+              ai_mode: "random"
+            next_section_and_step: "section_1:step_2"
+          hunter_mode:
             run_processing_script: True
             ai_feedback:
               tokens_for_ai: "Hunter Mode enabled for the AI."
             metadata_add:
-              hunter_mode: true
+              ai_mode: "hunter"
             next_section_and_step: "section_1:step_2"
-          disable_hunter_mode:
+          super_hunter_mode:
             run_processing_script: True
             ai_feedback:
-              tokens_for_ai: "Hunter Mode disabled for the AI."
+              tokens_for_ai: "Super Human Hunter Mode enabled for the AI."
             metadata_add:
-              hunter_mode: false
+              ai_mode: "super_hunter"
             next_section_and_step: "section_1:step_2"
 
       - step_id: "step_2"
@@ -129,8 +139,17 @@ sections:
           import io
           import base64
 
+          # Define ship sizes
+          ship_sizes = {
+              "Carrier": 5,
+              "Battleship": 4,
+              "Cruiser": 3,
+              "Submarine": 3,
+              "Destroyer": 2
+          }
+
           # Define colors for ships
-          colors = {
+          ship_colors = {
               "Carrier": "blue",
               "Battleship": "green",
               "Cruiser": "orange",
@@ -156,11 +175,11 @@ sections:
           ai_sunk_ship_this_round = None
 
           # AI state variables
-          hunter_mode = metadata.get("hunter_mode", False)
-          hunt_mode_active = metadata.get("hunt_mode_active", False)
-          hunt_targets = metadata.get("hunt_targets", [])
-          last_hit = metadata.get("last_hit", None)
-          direction = metadata.get("direction", None)
+          ai_mode = metadata.get("ai_mode", "random")
+          probability_matrix = metadata.get("probability_matrix", [[1] * 10 for _ in range(10)])
+          hits = metadata.get("hits", [])
+          misses = metadata.get("misses", [])
+          sunk_ships = metadata.get("sunk_ships", [])
 
           # Function to check if a ship is sunk
           def check_sunk(board, hits, ship_name):
@@ -194,6 +213,104 @@ sections:
 
               ax.plot([x_start, x_end], [y_start, y_end], color='red', linewidth=2)
 
+          # Function to update probability matrix
+          def update_probability(x, y, hit):
+              global probability_matrix, hits, misses, sunk_ships, ship_sizes
+
+              if hit:
+                  hits.append((x, y))
+                  probability_matrix[y][x] = 0  # Mark hit
+                  # Increase probabilities for adjacent cells
+                  for dx, dy in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
+                      nx, ny = x + dx, y + dy
+                      if 0 <= nx < 10 and 0 <= ny < 10 and probability_matrix[ny][nx] > 0:
+                          probability_matrix[ny][nx] += 5  # Increase probability significantly
+              else:
+                  misses.append((x, y))
+                  probability_matrix[y][x] = -1  # Mark miss
+
+              # Set probabilities to 1 for cells that can't fit any remaining ships
+              max_ship_size = max(size for ship, size in ship_sizes.items() if ship not in sunk_ships)
+              for y in range(10):
+                  for x in range(10):
+                      if probability_matrix[y][x] > 0 and not can_fit_ship(x, y, max_ship_size):
+                          probability_matrix[y][x] = 1  # Minimum probability
+
+          # Function to check if a ship can fit
+          def can_fit_ship(x, y, ship_size):
+              # Check horizontal fit
+              if x + ship_size <= 10:
+                  fit = True
+                  for i in range(ship_size):
+                      if probability_matrix[y][x+i] <= 0:
+                          fit = False
+                          break
+                  if fit:
+                      return True
+              # Check vertical fit
+              if y + ship_size <= 10:
+                  fit = True
+                  for i in range(ship_size):
+                      if probability_matrix[y+i][x] <= 0:
+                          fit = False
+                          break
+                  if fit:
+                      return True
+              return False
+
+          # AI chooses a shot
+          def choose_ai_shot():
+              global can_fit_ship, update_probability, generate_hunt_targets, random_search, probability_matrix, ai_mode, ai_shots, random, user_board, ai_hits, ai_hit_result
+
+              if ai_mode == "super_hunter":
+                  # Use probabilistic grid algorithm
+                  max_prob = 0
+                  candidates = []
+                  for i in range(100):
+                      x, y = i % 10, i // 10
+                      if probability_matrix[y][x] > max_prob:
+                          max_prob = probability_matrix[y][x]
+                          candidates = [i]
+                      elif probability_matrix[y][x] == max_prob:
+                          candidates.append(i)
+                  ai_shot = random.choice(candidates)
+              elif ai_mode == "hunter":
+                  # Simple hunter mode logic
+                  if hits:
+                      # Target adjacent cells of the last hit
+                      last_hit = hits[-1]
+                      hunt_targets = generate_hunt_targets(last_hit, ai_hits)
+                      if hunt_targets:
+                          ai_shot = hunt_targets.pop(0)
+                      else:
+                          ai_shot = random_search()
+                  else:
+                      ai_shot = random_search()
+              else:
+                  # Random mode
+                  ai_shot = random_search()
+
+              # Update AI state after the shot
+              if user_board[ai_shot] != -1:
+                  ai_hits.append(ai_shot)
+                  ai_hit_result = "hit"
+                  if ai_mode == "super_hunter":
+                      update_probability(ai_shot % 10, ai_shot // 10, True)
+              else:
+                  ai_hit_result = "miss"
+                  if ai_mode == "super_hunter":
+                      update_probability(ai_shot % 10, ai_shot // 10, False)
+
+              return ai_shot
+
+          # Function for random search
+          def random_search():
+              available_positions = []
+              for i in range(100):
+                  if i not in ai_shots:
+                      available_positions.append(i)
+              return random.choice(available_positions)
+
           # Function to generate hunt targets around a hit
           def generate_hunt_targets(hit_position, ai_hits):
               potential_targets = []
@@ -219,42 +336,6 @@ sections:
                       filtered_targets.append(pos)
               return filtered_targets
 
-          # AI chooses a shot
-          def choose_ai_shot():
-              global generate_hunt_targets, hunter_mode, hunt_mode_active, hunt_targets, last_hit, direction, ai_shots, random, user_board, ai_hits, ai_hit_result
-
-              if hunt_mode_active and hunt_targets:
-                  # Choose the next target from hunt targets
-                  ai_shot = hunt_targets.pop(0)
-              else:
-                  # Randomly select a position from available positions
-                  available_positions = []
-                  for i in range(100):
-                      if i not in ai_shots:
-                          available_positions.append(i)
-                  ai_shot = random.choice(available_positions)
-
-              # Update AI state after the shot
-              if user_board[ai_shot] != -1:
-                  ai_hits.append(ai_shot)
-                  ai_hit_result = "hit"
-
-                  # Switch to hunt mode
-                  hunt_mode_active = True
-                  last_hit = ai_shot
-                  hunt_targets.extend(generate_hunt_targets(last_hit, ai_hits))
-
-                  # Confirm direction if not already set
-                  if direction is None and last_hit is not None:
-                      if ai_shot == last_hit + 1 or ai_shot == last_hit - 1:
-                          direction = "horizontal"
-                      elif ai_shot == last_hit + 10 or ai_shot == last_hit - 10:
-                          direction = "vertical"
-              else:
-                  ai_hit_result = "miss"
-
-              return ai_shot
-
           # Get the user's shot
           try:
               user_shot = int(metadata.get("user_shot"))
@@ -276,13 +357,13 @@ sections:
               ai_shots.append(ai_shot)
 
               # Check if any AI ship is sunk
-              for ship_name in colors.keys():
+              for ship_name in ship_sizes.keys():
                   if check_sunk(ai_board, user_hits, ship_name) and ship_name not in user_sunk_ships:
                       user_sunk_ships.append(ship_name)
                       user_sunk_ship_this_round = ship_name
 
               # Check if any User ship is sunk
-              for ship_name in colors.keys():
+              for ship_name in ship_sizes.keys():
                   if check_sunk(user_board, ai_hits, ship_name) and ship_name not in ai_sunk_ships:
                       ai_sunk_ships.append(ship_name)
                       ai_sunk_ship_this_round = ship_name
@@ -343,7 +424,7 @@ sections:
               for i, ship in enumerate(user_board):
                   x, y = i % 10, 9 - i // 10
                   if ship != -1:
-                      axs[1].add_patch(plt.Rectangle((x, y), 1, 1, color=colors[ship], alpha=0.5))
+                      axs[1].add_patch(plt.Rectangle((x, y), 1, 1, color=ship_colors[ship], alpha=0.5))
 
               # Plot AI shots on User's board
               for i in range(100):
@@ -364,9 +445,9 @@ sections:
 
               # Add legend
               handles = []
-              for color in colors.values():
+              for color in ship_colors.values():
                   handles.append(plt.Rectangle((0, 0), 1, 1, color=color, alpha=0.5))
-              axs[1].legend(handles, colors.keys(), loc='upper right', fontsize=8)
+              axs[1].legend(handles, ship_colors.keys(), loc='upper right', fontsize=8)
 
               buf = io.BytesIO()
               plt.savefig(buf, format='png', bbox_inches='tight', pad_inches=0.1)
@@ -396,11 +477,11 @@ sections:
                       "ai_sunk_ships": ai_sunk_ships,
                       "user_sunk_ship_this_round": user_sunk_ship_this_round,
                       "ai_sunk_ship_this_round": ai_sunk_ship_this_round,
-                      "hunter_mode": hunter_mode,
-                      "hunt_mode_active": hunt_mode_active,
-                      "hunt_targets": hunt_targets,
-                      "last_hit": last_hit,
-                      "direction": direction
+                      "ai_mode": ai_mode,
+                      "probability_matrix": probability_matrix,
+                      "hits": hits,
+                      "misses": misses,
+                      "sunk_ships": sunk_ships
                   }
               }
           else:
