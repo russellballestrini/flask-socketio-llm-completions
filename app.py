@@ -24,8 +24,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import InvalidRequestError
 
 from groq import Groq
-from mistralai.client import MistralClient
-from mistralai.models.chat_completion import ChatMessage
+from mistralai import Mistral
 from openai import OpenAI
 
 app = Flask(__name__)
@@ -55,6 +54,7 @@ system_users = [
     "gpt-4-1106-preview",
     "gpt-4-turbo-preview",
     "gpt-4-turbo",
+    "o1-mini",
     "mistral",
     "mistral-tiny",
     "mistral-small",
@@ -63,6 +63,7 @@ system_users = [
     "mistralai/Mixtral-8x7B-v0.1",
     "mistralai/Mistral-7B-Instruct-v0.1",
     "mixtral-8x7b-32768",
+    "open-mistral-nemo",
     "llama2-70b-4096",
     "llama3-70b-8192",
     "gemma-7b-it",
@@ -95,6 +96,7 @@ HELP_MESSAGE = """
 - `gpt-4`: For GPT-4, send a message with `gpt-4` and include your prompt.
 - `gpt-4o-2024-08-06`: For the cheapest version of GPT-4o, send a message with `gpt-4o-2024-08-06` and include your prompt.
 - `gpt-mini`: For GPT-4o-mini, send a message with `gpt-mini` and include your prompt.
+- `gpt-o1-mini`: For GPT-4o-mini, send a message with `gpt-mini` and include your prompt.
 - `claude-haiku`: For Claude-haiku, send a message with `claude-haiku` and include your prompt.
 - `claude-sonnet`: For Claude-sonnet, send a message with `claude-sonnet` and include your prompt.
 - `claude-opus`: For Claude-opus, send a message with `claude-opus` and include your prompt.
@@ -102,6 +104,7 @@ HELP_MESSAGE = """
 - `mistral-small`: For Mistral-small, send a message with `mistral-small` and include your prompt.
 - `mistral-medium`: For Mistral-medium, send a message with `mistral-medium` and include your prompt.
 - `mistral-large`: For Mistral-large, send a message with `mistral-large` and include your prompt.
+- `mistral-nemo`: For Mistral-large, send a message with `mistral-nemo` and include your prompt.
 - `together/openchat`: For Together OpenChat, send a message with `together/openchat` and include your prompt.
 - `together/mistral`: For Together Mistral, send a message with `together/mistral` and include your prompt.
 - `together/mixtral`: For Together Mixtral, send a message with `together/mixtral` and include your prompt.
@@ -543,7 +546,13 @@ def handle_message(data):
                 # model_name="gpt-4o",
                 model_name="gpt-4o-2024-08-06",
             )
-
+        if "gpt-o1-mini" in data["message"]:
+            gevent.spawn(
+                chat_gpt,
+                data["username"],
+                room.name,
+                model_name="o1-mini",
+            )
         if "gpt-mini" in data["message"]:
             gevent.spawn(
                 chat_gpt,
@@ -571,6 +580,13 @@ def handle_message(data):
                 data["username"],
                 room.name,
                 model_name="mistral-medium",
+            )
+        if "mistral-nemo" in data["message"]:
+            gevent.spawn(
+                chat_mistral,
+                data["username"],
+                room.name,
+                model_name="open-mistral-nemo",
             )
         if "mistral-large" in data["message"]:
             gevent.spawn(
@@ -1011,11 +1027,6 @@ def chat_mistral(username, room_name, model_name="mistral-tiny"):
         combined_content = ""
         last_role = None
 
-        # Function to add a ChatMessage to the history
-        def add_message(role, content):
-            if content:
-                chat_history.append(ChatMessage(role=role, content=content))
-
         # Iterate over messages to combine consecutive assistant messages
         for msg in reversed(last_messages):
             if msg.is_base64_image():
@@ -1023,24 +1034,10 @@ def chat_mistral(username, room_name, model_name="mistral-tiny"):
             current_role = "assistant" if msg.username in system_users else "user"
             formatted_content = f"{msg.username}: {msg.content}"
 
-            if current_role == last_role and current_role == "assistant":
-                # Combine messages if the current and last messages are from the assistant
-                combined_content += "\n" + formatted_content
-            else:
-                # Add the previous combined message to chat history if roles switch
-                add_message(last_role, combined_content)
-                combined_content = formatted_content  # Start new combination
-                last_role = current_role
-
-        # Add the last combined message to the chat history
-        add_message(last_role, combined_content)
-
-        # Remove trailing assistant messages until a user message is found.
-        while chat_history and chat_history[-1].role == "assistant":
-            chat_history.pop()
+            chat_history.append({"role": current_role, "content": formatted_content})
 
     # Initialize the Mistral client
-    mistral_client = MistralClient(api_key=os.environ["MISTRAL_API_KEY"])
+    mistral_client = Mistral(api_key=os.environ["MISTRAL_API_KEY"])
 
     buffer = ""  # Content buffer for accumulating the chunks
 
@@ -1055,17 +1052,17 @@ def chat_mistral(username, room_name, model_name="mistral-tiny"):
 
     try:
         # Use the Mistral client to stream the chat completion
-        for chunk in mistral_client.chat_stream(
+        for chunk in mistral_client.chat.stream(
             model=model_name, messages=chat_history
         ):
+            content_chunk = chunk.data.choices[0].delta.content
+
             # Check if there has been a cancellation request, break if there is.
             if cancellation_requests.get(msg_id):
                 del cancellation_requests[msg_id]
                 break
 
-            content_chunk = chunk.choices[0].delta.content
-
-            if content_chunk:
+            if chunk:
                 buffer += content_chunk  # Accumulate content
 
                 if first_chunk:

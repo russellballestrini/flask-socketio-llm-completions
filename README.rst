@@ -104,13 +104,15 @@ To interact with the various language models, you can use the following commands
 - For GPT-4o, send a message with ``gpt-4`` and include your prompt.
 - For GPT-4o cheapest version, send a message with ``gpt-4o-2024-08-06`` and include your prompt.
 - For GPT-4o-mini, send a message with ``gpt-mini`` and include your prompt.
+- For GPT-o1-mini, send a message with ``gpt-o1-mini`` and include your prompt.
 - For Claude-haiku, send a message with ``claude-haiku`` and include your prompt.
 - For Claude-sonnet, send a message with ``claude-sonnet`` and include your prompt.
 - For Claude-opus, send a message with ``claude-opus`` and include your prompt.
 - For Mistral-tiny, send a message with ``mistral-tiny`` and include your prompt.
 - For Mistral-small, send a message with ``mistral-small`` and include your prompt.
 - For Mistral-medium, send a message with ``mistral-medium`` and include your prompt.
-- For Mistral-medium, send a message with ``mistral-large`` and include your prompt.
+- For Mistral-large, send a message with ``mistral-large`` and include your prompt.
+- For Mistral-nemo, send a message with ``mistral-nemo`` and include your prompt.
 - For Together OpenChat, send a message with ``together/openchat`` and include your prompt.
 - For Together Mistral, send a message with ``together/mistral`` and include your prompt.
 - For Together Mixtral, send a message with ``together/mixtral`` and include your prompt.
