@@ -3,6 +3,8 @@
 {% block title %}Chatroom{% endblock %}
 
 {% block content %}
+    <a id="downloadButton" href="/download_chat_history?room_name={{ room_name }}" download="chat_history.json">Download Chat History</a>
+
     <div id="chat-container">
         <!-- Chat area where messages will be displayed -->
         <div id="chat"></div>

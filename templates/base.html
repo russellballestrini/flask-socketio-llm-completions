@@ -163,6 +163,12 @@
         display: block;
         padding-right: 0.8em; /* Adjust the padding as needed */
     }
+    #downloadButton {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        z-index: 1000;
+    }
 
    </style>
 </head>
@@ -175,6 +181,7 @@
           <input type="hidden" id="username" name="username" value="{{ username }}">
       </form>
   </div>
+
   <!-- Chatroom list -->
 <div class="main-container">
   <div id="rooms-list">
@@ -190,30 +197,31 @@
           {% endfor %}
       </ul>
   </div>
+
   {% block content %}{% endblock %}
 </div>
 
-  <script>
-      // Function to perform the search
-      function performSearch() {
-          const keywords = document.getElementById("search-keywords").value;
-          const username = document.getElementById("username").value;
-          if (!keywords) {
-              alert("Please enter keywords to search.");
-              return;
-          }
+<script>
+    // Function to perform the search
+    function performSearch() {
+        const keywords = document.getElementById("search-keywords").value;
+        const username = document.getElementById("username").value;
+        if (!keywords) {
+            alert("Please enter keywords to search.");
+            return;
+        }
 
-          // Navigate to the search results page with the keywords as a query parameter
-          window.location.href = `/search?keywords=${encodeURIComponent(keywords)}&username=${username}`;
-      }
+        // Navigate to the search results page with the keywords as a query parameter
+        window.location.href = `/search?keywords=${encodeURIComponent(keywords)}&username=${username}`;
+    }
 
-      // Add event listener for keyword search the "Enter" key
-      document.getElementById("search-keywords").addEventListener("keydown", function(event) {
-          if (event.key === "Enter") {
-              event.preventDefault();
-              performSearch();
-          }
-      });
-  </script>
+    // Add event listener for keyword search the "Enter" key
+    document.getElementById("search-keywords").addEventListener("keydown", function(event) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            performSearch();
+        }
+    });
+</script>
 </body>
 </html>

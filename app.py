@@ -16,7 +16,14 @@ import random
 import boto3
 import tiktoken
 import together
-from flask import Flask, render_template, request, send_from_directory
+from flask import (
+    Flask,
+    render_template,
+    request,
+    send_from_directory,
+    jsonify,
+    Response,
+)
 
 from flask_socketio import SocketIO, emit, join_room
 
@@ -96,7 +103,7 @@ HELP_MESSAGE = """
 - `gpt-4`: For GPT-4, send a message with `gpt-4` and include your prompt.
 - `gpt-4o-2024-08-06`: For the cheapest version of GPT-4o, send a message with `gpt-4o-2024-08-06` and include your prompt.
 - `gpt-mini`: For GPT-4o-mini, send a message with `gpt-mini` and include your prompt.
-- `gpt-o1-mini`: For GPT-4o-mini, send a message with `gpt-mini` and include your prompt.
+- `gpt-o1-mini`: For GPT-o1-mini, send a message with `gpt-o1-mini` and include your prompt.
 - `claude-haiku`: For Claude-haiku, send a message with `claude-haiku` and include your prompt.
 - `claude-sonnet`: For Claude-sonnet, send a message with `claude-sonnet` and include your prompt.
 - `claude-opus`: For Claude-opus, send a message with `claude-opus` and include your prompt.
@@ -270,6 +277,40 @@ def chat(room_name):
     return render_template(
         "chat.html", room_name=room_name, rooms=rooms, username=username
     )
+
+
+@app.route("/download_chat_history", methods=["GET"])
+def download_chat_history():
+    room_name = request.args.get("room_name")
+    room = get_room(room_name)
+
+    if not room:
+        return jsonify({"error": "Room not found"}), 404
+
+    messages = Message.query.filter_by(room_id=room.id).all()
+
+    if not messages:
+        return jsonify({"error": "No messages found"}), 404
+
+    chat_history = [
+        {
+            "role": "system" if message.username in system_users else "user",
+            "content": message.content,
+        }
+        for message in messages
+        if not message.is_base64_image()
+    ]
+
+    if not chat_history:
+        return jsonify({"error": "No valid messages found"}), 404
+
+    response = Response(
+        response=json.dumps(chat_history, indent=2),
+        status=200,
+        mimetype="application/json",
+    )
+    response.headers["Content-Disposition"] = f"attachment; filename={room.name}.json"
+    return response
 
 
 @app.route("/search")
