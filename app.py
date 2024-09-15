@@ -79,6 +79,7 @@ system_users = [
     "upstage/SOLAR-10.7B-Instruct-v1.0",
     "teknium/OpenHermes-2.5-Mistral-7B",
     "NousResearch/Hermes-2-Pro-Llama-3-8B",
+    "NousResearch/Hermes-3-Llama-3.1-8B",
     "mistral-7b-instruct-v0.2.Q3_K_L.gguf",
     "mistral-7b-instruct-v0.2-code-ft.Q3_K_L.gguf",
     "openhermes-2.5-mistral-7b.Q6_K.gguf",
@@ -706,7 +707,7 @@ def handle_message(data):
                 chat_gpt,
                 data["username"],
                 room.name,
-                model_name="NousResearch/Hermes-2-Pro-Llama-3-8B",
+                model_name="NousResearch/Hermes-3-Llama-3.1-8B",
             )
         if "localhost/mistral" in data["message"]:
             gevent.spawn(
@@ -934,7 +935,8 @@ def chat_claude(
     socketio.emit("delete_processing_message", msg_id, room=room.name)
 
 
-def get_openai_client_and_model(model_name="gpt-4o-mini"):
+# def get_openai_client_and_model(model_name="gpt-4o-mini"):
+def get_openai_client_and_model(model_name="NousResearch/Hermes-3-Llama-3.1-8B"):
     vllm_endpoint = os.environ.get("VLLM_ENDPOINT")
     vllm_api_key = os.environ.get("VLLM_API_KEY", "not-needed")
 
@@ -2376,6 +2378,9 @@ def handle_activity_response(room_name, user_response, username):
                     result = execute_processing_script(
                         activity_state.dict_metadata, step["processing_script"]
                     )
+
+                    plot_image_base64 = result.pop("plot_image", None)
+
                     # Add the result to the temporary metadata for use in AI feedback
                     metadata_tmp_keys.append("processing_script_result")
                     activity_state.add_metadata("processing_script_result", result)
@@ -2385,8 +2390,7 @@ def handle_activity_response(room_name, user_response, username):
                         activity_state.add_metadata(key, value)
 
                     # Check if the result contains a plot image
-                    if "plot_image" in result:
-                        plot_image_base64 = result["plot_image"]
+                    if plot_image_base64:
                         plot_image_html = f'<img alt="Plot Image" src="data:image/png;base64,{plot_image_base64}">'
 
                         if result.get("set_background", False):
