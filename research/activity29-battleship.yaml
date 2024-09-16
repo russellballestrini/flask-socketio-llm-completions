@@ -1,4 +1,38 @@
 default_max_attempts_per_step: 9
+tokens_for_ai_rubric: |
+  based on the game without knowing where each ship was, score the process each player used to target ships.
+  
+  be sure to look for moves or strategies in the game play that where _not_ smart given the obvious information uncovered.
+  
+  use chain-of-thought to reason about the progression of the game and the winner.
+ 
+  first summarize the game, we don't need the turn by turn plays.
+  
+  the game was battleship. the moves were done 1 by 1. 
+  the grid is 0-99.
+  
+  did any player blunder as the information was learned?
+  
+  There was a user and an AI playing.
+
+  Depending on the game mode the player chooses they are going up against a different algo,
+
+  * random
+
+    * always plays randomly
+
+  * hunter
+
+    * keeps track of hits and targets every cell around it no matter what, randomly, else random
+
+  * super human hunter
+
+    * keeps track of hits and uses a probability grid normalized to 100 and always picks the max or random of any 100. 
+
+  Did any player miss sinking a ship that was found? was it due to end game or a blunder?
+  
+  Do not mix up ships, keep careful track of the order they were found and sunk.
+
 sections:
   - section_id: "section_1"
     title: "Battleship"
