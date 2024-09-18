@@ -314,6 +314,46 @@ def download_chat_history():
     return response
 
 
+@app.route("/download_chat_history_md", methods=["GET"])
+def download_chat_history_md():
+    room_name = request.args.get("room_name")
+    room = get_room(room_name)
+
+    if not room:
+        return jsonify({"error": "Room not found"}), 404
+
+    messages = Message.query.filter_by(room_id=room.id).all()
+
+    if not messages:
+        return jsonify({"error": "No messages found"}), 404
+
+    # Access system users from the existing context
+    chat_history_md = []
+    toc = []
+    for index, message in enumerate(messages):
+        if not message.is_base64_image():  # Correctly call the method
+            role = "System" if message.username in system_users else "User"
+            header = f"### {role}: {message.username} (Turn {index + 1})"
+            toc.append(
+                f"- [{role}: {message.username} (Turn {index + 1})](#{role.lower()}-{message.username.lower().replace(' ', '-')}-turn-{index + 1})"
+            )
+            chat_history_md.append(f"{header}\n\n{message.content}\n\n---\n")
+
+    if not chat_history_md:
+        return jsonify({"error": "No valid messages found"}), 404
+
+    markdown_content = (
+        f"# Chat History for {room.name}\n\n## Table of Contents\n"
+        + "\n".join(toc)
+        + "\n\n"
+        + "\n".join(chat_history_md)
+    )
+
+    response = Response(response=markdown_content, status=200, mimetype="text/markdown")
+    response.headers["Content-Disposition"] = f'attachment; filename="{room.name}.md"'
+    return response
+
+
 @app.route("/search")
 def search_page():
     # Query all rooms so that newest is first.
