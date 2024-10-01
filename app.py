@@ -975,12 +975,13 @@ def chat_claude(
     socketio.emit("delete_processing_message", msg_id, room=room.name)
 
 
-# def get_openai_client_and_model(model_name="gpt-4o-mini"):
 def get_openai_client_and_model(model_name="NousResearch/Hermes-3-Llama-3.1-8B"):
     vllm_endpoint = os.environ.get("VLLM_ENDPOINT")
     vllm_api_key = os.environ.get("VLLM_API_KEY", "not-needed")
 
-    if "gpt" not in model_name and vllm_endpoint:
+    is_openai_model = "gpt" in model_name.lower() or "o1" in model_name.lower()
+
+    if vllm_endpoint and not is_openai_model:
         openai_client = OpenAI(base_url=vllm_endpoint, api_key=vllm_api_key)
     else:
         openai_client = OpenAI()
@@ -991,9 +992,12 @@ def get_openai_client_and_model(model_name="NousResearch/Hermes-3-Llama-3.1-8B")
 def chat_gpt(username, room_name, model_name="gpt-4o-mini"):
     openai_client, model_name = get_openai_client_and_model(model_name)
 
+    temperature = 0
     limit = 20
     if "gpt-4" in model_name:
         limit = 1000
+    if "o1" in model_name:
+        temperature = 1
 
     with app.app_context():
         room = get_room(room_name)
@@ -1006,7 +1010,7 @@ def chat_gpt(username, room_name, model_name="gpt-4o-mini"):
 
         chat_history = [
             {
-                "role": "system" if msg.username in system_users else "user",
+                "role": "assistant" if msg.username in system_users else "user",
                 # "content": f"{msg.username}: {msg.content}",
                 "content": msg.content,
             }
@@ -1027,7 +1031,10 @@ def chat_gpt(username, room_name, model_name="gpt-4o-mini"):
 
     try:
         chunks = openai_client.chat.completions.create(
-            model=model_name, messages=chat_history, temperature=0, stream=True
+            model=model_name,
+            messages=chat_history,
+            temperature=temperature,
+            stream=True,
         )
     except Exception as e:
         with app.app_context():
