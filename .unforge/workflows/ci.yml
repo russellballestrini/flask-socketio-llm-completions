@@ -1,23 +1,20 @@
-# AUTOMATICALLY CONVERTED — manual review required.
-# Resolve every `# TODO:` before relying on this workflow.
-#
-# TODO: job 'unit_tests' uses `extends:` — manual translation needed
-# TODO: job 'functional_tests' uses `extends:` — manual translation needed
-# TODO: job 'integration_tests' uses `extends:` — manual translation needed
-# TODO: job 'validate_yaml' uses `extends:` — manual translation needed
-# TODO: original used `include:` / `extends:` — inline template content
-
 name: ci
 'on': push
 jobs:
   unit_tests:
     runs-on:
     - self-hosted
+    - build
     steps:
     - name: checkout
       uses: actions/checkout@v4
     - name: script
       run: |-
+        python3 -m venv venv
+        source venv/bin/activate
+        python3 -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r requirements-test.txt
         source venv/bin/activate
         pytest tests/unit/ -v --tb=short --cov=. --cov-report=term-missing
     env:
@@ -28,11 +25,17 @@ jobs:
   functional_tests:
     runs-on:
     - self-hosted
+    - build
     steps:
     - name: checkout
       uses: actions/checkout@v4
     - name: script
       run: |-
+        python3 -m venv venv
+        source venv/bin/activate
+        python3 -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r requirements-test.txt
         source venv/bin/activate
         pytest tests/functional/ -v --tb=short
     env:
@@ -43,11 +46,17 @@ jobs:
   integration_tests:
     runs-on:
     - self-hosted
+    - build
     steps:
     - name: checkout
       uses: actions/checkout@v4
     - name: script
       run: |-
+        python3 -m venv venv
+        source venv/bin/activate
+        python3 -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r requirements-test.txt
         source venv/bin/activate
         pytest tests/integration/ -v --tb=short
     env:
@@ -58,11 +67,17 @@ jobs:
   validate_yaml:
     runs-on:
     - self-hosted
+    - build
     steps:
     - name: checkout
       uses: actions/checkout@v4
     - name: script
       run: |-
+        python3 -m venv venv
+        source venv/bin/activate
+        python3 -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r requirements-test.txt
         source venv/bin/activate
         python activity_yaml_validator.py research/SPEC.yaml
         python activity_yaml_validator.py research/activity*.yaml
