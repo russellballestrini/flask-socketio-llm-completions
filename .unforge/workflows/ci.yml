@@ -1,0 +1,113 @@
+name: ci
+'on': push
+jobs:
+  unit_tests:
+    runs-on:
+    - self-hosted
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4
+    - name: script
+      run: |-
+        source venv/bin/activate
+        pytest tests/unit/ -v --tb=short --cov=. --cov-report=term-missing
+    env:
+      SQLALCHEMY_DATABASE_URI: 'sqlite:///:memory:'
+      TESTING: '1'
+      MODEL_ENDPOINT_0: https://hermes.ai.unturf.com/v1
+      MODEL_API_KEY_0: dummy
+  functional_tests:
+    runs-on:
+    - self-hosted
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4
+    - name: script
+      run: |-
+        source venv/bin/activate
+        pytest tests/functional/ -v --tb=short
+    env:
+      SQLALCHEMY_DATABASE_URI: 'sqlite:///:memory:'
+      TESTING: '1'
+      MODEL_ENDPOINT_0: https://hermes.ai.unturf.com/v1
+      MODEL_API_KEY_0: dummy
+  integration_tests:
+    runs-on:
+    - self-hosted
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4
+    - name: script
+      run: |-
+        source venv/bin/activate
+        pytest tests/integration/ -v --tb=short
+    env:
+      SQLALCHEMY_DATABASE_URI: 'sqlite:///:memory:'
+      TESTING: '1'
+      MODEL_ENDPOINT_0: https://hermes.ai.unturf.com/v1
+      MODEL_API_KEY_0: dummy
+  validate_yaml:
+    runs-on:
+    - self-hosted
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4
+    - name: script
+      run: |-
+        source venv/bin/activate
+        python activity_yaml_validator.py research/SPEC.yaml
+        python activity_yaml_validator.py research/activity*.yaml
+    env:
+      SQLALCHEMY_DATABASE_URI: 'sqlite:///:memory:'
+      TESTING: '1'
+      MODEL_ENDPOINT_0: https://hermes.ai.unturf.com/v1
+      MODEL_API_KEY_0: dummy
+  lint_syntax:
+    runs-on:
+    - self-hosted
+    - build
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4
+    - name: script
+      run: |-
+        python3 -m venv venv
+        source venv/bin/activate
+        pip install flake8
+        source venv/bin/activate
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics --exclude=venv
+    env:
+      SQLALCHEMY_DATABASE_URI: 'sqlite:///:memory:'
+      TESTING: '1'
+      MODEL_ENDPOINT_0: https://hermes.ai.unturf.com/v1
+      MODEL_API_KEY_0: dummy
+    needs:
+    - unit_tests
+    - functional_tests
+    - integration_tests
+    - validate_yaml
+  lint_style:
+    runs-on:
+    - self-hosted
+    - build
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4
+    - name: script
+      run: |-
+        python3 -m venv venv
+        source venv/bin/activate
+        pip install black flake8
+        source venv/bin/activate
+        black --check --diff --exclude=venv . || true
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics --exclude=venv
+    env:
+      SQLALCHEMY_DATABASE_URI: 'sqlite:///:memory:'
+      TESTING: '1'
+      MODEL_ENDPOINT_0: https://hermes.ai.unturf.com/v1
+      MODEL_API_KEY_0: dummy
+    needs:
+    - unit_tests
+    - functional_tests
+    - integration_tests
+    - validate_yaml
