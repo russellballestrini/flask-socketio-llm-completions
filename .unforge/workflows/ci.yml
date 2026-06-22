@@ -1,3 +1,12 @@
+# AUTOMATICALLY CONVERTED — manual review required.
+# Resolve every `# TODO:` before relying on this workflow.
+#
+# TODO: job 'unit_tests' uses `extends:` — manual translation needed
+# TODO: job 'functional_tests' uses `extends:` — manual translation needed
+# TODO: job 'integration_tests' uses `extends:` — manual translation needed
+# TODO: job 'validate_yaml' uses `extends:` — manual translation needed
+# TODO: original used `include:` / `extends:` — inline template content
+
 name: ci
 'on': push
 jobs:
