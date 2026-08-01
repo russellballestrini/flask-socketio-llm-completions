@@ -95,8 +95,6 @@ def get_client_for_endpoint(endpoint, api_key):
     return OpenAI(api_key=api_key, base_url=endpoint)
 
 
-VISION_MODELS = []  # Populated at startup with available vision models
-
 
 def is_vision_model(model_name: str) -> bool:
     """Check if a model supports vision/image input."""
@@ -110,7 +108,6 @@ def is_vision_model(model_name: str) -> bool:
 def initialize_model_map():
     global SYSTEM_USERS
     MODEL_CLIENT_MAP.clear()
-    VISION_MODELS.clear()
     for ep_config in ENDPOINTS:
         base_url = ep_config["base_url"]
         api_key = ep_config["api_key"]
@@ -131,15 +128,6 @@ def initialize_model_map():
     # Populate SYSTEM_USERS with dynamically loaded models.
     SYSTEM_USERS = list(MODEL_CLIENT_MAP.keys()) + ["system"]  # Include "system" for fetched images
     print("Loaded models:", list(MODEL_CLIENT_MAP.keys()))
-
-    # Detect and track available vision models
-    for model_id in MODEL_CLIENT_MAP.keys():
-        if is_vision_model(model_id):
-            VISION_MODELS.append(model_id)
-    if VISION_MODELS:
-        print(f"Vision models available: {VISION_MODELS}")
-    else:
-        print("No vision models available")
 
 
 if MODEL_CLIENT_MAP:
@@ -708,18 +696,17 @@ def get_models():
 @app.route("/vision", methods=["GET"])
 def get_vision_status():
     """Return vision model availability status."""
+    vision_models = [m for m in MODEL_CLIENT_MAP.keys() if is_vision_model(m)]
     return jsonify({
-        "available": len(VISION_MODELS) > 0,
-        "models": VISION_MODELS,
-        "default": VISION_MODELS[0] if VISION_MODELS else None
+        "available": len(vision_models) > 0,
+        "models": vision_models,
+        "default": vision_models[0] if vision_models else None
     })
 
 
 @app.route("/vision/describe", methods=["POST"])
 def describe_image():
     """Generate alt text description for an image using vision model."""
-    if not VISION_MODELS:
-        return jsonify({"error": "No vision models available"}), 503
 
     data = request.get_json()
     if not data or "image" not in data:
@@ -727,9 +714,10 @@ def describe_image():
 
     image_url = data["image"]  # Expected format: data:image/jpeg;base64,...
     prompt = data.get("prompt", "Describe this image in one brief sentence for use as alt text.")
-    model_name = data.get("model", VISION_MODELS[0])
+    vision_models = [m for m in MODEL_CLIENT_MAP.keys() if is_vision_model(m)]
+    model_name = data.get("model", vision_models[0] if vision_models else None)
 
-    if model_name not in VISION_MODELS:
+    if not model_name or not is_vision_model(model_name):
         return jsonify({"error": f"Model {model_name} is not a vision model"}), 400
 
     try:
