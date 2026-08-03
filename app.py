@@ -8,6 +8,7 @@ monkey.patch_all()
 
 
 import json
+import time
 import yaml
 import os
 
@@ -68,6 +69,7 @@ from activity_utils import create_completion_skip_thinking, strip_reasoning
 
 # Build a list of endpoints dynamically.
 ENDPOINTS = []
+CONFIGURED_MODEL_NUMS = []
 MAX_ENDPOINTS = 1000
 
 for i in range(MAX_ENDPOINTS):
@@ -82,9 +84,15 @@ for i in range(MAX_ENDPOINTS):
             "api_key": api_key,
         }
     )
+    CONFIGURED_MODEL_NUMS.append(str(i))
 
 if not ENDPOINTS:
     raise Exception("No MODEL_ENDPOINT_x environment variables found!")
+
+# Default model reference. Switch mains by setting DEFAULT_MODEL in vars.sh
+# (e.g. DEFAULT_MODEL=MODEL_2); a MODEL_n that is down falls through to the
+# next healthy configured endpoint automatically.
+DEFAULT_MODEL = os.environ.get("DEFAULT_MODEL", f"MODEL_{CONFIGURED_MODEL_NUMS[0]}")
 
 # Build a dynamic model map by querying each endpoint.
 MODEL_CLIENT_MAP = {}
@@ -94,6 +102,26 @@ SYSTEM_USERS = []
 def get_client_for_endpoint(endpoint, api_key):
     # All providers use the OpenAI client; no endpoint URLs are hardcoded here.
     return OpenAI(api_key=api_key, base_url=endpoint)
+
+
+# Endpoint health cache: base_url -> (healthy, checked_at). The TTL keeps
+# down endpoints out of rotation without hammering them on every request.
+ENDPOINT_HEALTH_TTL = 60
+_endpoint_health = {}
+
+
+def endpoint_is_healthy(client, base_url):
+    healthy, checked_at = _endpoint_health.get(base_url, (None, 0.0))
+    if healthy is not None and time.time() - checked_at < ENDPOINT_HEALTH_TTL:
+        return healthy
+    try:
+        client.with_options(timeout=5.0).models.list()
+        healthy = True
+    except Exception as e:
+        print(f"[WARN] Endpoint {base_url} failed health check: {e}")
+        healthy = False
+    _endpoint_health[base_url] = (healthy, time.time())
+    return healthy
 
 
 
@@ -107,14 +135,13 @@ def is_vision_model(model_name: str) -> bool:
 
 
 def initialize_model_map():
-    global SYSTEM_USERS
     MODEL_CLIENT_MAP.clear()
     for ep_config in ENDPOINTS:
         base_url = ep_config["base_url"]
         api_key = ep_config["api_key"]
         client = get_client_for_endpoint(base_url, api_key)
         try:
-            response = client.models.list()
+            response = client.with_options(timeout=10.0).models.list()
             model_list = response.data  # Assume each model object has an 'id' attribute
             print(f"[DEBUG] {base_url} returned models: {[m.id for m in model_list]}")
         except Exception as e:
@@ -126,8 +153,12 @@ def initialize_model_map():
             if model_id and model_id not in MODEL_CLIENT_MAP:
                 MODEL_CLIENT_MAP[model_id] = (client, base_url)
 
-    # Populate SYSTEM_USERS with dynamically loaded models.
-    SYSTEM_USERS = list(MODEL_CLIENT_MAP.keys()) + ["system"]  # Include "system" for fetched images
+    # Grow SYSTEM_USERS in place (activity.py holds a reference to this
+    # list) and never remove names: messages from a model that left the
+    # rotation must keep their assistant role in rebuilt chat history.
+    for name in list(MODEL_CLIENT_MAP.keys()) + ["system"]:
+        if name not in SYSTEM_USERS:
+            SYSTEM_USERS.append(name)
     print("Loaded models:", list(MODEL_CLIENT_MAP.keys()))
 
 
@@ -471,71 +502,90 @@ def generate_og_description(room, max_chars: int = 500) -> str:
     return description if description else "AI-powered chat room on OpenCompletion"
 
 
-def get_openai_client_and_model(
-    model_name="adamo1139/Hermes-3-Llama-3.1-8B-FP8-Dynamic",
-):
+def _resolve_model_num(model_num, check_health=True):
+    """Resolve MODEL_<num> env config to (client, model_name), or None."""
+    endpoint = os.environ.get(f"MODEL_ENDPOINT_{model_num}")
+    api_key = os.environ.get(f"MODEL_API_KEY_{model_num}")
+    if not endpoint or not api_key:
+        return None
+    client = get_client_for_endpoint(endpoint, api_key)
+    if check_health and not endpoint_is_healthy(client, endpoint):
+        return None
+
+    # Explicit MODEL_NAME_X wins: endpoints like Gemini list dozens of
+    # models (some retired) and "first listed" picks wrong.
+    explicit_model = os.environ.get(f"MODEL_NAME_{model_num}")
+    if explicit_model:
+        return client, explicit_model
+
+    for model_id, (registered_client, base_url) in MODEL_CLIENT_MAP.items():
+        if base_url == endpoint:
+            return client, model_id
+
+    # Fallback: query endpoint for models if not in map yet
+    try:
+        response = client.with_options(timeout=10.0).models.list()
+        if response.data:
+            actual_model = response.data[0].id
+            print(f"[DEBUG] Using first model from {endpoint}: {actual_model}")
+            return client, actual_model
+    except Exception as e:
+        print(f"Warning: Could not query models from {endpoint}: {e}")
+        return None
+
+    print(f"Warning: No models found for {endpoint}, using 'model' as fallback")
+    return client, "model"
+
+
+def get_openai_client_and_model(model_name=None):
     """Get OpenAI client and model name.
 
     Supports MODEL_X references (e.g., MODEL_1, MODEL_2, MODEL_3) that map to
-    environment variables MODEL_ENDPOINT_X and MODEL_API_KEY_X.
+    environment variables MODEL_ENDPOINT_X and MODEL_API_KEY_X. A MODEL_X
+    whose endpoint is down or unconfigured falls through to the next healthy
+    configured endpoint, so activities keep working when the primary leaves
+    rotation. Set DEFAULT_MODEL to change which reference is main.
     """
-    # Handle MODEL_X references
-    if model_name and model_name.startswith("MODEL_"):
-        try:
-            model_num = model_name.split("_")[1]
-            endpoint_key = f"MODEL_ENDPOINT_{model_num}"
-            api_key_key = f"MODEL_API_KEY_{model_num}"
+    if not model_name or model_name == "None":
+        model_name = DEFAULT_MODEL
 
-            endpoint = os.environ.get(endpoint_key)
-            api_key = os.environ.get(api_key_key)
-
-            if endpoint and api_key:
-                client = get_client_for_endpoint(endpoint, api_key)
-
-                # Explicit MODEL_NAME_X wins: endpoints like Gemini list dozens
-                # of models (some retired) and "first listed" picks wrong.
-                explicit_model = os.environ.get(f"MODEL_NAME_{model_num}")
-                if explicit_model:
-                    return client, explicit_model
-
-                # Look up actual model name from MODEL_CLIENT_MAP for this endpoint
-                actual_model = None
-                for model_id, (registered_client, base_url) in MODEL_CLIENT_MAP.items():
-                    if base_url == endpoint:
-                        actual_model = model_id
-                        break
-
-                if actual_model:
-                    return client, actual_model
-                else:
-                    # Fallback: query endpoint for models if not in map yet
-                    try:
-                        response = client.models.list()
-                        if response.data:
-                            actual_model = response.data[0].id
-                            print(
-                                f"[DEBUG] Using first model from {endpoint}: {actual_model}"
-                            )
-                            return client, actual_model
-                    except Exception as e:
-                        print(f"Warning: Could not query models from {endpoint}: {e}")
-
-                    # Final fallback
+    if model_name.startswith("MODEL_"):
+        requested = model_name.split("_")[1]
+        candidates = [requested] + [
+            n for n in CONFIGURED_MODEL_NUMS if n != requested
+        ]
+        for num in candidates:
+            resolved = _resolve_model_num(num)
+            if resolved:
+                if num != requested:
                     print(
-                        f"Warning: No models found for {endpoint}, using 'model' as fallback"
+                        f"[WARN] MODEL_{requested} unavailable; "
+                        f"falling back to MODEL_{num} ({resolved[1]})"
                     )
-                    return client, "model"
-            else:
-                print(
-                    f"Warning: MODEL_{model_num} not configured ({endpoint_key} or {api_key_key} missing)"
-                )
-                # Fall back to default model
-                model_name = "adamo1139/Hermes-3-Llama-3.1-8B-FP8-Dynamic"
-        except Exception as e:
-            print(f"Warning: Failed to load {model_name}: {e}, falling back to default")
-            model_name = "adamo1139/Hermes-3-Llama-3.1-8B-FP8-Dynamic"
+                return resolved
+        # Nothing healthy: build the first configured client anyway so the
+        # failure surfaces as a real completion error instead of a crash.
+        for num in candidates:
+            resolved = _resolve_model_num(num, check_health=False)
+            if resolved:
+                return resolved
+        print(f"Warning: no MODEL_x endpoints configured for {model_name}")
+        return None, model_name
 
-    return get_client_for_model(model_name), model_name
+    # Direct model id (chat dropdown). If its endpoint went down, hand the
+    # request to the default rotation; the reply is attributed to whichever
+    # model actually served it.
+    client = get_client_for_model(model_name)
+    if client is not None:
+        base_url = MODEL_CLIENT_MAP[model_name][1]
+        if endpoint_is_healthy(client, base_url):
+            return client, model_name
+        print(f"[WARN] {model_name} endpoint unhealthy; using default rotation")
+    else:
+        print(f"[WARN] Unknown model '{model_name}'; using default rotation")
+    if DEFAULT_MODEL.startswith("MODEL_"):
+        return get_openai_client_and_model(None)
+    return client, model_name
 
 
 HELP_MESSAGE = """
@@ -693,10 +743,20 @@ def browse_rooms():
     )
 
 
+_model_map_refreshed_at = 0.0
+
+
 @app.route("/models", methods=["GET"])
 def get_models():
-    # Optionally refresh or reinitialize the model map here.
-    # For now we simply return the keys.
+    # Refresh rotation periodically: drop endpoints that went down and pick
+    # up ones that recovered, without restarting the app.
+    global _model_map_refreshed_at
+    if time.time() - _model_map_refreshed_at > ENDPOINT_HEALTH_TTL:
+        _model_map_refreshed_at = time.time()
+        try:
+            initialize_model_map()
+        except Exception as e:
+            print(f"[WARN] Model map refresh failed: {e}")
     return jsonify({"models": list(MODEL_CLIENT_MAP.keys())})
 
 
@@ -1735,7 +1795,7 @@ def on_join(data):
 
     message_count = len(previous_messages)
     if room.title is None and message_count >= 6:
-        room.title = gpt_generate_room_title(previous_messages)
+        room.title = gpt_generate_room_title(previous_messages) or room.title
         db.session.add(room)
         socketio.emit("update_room_title", {"title": room.title}, room=room.name)
         # Emit an event to update this room's title in the sidebar for all users.
@@ -2425,8 +2485,13 @@ def chat_llama(username, room_name, model_name="mistral-7b-instruct-v0.2.Q3_K_L.
 def gpt_generate_room_title(messages):
     """
     Generate a title for the room based on a list of messages.
+
+    Returns None when no model is reachable — callers keep the old title.
     """
     openai_client, model_name = get_openai_client_and_model()
+    if openai_client is None:
+        print("[WARN] No model available for room title generation")
+        return None
 
     chat_history = [
         {
@@ -2446,13 +2511,17 @@ def gpt_generate_room_title(messages):
 
     # Interaction with LLM to generate summary
     # For example, using OpenAI's GPT model
-    response = create_completion_skip_thinking(
-        openai_client,
-        messages=chat_history,
-        model=model_name,  # or any appropriate model
-        max_tokens=20,
-        n=1,
-    )
+    try:
+        response = create_completion_skip_thinking(
+            openai_client,
+            messages=chat_history,
+            model=model_name,  # or any appropriate model
+            max_tokens=20,
+            n=1,
+        )
+    except Exception as e:
+        print(f"[WARN] Room title generation failed: {e}")
+        return None
 
     title = strip_reasoning(response.choices[0].message.content)
     return title.replace('"', "")
@@ -2471,6 +2540,9 @@ def generate_new_title(room_name, username):
 
         # Generate the title using the messages
         new_title = gpt_generate_room_title(last_messages)
+        if not new_title:
+            # No model reachable — keep the existing title.
+            return
 
         # Update the room title in the database
         room.title = new_title

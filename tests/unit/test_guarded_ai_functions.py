@@ -328,16 +328,17 @@ class TestGuardedAI(unittest.TestCase):
     def test_get_openai_client_and_model_default(self):
         """Explicit MODEL_NAME_1 wins over querying the endpoint's model list"""
         with patch("guarded_ai.MODEL_CLIENT_MAP", {}):
-            with patch("guarded_ai.get_client_for_endpoint") as mock_get_client:
-                mock_client = MagicMock()
-                mock_get_client.return_value = mock_client
+            with patch.dict("guarded_ai._endpoint_health", {}, clear=True):
+                with patch("guarded_ai.get_client_for_endpoint") as mock_get_client:
+                    mock_client = MagicMock()
+                    mock_client.with_options.return_value = mock_client
+                    mock_get_client.return_value = mock_client
 
-                client, model = get_openai_client_and_model()
+                    client, model = get_openai_client_and_model()
 
-                # conftest sets MODEL_NAME_1=test-model; it takes precedence
-                self.assertEqual(model, "test-model")
-                self.assertEqual(client, mock_client)
-                mock_client.models.list.assert_not_called()
+                    # conftest sets MODEL_NAME_1=test-model; it takes precedence
+                    self.assertEqual(model, "test-model")
+                    self.assertEqual(client, mock_client)
 
     @patch.dict(
         "os.environ",
@@ -350,20 +351,59 @@ class TestGuardedAI(unittest.TestCase):
     def test_get_openai_client_and_model_first_listed_fallback(self):
         """Without MODEL_NAME_1, fall back to the endpoint's first listed model"""
         with patch("guarded_ai.MODEL_CLIENT_MAP", {}):
-            with patch("guarded_ai.get_client_for_endpoint") as mock_get_client:
-                mock_client = MagicMock()
-                mock_get_client.return_value = mock_client
+            with patch.dict("guarded_ai._endpoint_health", {}, clear=True):
+                with patch("guarded_ai.get_client_for_endpoint") as mock_get_client:
+                    mock_client = MagicMock()
+                    mock_client.with_options.return_value = mock_client
+                    mock_get_client.return_value = mock_client
 
-                # Mock the models.list() response for MODEL_1
-                mock_model = MagicMock()
-                mock_model.id = "adamo1139/Hermes-3-Llama-3.1-8B-FP8-Dynamic"
-                mock_client.models.list.return_value.data = [mock_model]
+                    # Mock the models.list() response for MODEL_1
+                    mock_model = MagicMock()
+                    mock_model.id = "adamo1139/Hermes-3-Llama-3.1-8B-FP8-Dynamic"
+                    mock_client.models.list.return_value.data = [mock_model]
 
-                client, model = get_openai_client_and_model()
+                    client, model = get_openai_client_and_model()
 
-                # Should return MODEL_1's first model
-                self.assertEqual(model, "adamo1139/Hermes-3-Llama-3.1-8B-FP8-Dynamic")
-                self.assertEqual(client, mock_client)
+                    # Should return MODEL_1's first model
+                    self.assertEqual(
+                        model, "adamo1139/Hermes-3-Llama-3.1-8B-FP8-Dynamic"
+                    )
+                    self.assertEqual(client, mock_client)
+
+    @patch.dict(
+        "os.environ",
+        {
+            "MODEL_ENDPOINT_1": "http://hermes.test",
+            "MODEL_API_KEY_1": "hermes-key",
+            "MODEL_NAME_1": "hermes-model",
+            "MODEL_ENDPOINT_2": "http://qwen.test",
+            "MODEL_API_KEY_2": "qwen-key",
+            "MODEL_NAME_2": "qwen-model",
+        },
+    )
+    def test_get_openai_client_and_model_failover(self):
+        """A down MODEL_1 endpoint falls through to the next healthy MODEL_2"""
+        hermes_client = MagicMock()
+        hermes_client.with_options.return_value = hermes_client
+        hermes_client.models.list.side_effect = Exception("502 Bad Gateway")
+        qwen_client = MagicMock()
+        qwen_client.with_options.return_value = qwen_client
+
+        def client_for(endpoint, api_key):
+            return hermes_client if "hermes" in endpoint else qwen_client
+
+        with patch("guarded_ai.MODEL_CLIENT_MAP", {}):
+            with patch.dict("guarded_ai._endpoint_health", {}, clear=True):
+                with patch(
+                    "guarded_ai.get_client_for_endpoint", side_effect=client_for
+                ):
+                    with patch(
+                        "guarded_ai.CONFIGURED_MODEL_NUMS", ["1", "2"]
+                    ):
+                        client, model = get_openai_client_and_model("MODEL_1")
+
+                        self.assertEqual(model, "qwen-model")
+                        self.assertEqual(client, qwen_client)
 
     def test_get_openai_client_and_model_from_map(self):
         """Test getting OpenAI client from model map"""

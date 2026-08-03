@@ -1,6 +1,15 @@
 #!/bin/bash
 # vars.sh: Example configuration for dynamic endpoints
 
+# Which MODEL_n is main. Optional; defaults to the lowest configured n.
+# A down endpoint automatically falls through to the next healthy one,
+# so this only picks the preferred first choice.
+# export DEFAULT_MODEL="MODEL_2"
+
+# Optional per-endpoint model pin. Without it, the endpoint's first
+# listed model is used — set this for multi-model endpoints (e.g. Gemini).
+# export MODEL_NAME_3="gemini-2.5-pro"
+
 # Official OpenAI (hermes) endpoint.
 export MODEL_ENDPOINT_1="https://hermes.ai.unturf.com/v1"
 export MODEL_API_KEY_1="your-hermes-api-key"

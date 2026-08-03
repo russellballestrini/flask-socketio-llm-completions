@@ -25,10 +25,40 @@ from activity_utils import (
 # Global model-client mapping
 MODEL_CLIENT_MAP = {}
 
+# Numbers of every configured MODEL_ENDPOINT_x, in order; used as the
+# fallback chain when a requested endpoint is down or unconfigured.
+CONFIGURED_MODEL_NUMS = [
+    str(i) for i in range(1000) if os.getenv(f"MODEL_ENDPOINT_{i}")
+]
+
+# Switch mains by setting DEFAULT_MODEL (e.g. DEFAULT_MODEL=MODEL_2).
+DEFAULT_MODEL = os.getenv(
+    "DEFAULT_MODEL",
+    f"MODEL_{CONFIGURED_MODEL_NUMS[0]}" if CONFIGURED_MODEL_NUMS else "MODEL_1",
+)
+
 
 def get_client_for_endpoint(endpoint, api_key):
     """Create OpenAI client for any endpoint"""
     return OpenAI(api_key=api_key, base_url=endpoint)
+
+
+# Endpoint health cache: base_url -> healthy. The simulator is a single
+# short-lived process, so one probe per endpoint per run is enough.
+_endpoint_health = {}
+
+
+def endpoint_is_healthy(client, base_url):
+    if base_url in _endpoint_health:
+        return _endpoint_health[base_url]
+    try:
+        client.with_options(timeout=5.0).models.list()
+        healthy = True
+    except Exception as e:
+        print(f"[WARN] Endpoint {base_url} failed health check: {e}")
+        healthy = False
+    _endpoint_health[base_url] = healthy
+    return healthy
 
 
 def initialize_model_map():
@@ -63,65 +93,75 @@ def initialize_model_map():
                 print(f"Warning: Failed to initialize endpoint {endpoint}: {e}")
 
 
+def _resolve_model_num(model_num, check_health=True):
+    """Resolve MODEL_<num> env config to (client, model_name), or None."""
+    endpoint = os.getenv(f"MODEL_ENDPOINT_{model_num}")
+    api_key = os.getenv(f"MODEL_API_KEY_{model_num}")
+    if not endpoint or not api_key:
+        return None
+    client = get_client_for_endpoint(endpoint, api_key)
+    if check_health and not endpoint_is_healthy(client, endpoint):
+        return None
+
+    # Explicit MODEL_NAME_X wins: endpoints like Gemini list dozens of
+    # models (some retired) and "first listed" picks wrong.
+    explicit_model = os.getenv(f"MODEL_NAME_{model_num}")
+    if explicit_model:
+        return client, explicit_model
+
+    for model_id, (registered_client, base_url) in MODEL_CLIENT_MAP.items():
+        if base_url == endpoint:
+            return client, model_id
+
+    # Fallback: query endpoint for models if not in map yet
+    try:
+        response = client.with_options(timeout=10.0).models.list()
+        if response.data:
+            actual_model = response.data[0].id
+            print(f"[DEBUG] Using first model from {endpoint}: {actual_model}")
+            return client, actual_model
+    except Exception as e:
+        print(f"Warning: Could not query models from {endpoint}: {e}")
+        return None
+
+    print(f"Warning: No models found for {endpoint}, using 'model' as fallback")
+    return client, "model"
+
+
 def get_openai_client_and_model(model_name=None):
     """Get OpenAI client and model name
 
-    Supports both direct model names and MODEL_X environment variable references.
-    If model_name is MODEL_1, MODEL_2, etc., looks up from environment.
+    Supports both direct model names and MODEL_X environment variable
+    references. A MODEL_X whose endpoint is down or unconfigured falls
+    through to the next healthy configured endpoint. Set DEFAULT_MODEL to
+    change which reference is main.
     """
-    # Handle MODEL_X references
-    if model_name and model_name.startswith("MODEL_"):
-        # Extract the number from MODEL_X
-        try:
-            model_num = model_name.split("_")[1]
-            endpoint_key = f"MODEL_ENDPOINT_{model_num}"
-            api_key_key = f"MODEL_API_KEY_{model_num}"
-
-            endpoint = os.getenv(endpoint_key)
-            api_key = os.getenv(api_key_key)
-
-            if endpoint and api_key:
-                client = get_client_for_endpoint(endpoint, api_key)
-
-                # Explicit MODEL_NAME_X wins: endpoints like Gemini list dozens
-                # of models (some retired) and "first listed" picks wrong.
-                explicit_model = os.getenv(f"MODEL_NAME_{model_num}")
-                if explicit_model:
-                    return client, explicit_model
-
-                # Look up actual model name from MODEL_CLIENT_MAP for this endpoint
-                actual_model = None
-                for model_id, (registered_client, base_url) in MODEL_CLIENT_MAP.items():
-                    if base_url == endpoint:
-                        actual_model = model_id
-                        break
-
-                if actual_model:
-                    return client, actual_model
-                else:
-                    # Fallback: query endpoint for models if not in map yet
-                    try:
-                        response = client.models.list()
-                        if response.data:
-                            actual_model = response.data[0].id
-                            print(
-                                f"[DEBUG] Using first model from {endpoint}: {actual_model}"
-                            )
-                            return client, actual_model
-                    except Exception as e:
-                        print(f"Warning: Could not query models from {endpoint}: {e}")
-
-                    # Final fallback
-                    print(
-                        f"Warning: No models found for {endpoint}, using 'model' as fallback"
-                    )
-                    return client, "model"
-        except Exception as e:
-            print(f"Warning: Failed to load {model_name}: {e}, falling back to default")
-
-    # Default to MODEL_1 (Hermes)
     if not model_name:
-        return get_openai_client_and_model("MODEL_1")
+        model_name = DEFAULT_MODEL
+
+    # Handle MODEL_X references with health-aware fallback
+    if model_name.startswith("MODEL_"):
+        requested = model_name.split("_")[1]
+        candidates = [requested] + [
+            n for n in CONFIGURED_MODEL_NUMS if n != requested
+        ]
+        for num in candidates:
+            resolved = _resolve_model_num(num)
+            if resolved:
+                if num != requested:
+                    print(
+                        f"[WARN] MODEL_{requested} unavailable; "
+                        f"falling back to MODEL_{num} ({resolved[1]})"
+                    )
+                return resolved
+        # Nothing healthy: build the first configured client anyway so the
+        # failure surfaces as a real completion error instead of a crash.
+        for num in candidates:
+            resolved = _resolve_model_num(num, check_health=False)
+            if resolved:
+                return resolved
+        print(f"Warning: no MODEL_x endpoints configured for {model_name}")
+        return None, model_name
 
     # Try to find client for specific model name
     for stored_model, (client, base_url) in MODEL_CLIENT_MAP.items():
