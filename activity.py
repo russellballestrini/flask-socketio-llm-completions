@@ -35,6 +35,8 @@ from activity_utils import (
     select_weighted_random,
     get_progressive_hint,
     create_template_context,
+    create_completion_skip_thinking,
+    strip_reasoning,
 )
 
 
@@ -1320,14 +1322,15 @@ def generate_grading(chat_history, rubric, model="MODEL_0"):
     ]
 
     try:
-        completion = openai_client.chat.completions.create(
+        completion = create_completion_skip_thinking(
+            openai_client,
             model=model_name,
             messages=messages,
             max_tokens=1000,
             temperature=0.7,
             n=1,
         )
-        grading = completion.choices[0].message.content.strip()
+        grading = strip_reasoning(completion.choices[0].message.content.strip())
         return grading
     except Exception as e:
         return f"Error generating grading: {e}"
@@ -1383,14 +1386,15 @@ def categorize_response(question, response, buckets, tokens_for_ai, model="MODEL
     ]
 
     try:
-        completion = openai_client.chat.completions.create(
+        completion = create_completion_skip_thinking(
+            openai_client,
             model=model_name,
             messages=messages,
             n=1,
             max_tokens=150,  # Increased for ANALYSIS + BUCKET format
             temperature=0,
         )
-        full_response = completion.choices[0].message.content.strip()
+        full_response = strip_reasoning(completion.choices[0].message.content.strip())
         print(f"DEBUG BUCKET CATEGORIZATION: Full Hermes response: {full_response}")
 
         # Handle both ANALYSIS/BUCKET format and simple bucket response
@@ -1454,10 +1458,15 @@ def generate_ai_feedback(
     ]
 
     try:
-        completion = openai_client.chat.completions.create(
-            model=model_name, messages=messages, max_tokens=1000, temperature=0.7, n=1
+        completion = create_completion_skip_thinking(
+            openai_client,
+            model=model_name,
+            messages=messages,
+            max_tokens=1000,
+            temperature=0.7,
+            n=1,
         )
-        feedback = completion.choices[0].message.content.strip()
+        feedback = strip_reasoning(completion.choices[0].message.content.strip())
         return feedback
     except Exception as e:
         return f"Error: {e}"
@@ -1648,10 +1657,15 @@ def translate_text(text, target_language, model="MODEL_0"):
     ]
 
     try:
-        completion = openai_client.chat.completions.create(
-            model=model_name, messages=messages, max_tokens=2000, temperature=0.7, n=1
+        completion = create_completion_skip_thinking(
+            openai_client,
+            model=model_name,
+            messages=messages,
+            max_tokens=2000,
+            temperature=0.7,
+            n=1,
         )
-        translation = completion.choices[0].message.content.strip()
+        translation = strip_reasoning(completion.choices[0].message.content.strip())
         return translation
     except Exception as e:
         return f"Error: {e}"

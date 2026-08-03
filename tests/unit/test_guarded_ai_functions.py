@@ -326,7 +326,29 @@ class TestGuardedAI(unittest.TestCase):
         },
     )
     def test_get_openai_client_and_model_default(self):
-        """Test getting OpenAI client with default model"""
+        """Explicit MODEL_NAME_1 wins over querying the endpoint's model list"""
+        with patch("guarded_ai.MODEL_CLIENT_MAP", {}):
+            with patch("guarded_ai.get_client_for_endpoint") as mock_get_client:
+                mock_client = MagicMock()
+                mock_get_client.return_value = mock_client
+
+                client, model = get_openai_client_and_model()
+
+                # conftest sets MODEL_NAME_1=test-model; it takes precedence
+                self.assertEqual(model, "test-model")
+                self.assertEqual(client, mock_client)
+                mock_client.models.list.assert_not_called()
+
+    @patch.dict(
+        "os.environ",
+        {
+            "MODEL_ENDPOINT_1": "http://hermes.test",
+            "MODEL_API_KEY_1": "hermes-key",
+            "MODEL_NAME_1": "",
+        },
+    )
+    def test_get_openai_client_and_model_first_listed_fallback(self):
+        """Without MODEL_NAME_1, fall back to the endpoint's first listed model"""
         with patch("guarded_ai.MODEL_CLIENT_MAP", {}):
             with patch("guarded_ai.get_client_for_endpoint") as mock_get_client:
                 mock_client = MagicMock()

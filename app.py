@@ -63,6 +63,7 @@ cancellation_requests = {}
 from openai import OpenAI
 import activity
 import auth
+from activity_utils import create_completion_skip_thinking, strip_reasoning
 
 
 # Build a list of endpoints dynamically.
@@ -491,6 +492,12 @@ def get_openai_client_and_model(
             if endpoint and api_key:
                 client = get_client_for_endpoint(endpoint, api_key)
 
+                # Explicit MODEL_NAME_X wins: endpoints like Gemini list dozens
+                # of models (some retired) and "first listed" picks wrong.
+                explicit_model = os.environ.get(f"MODEL_NAME_{model_num}")
+                if explicit_model:
+                    return client, explicit_model
+
                 # Look up actual model name from MODEL_CLIENT_MAP for this endpoint
                 actual_model = None
                 for model_id, (registered_client, base_url) in MODEL_CLIENT_MAP.items():
@@ -722,7 +729,8 @@ def describe_image():
 
     try:
         client = get_client_for_model(model_name)
-        response = client.chat.completions.create(
+        response = create_completion_skip_thinking(
+            client,
             model=model_name,
             messages=[{
                 "role": "user",
@@ -734,7 +742,7 @@ def describe_image():
             max_tokens=150,
             temperature=0.3
         )
-        description = response.choices[0].message.content.strip()
+        description = strip_reasoning(response.choices[0].message.content.strip())
         return jsonify({"description": description, "model": model_name})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -1187,7 +1195,8 @@ Examples:
 
         user_prompt = f"Language: {language}\n\nCode:\n{code}\n\nGenerate filename:"
 
-        response = client.chat.completions.create(
+        response = create_completion_skip_thinking(
+            client,
             model=model,
             messages=[
                 {"role": "system", "content": system_prompt},
@@ -1197,7 +1206,7 @@ Examples:
             max_tokens=20
         )
 
-        filename = response.choices[0].message.content.strip()
+        filename = strip_reasoning(response.choices[0].message.content.strip())
 
         # Clean up the filename (remove quotes, extensions, whitespace)
         filename = filename.strip('"\'')
@@ -1393,7 +1402,8 @@ Error output (exit code {exit_code}):
 
 Fix the code (output ONLY the corrected code, no explanations):"""
 
-        response = client.chat.completions.create(
+        response = create_completion_skip_thinking(
+            client,
             model=model,
             messages=[
                 {"role": "system", "content": system_prompt},
@@ -1403,7 +1413,7 @@ Fix the code (output ONLY the corrected code, no explanations):"""
             max_tokens=2000
         )
 
-        fixed_code = response.choices[0].message.content.strip()
+        fixed_code = strip_reasoning(response.choices[0].message.content.strip())
 
         # Clean up any markdown code fences that might have slipped through
         if fixed_code.startswith("```"):
@@ -2185,20 +2195,15 @@ def chat_gpt(username, room_name, model_name="gpt-4o-mini", enable_thinking=True
     if "o3" not in model_name:
         # o3 does not support temperature at all!
         create_kwargs["temperature"] = temperature
-    if not enable_thinking:
-        # Qwen3 / vLLM-style switch to suppress chain-of-thought and save
-        # tokens. OpenAI's hosted API rejects unknown body params, so only
-        # send to self-hosted OpenAI-compatible endpoints; o1/o3 think
-        # unconditionally and would 400 on this anyway. Models whose chat
-        # template ignores the kwarg (e.g. Hermes) simply drop it.
-        base_url = str(getattr(openai_client, "base_url", "") or "")
-        if "api.openai.com" not in base_url:
-            create_kwargs["extra_body"] = {
-                "chat_template_kwargs": {"enable_thinking": False}
-            }
-
     try:
-        chunks = openai_client.chat.completions.create(**create_kwargs)
+        if enable_thinking:
+            chunks = openai_client.chat.completions.create(**create_kwargs)
+        else:
+            # Suppress chain-of-thought at the template level. Endpoints that
+            # reject the chat_template_kwargs param (OpenAI, Groq, Mistral,
+            # Gemini) get retried without it inside the helper; templates that
+            # ignore the kwarg (e.g. Hermes) simply drop it.
+            chunks = create_completion_skip_thinking(openai_client, **create_kwargs)
     except Exception as e:
         with app.app_context():
             message_content = f"{model_name} Error: {e}"
@@ -2441,14 +2446,15 @@ def gpt_generate_room_title(messages):
 
     # Interaction with LLM to generate summary
     # For example, using OpenAI's GPT model
-    response = openai_client.chat.completions.create(
+    response = create_completion_skip_thinking(
+        openai_client,
         messages=chat_history,
         model=model_name,  # or any appropriate model
         max_tokens=20,
         n=1,
     )
 
-    title = response.choices[0].message.content
+    title = strip_reasoning(response.choices[0].message.content)
     return title.replace('"', "")
 
 

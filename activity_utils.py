@@ -352,3 +352,85 @@ def create_template_context(
         "current_step": current_step,
         "username": username,
     }
+
+
+# Reasoning-block tag variants, case-insensitive. Closed pairs are stripped
+# anywhere; an unterminated open tag (model truncated mid-reasoning) strips to
+# end-of-string. Ported from uncloseai-cli / hermes-agent think_scrubber.
+_THINK_TAG_NAMES = ("think", "thinking", "reasoning", "thought",
+                    "REASONING_SCRATCHPAD")
+_THINK_TAG_ALT = "|".join(_THINK_TAG_NAMES)
+_THINK_PAIR_RE = re.compile(
+    r"<(?:" + _THINK_TAG_ALT + r")>.*?</(?:" + _THINK_TAG_ALT + r")>",
+    re.DOTALL | re.IGNORECASE,
+)
+_THINK_UNTERMINATED_RE = re.compile(
+    r"<(?:" + _THINK_TAG_ALT + r")>.*$", re.DOTALL | re.IGNORECASE
+)
+_THINK_ORPHAN_CLOSE_RE = re.compile(
+    r"</(?:" + _THINK_TAG_ALT + r")>", re.IGNORECASE
+)
+_THINK_ANY_TAG_RE = re.compile(
+    r"</?(?:" + _THINK_TAG_ALT + r")[^>]*>", re.IGNORECASE
+)
+
+
+def strip_reasoning(text: Optional[str]) -> Optional[str]:
+    """
+    Remove chain-of-thought from model output.
+
+    Handles tag variants (think/thinking/reasoning/thought/scratchpad),
+    unterminated opens (model truncated mid-reasoning), and the chat-template
+    pre-opened case where only a closing tag appears in the output — there,
+    everything before the last orphan close is reasoning.
+
+    Salvage rule: if the input was non-empty but every byte sat inside
+    reasoning markup, return the de-tagged trace instead of an empty string —
+    reasoning-tuned models commonly emit all-think for hard problems with the
+    final answer as the last line of the trace.
+    """
+    if not text:
+        return text
+    original = text
+    text = _THINK_PAIR_RE.sub("", text)
+    text = _THINK_UNTERMINATED_RE.sub("", text)
+    # Orphan close with no matching open: template pre-opened the block, so
+    # everything up to the last close tag is reasoning.
+    match = None
+    for match in _THINK_ORPHAN_CLOSE_RE.finditer(text):
+        pass
+    if match:
+        text = text[match.end():]
+    stripped = text.strip()
+    if not stripped and original.strip():
+        salvaged = _THINK_ANY_TAG_RE.sub("", original).strip()
+        if salvaged:
+            return salvaged
+    return stripped
+
+
+def _rejects_chat_template_kwargs(exc: Exception) -> bool:
+    """True when an endpoint rejected the chat_template_kwargs body param."""
+    status = getattr(exc, "status_code", None)
+    return status in (400, 404, 422) and "chat_template_kwargs" in str(exc)
+
+
+def create_completion_skip_thinking(openai_client, **create_kwargs):
+    """
+    chat.completions.create with chain-of-thought disabled.
+
+    Self-hosted OpenAI-compatible servers (vLLM, SGLang, llama.cpp) accept
+    chat_template_kwargs {"enable_thinking": false} to suppress reasoning at
+    the template level. Hosted providers (OpenAI, Groq, Mistral, Gemini)
+    reject the unknown param with a 4xx naming it, so retry once without.
+    """
+    extra_body = dict(create_kwargs.pop("extra_body", None) or {})
+    extra_body.setdefault("chat_template_kwargs", {"enable_thinking": False})
+    try:
+        return openai_client.chat.completions.create(
+            extra_body=extra_body, **create_kwargs
+        )
+    except Exception as e:
+        if _rejects_chat_template_kwargs(e):
+            return openai_client.chat.completions.create(**create_kwargs)
+        raise

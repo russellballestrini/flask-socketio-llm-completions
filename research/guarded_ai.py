@@ -18,6 +18,8 @@ from activity_utils import (
     select_weighted_random,
     get_progressive_hint,
     create_template_context,
+    create_completion_skip_thinking,
+    strip_reasoning,
 )
 
 # Global model-client mapping
@@ -80,6 +82,12 @@ def get_openai_client_and_model(model_name=None):
 
             if endpoint and api_key:
                 client = get_client_for_endpoint(endpoint, api_key)
+
+                # Explicit MODEL_NAME_X wins: endpoints like Gemini list dozens
+                # of models (some retired) and "first listed" picks wrong.
+                explicit_model = os.getenv(f"MODEL_NAME_{model_num}")
+                if explicit_model:
+                    return client, explicit_model
 
                 # Look up actual model name from MODEL_CLIENT_MAP for this endpoint
                 actual_model = None
@@ -159,14 +167,17 @@ def categorize_response(question, response, buckets, tokens_for_ai, model="MODEL
 
     try:
         client, model_name = get_openai_client_and_model(model)
-        completion = client.chat.completions.create(
+        completion = create_completion_skip_thinking(
+            client,
             model=model_name,
             messages=messages,
             max_tokens=5,
             temperature=0,
         )
         category = (
-            completion.choices[0].message.content.strip().lower().replace(" ", "_")
+            strip_reasoning(completion.choices[0].message.content.strip())
+            .lower()
+            .replace(" ", "_")
         )
         return category
     except Exception as e:
@@ -190,10 +201,10 @@ def generate_ai_feedback(
 
     try:
         client, model_name = get_openai_client_and_model(model)
-        completion = client.chat.completions.create(
-            model=model_name, messages=messages, max_tokens=250, temperature=0.7
+        completion = create_completion_skip_thinking(
+            client, model=model_name, messages=messages, max_tokens=250, temperature=0.7
         )
-        feedback = completion.choices[0].message.content.strip()
+        feedback = strip_reasoning(completion.choices[0].message.content.strip())
         return feedback
     except Exception as e:
         return f"Error: {e}"
@@ -353,10 +364,10 @@ def translate_text(text, target_language, model="MODEL_1"):
 
     try:
         client, model_name = get_openai_client_and_model(model)
-        completion = client.chat.completions.create(
-            model=model_name, messages=messages, max_tokens=500, temperature=0.7
+        completion = create_completion_skip_thinking(
+            client, model=model_name, messages=messages, max_tokens=500, temperature=0.7
         )
-        translation = completion.choices[0].message.content.strip()
+        translation = strip_reasoning(completion.choices[0].message.content.strip())
         return translation
     except Exception as e:
         return f"Error: {e}"
