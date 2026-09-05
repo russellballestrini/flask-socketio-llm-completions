@@ -10,5 +10,6 @@ samconfig.toml
 vars.sh
 .coverage
 htmlcov/
+reports/
 unturf-debugging.md
 research/tmp*.yaml

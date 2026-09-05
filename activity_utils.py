@@ -12,6 +12,8 @@ Features:
 
 import re
 import random
+import operator
+from functools import partial
 from typing import Any, Dict, List, Optional, Union
 
 
@@ -90,87 +92,73 @@ def evaluate_condition(
     Returns:
         True if condition met, False otherwise
     """
-    # Check for operator suffixes
-    if condition_key.endswith("_ne"):
-        key = condition_key[:-3]
-        return metadata.get(key) != condition_value
+    for suffix, evaluate in _CONDITION_OPERATORS:
+        if condition_key.endswith(suffix):
+            return evaluate(metadata, condition_key[:-len(suffix)], condition_value)
+    return metadata.get(condition_key) == condition_value
 
-    elif condition_key.endswith("_gt"):
-        key = condition_key[:-3]
-        try:
-            return float(metadata.get(key, 0)) > float(condition_value)
-        except (ValueError, TypeError):
-            return False
 
-    elif condition_key.endswith("_gte"):
-        key = condition_key[:-4]
-        try:
-            return float(metadata.get(key, 0)) >= float(condition_value)
-        except (ValueError, TypeError):
-            return False
 
-    elif condition_key.endswith("_lt"):
-        key = condition_key[:-3]
-        try:
-            return float(metadata.get(key, 0)) < float(condition_value)
-        except (ValueError, TypeError):
-            return False
+def _compare_numeric(metadata, key, expected, compare):
+    try:
+        return compare(float(metadata.get(key, 0)), float(expected))
+    except (ValueError, TypeError):
+        return False
 
-    elif condition_key.endswith("_lte"):
-        key = condition_key[:-4]
-        try:
-            return float(metadata.get(key, 0)) <= float(condition_value)
-        except (ValueError, TypeError):
-            return False
 
-    elif condition_key.endswith("_between"):
-        key = condition_key[:-8]
-        if not isinstance(condition_value, list) or len(condition_value) != 2:
-            return False
-        try:
-            val = float(metadata.get(key, 0))
-            return float(condition_value[0]) <= val <= float(condition_value[1])
-        except (ValueError, TypeError):
-            return False
+def _between(metadata, key, bounds):
+    if not isinstance(bounds, list) or len(bounds) != 2:
+        return False
+    try:
+        value = float(metadata.get(key, 0))
+        # Keep the chained comparison: the upper bound is converted lazily.
+        return float(bounds[0]) <= value <= float(bounds[1])
+    except (ValueError, TypeError):
+        return False
 
-    elif condition_key.endswith("_not_contains"):
-        key = condition_key[:-13]
-        value_str = str(metadata.get(key, ""))
-        items = [item.strip() for item in value_str.split(",") if item.strip()]
-        return str(condition_value) not in items
 
-    elif condition_key.endswith("_contains"):
-        key = condition_key[:-9]
-        value_str = str(metadata.get(key, ""))
-        # Split by comma and check if condition_value is in list
-        items = [item.strip() for item in value_str.split(",") if item.strip()]
-        return str(condition_value) in items
+def _contains(metadata, key, expected):
+    value_str = str(metadata.get(key, ""))
+    items = [item.strip() for item in value_str.split(",") if item.strip()]
+    return str(expected) in items
 
-    elif condition_key.endswith("_matches"):
-        key = condition_key[:-8]
-        value_str = str(metadata.get(key, ""))
-        try:
-            return bool(re.search(str(condition_value), value_str))
-        except re.error:
-            return False
 
-    elif condition_key.endswith("_not_exists"):
-        key = condition_key[:-11]
-        if condition_value:
-            return key not in metadata
-        else:
-            return key in metadata
+def _matches(metadata, key, pattern):
+    value_str = str(metadata.get(key, ""))
+    try:
+        return bool(re.search(str(pattern), value_str))
+    except re.error:
+        return False
 
-    elif condition_key.endswith("_exists"):
-        key = condition_key[:-7]
-        if condition_value:
-            return key in metadata
-        else:
-            return key not in metadata
 
-    else:
-        # Simple equality check
-        return metadata.get(condition_key) == condition_value
+def _not_equal(metadata, key, expected):
+    return metadata.get(key) != expected
+
+
+def _not_contains(metadata, key, expected):
+    return not _contains(metadata, key, expected)
+
+
+def _exists(metadata, key, expected, negate=False):
+    # Preserve truthiness evaluation before consulting metadata.
+    expected_presence = bool(expected) != negate
+    return (key in metadata) == expected_presence
+
+
+# Ordered dispatch: overlapping suffixes must keep the more specific first.
+_CONDITION_OPERATORS = (
+    ("_ne", _not_equal),
+    ("_gt", partial(_compare_numeric, compare=operator.gt)),
+    ("_gte", partial(_compare_numeric, compare=operator.ge)),
+    ("_lt", partial(_compare_numeric, compare=operator.lt)),
+    ("_lte", partial(_compare_numeric, compare=operator.le)),
+    ("_between", _between),
+    ("_not_contains", _not_contains),
+    ("_contains", _contains),
+    ("_matches", _matches),
+    ("_not_exists", partial(_exists, negate=True)),
+    ("_exists", _exists),
+)
 
 
 def check_conditions(metadata: Dict[str, Any], conditions: Dict[str, Any]) -> bool:
@@ -233,6 +221,14 @@ def filter_content_blocks(
     return result
 
 
+def _navigation_branch_matches(branch, metadata):
+    """Preserve if/elif/else precedence, even for mixed-key branches."""
+    for keyword in ("if", "elif"):
+        if keyword in branch:
+            return check_conditions(metadata, branch[keyword])
+    return "else" in branch
+
+
 def resolve_conditional_navigation(
     next_section_and_step: Union[str, List[Dict[str, Any]]], metadata: Dict[str, Any]
 ) -> Optional[str]:
@@ -253,18 +249,7 @@ def resolve_conditional_navigation(
     # Conditional branches
     if isinstance(next_section_and_step, list):
         for branch in next_section_and_step:
-            if "if" in branch:
-                # if branch
-                if check_conditions(metadata, branch["if"]):
-                    return branch.get("goto")
-
-            elif "elif" in branch:
-                # elif branch
-                if check_conditions(metadata, branch["elif"]):
-                    return branch.get("goto")
-
-            elif "else" in branch:
-                # else branch - always taken if reached
+            if _navigation_branch_matches(branch, metadata):
                 return branch.get("goto")
 
     return None

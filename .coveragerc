@@ -1,0 +1,23 @@
+[run]
+branch = True
+source =
+    .
+    research
+omit =
+    */venv/*
+    */env/*
+    */tests/*
+    */migrations/*
+
+[report]
+include =
+    activity.py
+    activity_utils.py
+    activity_yaml_validator.py
+    app.py
+    auth.py
+    init_db.py
+    models.py
+    un.py
+    research/guarded_ai.py
+show_missing = True

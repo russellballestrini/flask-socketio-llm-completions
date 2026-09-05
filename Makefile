@@ -17,6 +17,15 @@ help:
 	@echo "  test-guarded-ai      - Run guarded_ai.py functionality tests"
 	@echo "  test-multiple-files  - Run integration tests across all activity files"
 	@echo ""
+	@echo "📊 Quality Reports:"
+	@echo "  quality-setup        - Install test and reporting dependencies"
+	@echo "  quality              - Generate coverage, CC and CRAP in reports/"
+	@echo "  coverage / test-cov  - Terminal, HTML, JSON and XML coverage"
+	@echo "  cc                   - Function complexity, ranked text and JSON"
+	@echo "  crap                 - Fresh coverage plus ranked CRAP risk"
+	@echo "  Override PYTHON, REPORT_DIR, TEST_PATHS or COVERAGE_MIN as needed"
+	@echo "  CRAP uses statement coverage: CC squared * (1 - coverage)^3 + CC"
+	@echo ""
 	@echo "📋 Validation Commands:"
 	@echo "  validate-yaml        - Validate all YAML files in research/"
 	@echo ""
@@ -146,12 +155,30 @@ validate-yaml: venv
 # DEVELOPMENT AND CI/CD COMMANDS
 # ============================================================================
 
-# Run tests with coverage (requires pytest and coverage)
-.PHONY: test-cov
-test-cov: dev-setup
-	@echo "📊 Running tests with coverage..."
-	venv/bin/pip install pytest-cov
-	venv/bin/python -m pytest tests/ --cov=. --cov-report=html --cov-report=term-missing -v
+# Production-only metrics; install reporting dependencies once with quality-setup.
+PYTHON ?= venv/bin/python
+REPORT_DIR ?= reports
+QUALITY_SOURCES := activity.py activity_utils.py activity_yaml_validator.py app.py auth.py init_db.py models.py un.py research/guarded_ai.py
+TEST_PATHS ?= tests/
+COVERAGE_MIN ?= 0
+
+.PHONY: quality-setup test-cov coverage cc crap quality
+quality-setup: venv
+	$(PYTHON) -m pip install -r requirements-test.txt 'radon>=6,<7'
+
+test-cov: coverage
+coverage:
+	@mkdir -p $(REPORT_DIR)
+	COVERAGE_FILE=$(REPORT_DIR)/.coverage $(PYTHON) -m pytest $(TEST_PATHS) --cov --cov-config=.coveragerc --cov-report=term-missing --cov-report=html:$(REPORT_DIR)/htmlcov --cov-report=json:$(REPORT_DIR)/coverage.json --cov-report=xml:$(REPORT_DIR)/coverage.xml --cov-fail-under=$(COVERAGE_MIN)
+
+cc:
+	$(PYTHON) quality_report.py $(QUALITY_SOURCES) --output $(REPORT_DIR)/cc
+
+# Always regenerate coverage; shared prerequisite runs once even with make -j.
+crap: coverage
+	$(PYTHON) quality_report.py $(QUALITY_SOURCES) --coverage $(REPORT_DIR)/coverage.json --output $(REPORT_DIR)/crap
+
+quality: cc crap
 
 
 # Format and lint code  
